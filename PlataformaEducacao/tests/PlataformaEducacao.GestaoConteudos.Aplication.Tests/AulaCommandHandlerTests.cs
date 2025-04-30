@@ -23,16 +23,18 @@ public class AulaCommandHandlerTests
     {
         // Arrange
         var command = new AdicionarAulaCommand("Aula 1", "Conteudo da aula", Guid.NewGuid(), "nome material", "ZIP");
-
-        _mocker.GetMock<IAulaRepository>().Setup(x => x.UnitOfWork.Commit()).Returns(Task.FromResult(true));
+        
+        _mocker.GetMock<ICursoRepository>().Setup(x => x.ObterPorId(command.CursoId)).ReturnsAsync(new Curso("Curso", "teste", Guid.NewGuid()));
+        _mocker.GetMock<ICursoRepository>().Setup(x => x.UnitOfWork.Commit()).Returns(Task.FromResult(true));
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.True(result);
-        _mocker.GetMock<IAulaRepository>().Verify(r => r.Adicionar(It.IsAny<Aula>()), Times.Once);
-        _mocker.GetMock<IAulaRepository>().Verify(x => x.UnitOfWork.Commit(), Times.Once);
+        _mocker.GetMock<ICursoRepository>().Verify(r => r.Adicionar(It.IsAny<Aula>()), Times.Once);
+        _mocker.GetMock<ICursoRepository>().Verify(x => x.ObterPorId(command.CursoId), Times.Once);
+        _mocker.GetMock<ICursoRepository>().Verify(x => x.UnitOfWork.Commit(), Times.Once);
     }
 
     [Fact(DisplayName = "Adicionar Aula Command Inválido")]
@@ -47,7 +49,7 @@ public class AulaCommandHandlerTests
 
         // Assert
         Assert.False(result);
-        _mocker.GetMock<IAulaRepository>().Verify(r => r.Adicionar(It.IsAny<Aula>()), Times.Never);
-        _mocker.GetMock<IAulaRepository>().Verify(x => x.UnitOfWork.Commit(), Times.Never);
+        _mocker.GetMock<ICursoRepository>().Verify(r => r.Adicionar(It.IsAny<Aula>()), Times.Never);
+        _mocker.GetMock<ICursoRepository>().Verify(x => x.UnitOfWork.Commit(), Times.Never);
     }
 }

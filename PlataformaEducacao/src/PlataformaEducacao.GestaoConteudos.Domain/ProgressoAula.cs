@@ -1,6 +1,6 @@
 ﻿using PlataformaEducacao.Core.DomainObjects;
 
-namespace PlataformaEducacao.GestaoAlunos.Domain;
+namespace PlataformaEducacao.GestaoConteudos.Domain;
 
 public class ProgressoAula(Guid alunoId, Guid aulaId) : Entity
 {

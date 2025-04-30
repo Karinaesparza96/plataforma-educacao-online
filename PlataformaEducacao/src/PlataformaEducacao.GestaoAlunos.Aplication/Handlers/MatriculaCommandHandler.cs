@@ -1,20 +1,14 @@
 ﻿using NetDevPack.SimpleMediator;
 using PlataformaEducacao.Core.Messages;
-using PlataformaEducacao.Core.Messages.Queries;
 using PlataformaEducacao.GestaoAlunos.Aplication.Commands;
 using PlataformaEducacao.GestaoAlunos.Domain;
 
 namespace PlataformaEducacao.GestaoAlunos.Aplication.Handlers;
 
-public class MatriculaCommandHandler : CommandHandler, IRequestHandler<CriarMatriculaCommand, bool>
+public class MatriculaCommandHandler(IMediator mediator, IAlunoRepository alunoRepository) : CommandHandler, IRequestHandler<CriarMatriculaCommand, bool>
 {
-    private readonly IMediator _mediator;
-    private readonly IAlunoRepository _alunoRepository;
-    public MatriculaCommandHandler(IMediator mediator, IAlunoRepository alunoRepository)
-    {
-        _mediator = mediator;
-        _alunoRepository = alunoRepository;
-    }
+    private readonly IMediator _mediator = mediator;
+    private readonly IAlunoRepository _alunoRepository = alunoRepository;
 
     public async Task<bool> Handle(CriarMatriculaCommand request, CancellationToken cancellationToken)
     {
@@ -28,15 +22,7 @@ public class MatriculaCommandHandler : CommandHandler, IRequestHandler<CriarMatr
             await _mediator.Publish(new DomainNotification(request.MessageType, "Aluno não encontrado."), cancellationToken);
             return false;
         }
-
-        var cursoDisponivel = await _mediator.Send(new CursoDisponivelQuery(request.CursoId), cancellationToken);
-
-        if (cursoDisponivel == null)
-        {
-            await _mediator.Publish(new DomainNotification(request.MessageType, "Curso não encontrado"), cancellationToken);
-            return false;
-        }
-
+        
         var matricula = new Matricula(request.AlunoId, request.CursoId);
         aluno.AdicionarMatricula(matricula);
 
