@@ -11,6 +11,9 @@ public class Aula(string nome, string conteudo) : Entity, IAggregateRoot
     private readonly List<Material> _materiais = [];
     public IReadOnlyCollection<Material> Materiais => _materiais;
 
+    private readonly List<ProgressoAula> _progressoAulas = [];
+    public IReadOnlyCollection<ProgressoAula> ProgressoAulas => _progressoAulas;
+
     // EF relationship
     public Curso? Curso { get; private set; }
 
@@ -28,8 +31,20 @@ public class Aula(string nome, string conteudo) : Entity, IAggregateRoot
         _materiais.Add(material);
     }
 
+    public void AdicionarProgresso(ProgressoAula progressoAula)
+    {
+        if (ProgressoAulaExistente(progressoAula))
+            throw new DomainException("Progresso já registrado para esta aula.");
+
+        _progressoAulas.Add(progressoAula);
+    }
+
     private bool MaterialExistente(Material material)
     {
         return _materiais.Any(m => m.Id == material.Id);
+    }
+    private bool ProgressoAulaExistente(ProgressoAula progressoAula)
+    {
+        return _progressoAulas.Any(p => p.Id == progressoAula.Id);
     }
 }

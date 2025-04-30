@@ -4,5 +4,5 @@ namespace PlataformaEducacao.GestaoConteudos.Domain;
 
 public interface IAulaRepository : IRepository<Aula>
 {
-    void Adicionar(Aula aula);
+    
 }

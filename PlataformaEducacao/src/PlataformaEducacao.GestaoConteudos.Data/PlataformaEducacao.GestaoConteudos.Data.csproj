@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PlataformaEducacao.Core\PlataformaEducacao.Core.csproj" />
+    <ProjectReference Include="..\PlataformaEducacao.GestaoConteudos.Domain\PlataformaEducacao.GestaoConteudos.Domain.csproj" />
   </ItemGroup>
 
 </Project>

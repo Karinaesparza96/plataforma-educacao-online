@@ -32,13 +32,4 @@ public class Curso : Entity, IAggregateRoot
     {
         return _aulas.Any(a => a.Id == aula.Id);
     }
-
-    public CursoDto ToDto()
-    {
-        return new CursoDto
-        {
-            Id = Id,
-            Nome = Nome
-        };
-    }
 }
