@@ -63,17 +63,17 @@ git clone https://github.com/Karinaesparza96/plataforma-educacao-online.git
 cd plataforma-educacao-online
 ```
 
-2. **Configure o banco de dados**
-- No arquivo `src/PlataformaEducacao.Api/appsettings.json`, ajuste a `ConnectionStrings:DefaultConnection` com sua instância do SQL Server.
-
-3. **Execute a API**
+2. **Execute a API**
 ```bash
 cd src/PlataformaEducacao.Api
 dotnet run
 ```
 - Acesse: [http://localhost:5001/swagger](http://localhost:5001/swagger)
 
-4. **O banco será criado automaticamente** na primeira execução via *Seed de dados*. Não é necessário aplicar migrações manualmente.
+3. **O banco será criado automaticamente** na primeira execução via *Seed de dados*. Não é necessário aplicar migrações manualmente.
+   
+- **Caso deseje usar SqlServer**
+  - No arquivo `src/PlataformaEducacao.Api/appsettings.json`, ajuste a `ConnectionStrings:DefaultConnection` com sua instância do SQL Server.
 
 ### 🧪 Executar os Testes
 ```bash
