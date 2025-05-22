@@ -5,6 +5,7 @@ public class CursoViewModel
     public Guid Id { get; set; }
     public string Nome { get; set; } = string.Empty;
     public string ConteudoProgramatico { get; set; } = string.Empty;
+    public decimal Preco { get; set; }
     public IEnumerable<AulaViewModel> Aulas { get; set; } = new List<AulaViewModel>();
 }
 public class AulaViewModel
@@ -13,6 +14,7 @@ public class AulaViewModel
     public string Nome { get; set; } = string.Empty;
     public string Conteudo { get; set; } = string.Empty;
     public IEnumerable<MaterialViewModel> Materiais { get; set; } = new List<MaterialViewModel>();
+    public string Status { get; set; } = string.Empty;
 }
 public class MaterialViewModel
 {

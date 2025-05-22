@@ -1,5 +1,5 @@
 ﻿using FluentValidation.Results;
-using NetDevPack.SimpleMediator;
+using MediatR;
 
 namespace PlataformaEducacao.Core.Messages;
 

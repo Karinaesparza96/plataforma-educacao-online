@@ -27,7 +27,7 @@ public class RealizarAulaCommandValidation : AbstractValidator<RealizarAulaComma
             .NotEqual(Guid.Empty)
             .WithMessage(AulaIdErro);
         RuleFor(c => c.AlunoId)
-            .NotEqual(Guid.Empty)
+            .NotEmpty()
             .WithMessage(AlunoIdErro);
         RuleFor(c => c.CursoId)
             .NotEqual(Guid.Empty)

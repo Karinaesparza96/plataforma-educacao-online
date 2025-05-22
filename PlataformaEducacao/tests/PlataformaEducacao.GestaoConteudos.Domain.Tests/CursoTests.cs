@@ -4,12 +4,19 @@ namespace PlataformaEducacao.GestaoConteudos.Domain.Tests;
 
 public class CursoTests
 {
+    [Fact(DisplayName = "Novo Curso dados Inválidos")]
+    [Trait("Categoria", "GestaoConteudos - Curso")]
+    public void Validar_NovoCurso_DeveLancarExceptiono()
+    {
+        // Arrange && Act && Assert
+        Assert.Throws<DomainException>(() => new Curso("", "", Guid.Empty, 0));
+    }
     [Fact(DisplayName = "Associar Aula ao Curso")]
     [Trait("Categoria", "GestaoConteudos - Curso")]
     public void AdicionarAula_NovaAula_DeveAssociarCurso()
     {
         // Arrange
-        var curso = new Curso("Curso C# completo", "conteudo programatico", Guid.NewGuid());
+        var curso = new Curso("Curso C# completo", "conteudo programatico", Guid.NewGuid(), 100);
         var aula = new Aula("Aula 1", "Conteudo da aula 1");
 
         // Act
@@ -24,7 +31,7 @@ public class CursoTests
     public void AdicionarAula_AulaExistente_DeveLancarException()
     {
         // Arrange
-        var curso = new Curso("Curso C# completo", "conteudo programatico", Guid.NewGuid());
+        var curso = new Curso("Curso C# completo", "conteudo programatico", Guid.NewGuid(), 100);
         var aula = new Aula("Aula 1", "Conteudo da aula 1");
 
         // Act

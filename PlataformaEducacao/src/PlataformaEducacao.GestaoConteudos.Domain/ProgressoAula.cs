@@ -1,21 +1,36 @@
 ﻿using PlataformaEducacao.Core.DomainObjects;
+using PlataformaEducacao.Core.DomainObjects.Enums;
 
 namespace PlataformaEducacao.GestaoConteudos.Domain;
 
-public class ProgressoAula(Guid alunoId, Guid aulaId) : Entity
+public class ProgressoAula : Entity
 {
-    public Guid AlunoId { get; private set; } = alunoId;
-    public Guid AulaId { get; private set; } = aulaId;
-    public EProgressoAulaStatus Status { get; private set; } = EProgressoAulaStatus.EmAndamento;
+    public Guid AlunoId { get; private set; }
+    public Guid AulaId { get; private set; }
+    public EProgressoAulaStatus Status { get; private set; }
 
+    public ProgressoAula(Guid alunoId, Guid aulaId)
+    {
+        AlunoId = alunoId;
+        AulaId = aulaId;
+        Validar();
+    }
+
+    public void EmAndamento()
+    {
+        Status = EProgressoAulaStatus.EmAndamento;
+    }
+    
     public void ConcluirAula()
     {
         Status = EProgressoAulaStatus.Concluida;
     }
-}
 
-public enum EProgressoAulaStatus
-{
-    EmAndamento = 1,
-    Concluida = 2,
+    private void Validar()
+    {
+        if (string.IsNullOrEmpty(AlunoId.ToString()))
+            throw new DomainException("O campo AlunoId é obrigatório.");
+        if (AulaId == Guid.Empty)
+            throw new DomainException("O campo AulaId é obrigatório.");
+    }
 }
