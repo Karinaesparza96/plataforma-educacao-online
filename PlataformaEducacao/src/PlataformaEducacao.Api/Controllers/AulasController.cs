@@ -4,6 +4,7 @@ using PlataformaEducacao.Api.Controllers.Base;
 using PlataformaEducacao.Core.Messages;
 using PlataformaEducacao.GestaoConteudos.Aplication.Commands;
 using System.Net;
+using Microsoft.AspNetCore.Authorization;
 using PlataformaEducacao.Api.DTOs;
 
 namespace PlataformaEducacao.Api.Controllers;
@@ -14,6 +15,7 @@ public class AulasController(INotificationHandler<DomainNotification> notificaco
 {
     private readonly IMediator _mediator = mediator;
 
+    [Authorize(Roles = "ADMIN")]
     [HttpPost("adicionar-aula")]
     public async Task<IActionResult> Adicionar([FromBody] AulaDto aulaDto, Guid cursoId)
     {
@@ -25,6 +27,7 @@ public class AulasController(INotificationHandler<DomainNotification> notificaco
         return RespostaPadrao(HttpStatusCode.Created);
     }
 
+    [Authorize(Roles = "ALUNO")]
     [HttpPost("{id:guid}/realizar-aula")]
     public async Task<IActionResult> Realizar(Guid id, Guid cursoId)
     {
@@ -33,6 +36,8 @@ public class AulasController(INotificationHandler<DomainNotification> notificaco
 
         return RespostaPadrao(HttpStatusCode.Created);
     }
+
+    [Authorize(Roles = "ALUNO")]
     [HttpPost("{id:guid}/concluir-aula")]
     public async Task<IActionResult> Concluir(Guid id, Guid cursoId)
     {
