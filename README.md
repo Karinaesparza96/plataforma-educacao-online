@@ -65,7 +65,7 @@ cd plataforma-educacao-online
 
 2. **Execute a API**
 ```bash
-cd src/PlataformaEducacao.Api
+cd PlataformaEducacao/src/PlataformaEducacao.Api
 dotnet run
 ```
 - Acesse: [http://localhost:5001/swagger](http://localhost:5001/swagger)
@@ -77,8 +77,8 @@ dotnet run
 
 ### 🧪 Executar os Testes
 ```bash
-cd tests
-dotnet test
+cd PlataformaEducacao
+dotnet test PlataformaEducacao.sln
 ```
 > 💡 Você também pode executar os testes diretamente pelo Visual Studio (clicando com o botão direito na solution e escolhendo "Run Tests").
 
