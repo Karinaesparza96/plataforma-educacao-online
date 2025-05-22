@@ -12,5 +12,7 @@ public interface ICursoRepository : IRepository<Curso>
     Task<IEnumerable<Curso>> ObterTodos();
     Task<Aula?> ObterAulaPorId(Guid aulaId);
 
+    Task<IEnumerable<Aula>> ObterAulasComProgressoFiltradoAluno(Guid cursoId, Guid alunoId);
+    
     void Adicionar(Aula aula);
 }

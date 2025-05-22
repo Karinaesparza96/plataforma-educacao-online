@@ -11,26 +11,6 @@ public class CursoQueries : ICursoQueries
     {
         _cursoRepository = cursoRepository;
     }
-    public async Task<CursoViewModel?> ObterCursoPorAulaId(Guid aulaId)
-    {
-        var curso = await _cursoRepository.ObterCursoPorAulaId(aulaId);
-
-        if (curso == null) 
-            return null;
-
-        return new CursoViewModel
-        {
-            Id = curso.Id,
-            Nome = curso.Nome,
-            ConteudoProgramatico = curso.ConteudoProgramatico,
-            Aulas = curso.Aulas.Select(a => new AulaViewModel
-            {
-                Id = a.Id,
-                Nome = a.Nome,
-                Conteudo = a.Conteudo
-            })
-        };
-    }
 
     public async Task<CursoViewModel?> ObterPorId(Guid cursoId)
     {
@@ -44,6 +24,7 @@ public class CursoQueries : ICursoQueries
             Id = curso.Id,
             Nome = curso.Nome,
             ConteudoProgramatico = curso.ConteudoProgramatico,
+            Preco = curso.Preco,
             Aulas = curso.Aulas.Select(a => new AulaViewModel
             {
                 Id = a.Id,
@@ -62,6 +43,7 @@ public class CursoQueries : ICursoQueries
             Id = c.Id,
             Nome = c.Nome,
             ConteudoProgramatico = c.ConteudoProgramatico,
+            Preco = c.Preco,
             Aulas = c.Aulas.Select(a => new AulaViewModel
             {
                 Id = a.Id,

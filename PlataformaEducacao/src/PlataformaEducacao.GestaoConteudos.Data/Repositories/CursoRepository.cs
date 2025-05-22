@@ -5,16 +5,10 @@ using PlataformaEducacao.GestaoConteudos.Domain;
 
 namespace PlataformaEducacao.GestaoConteudos.Data.Repositories;
 
-public class CursoRepository : ICursoRepository
+public class CursoRepository(GestaoConteudosContext dbContext) : ICursoRepository
 {
-    private readonly GestaoConteudosContext _dbContext;
-    private readonly DbSet<Curso> _dbSet;
-    public IUnitOfWork UnitOfWork => _dbContext;
-    public CursoRepository(GestaoConteudosContext dbContext)
-    {
-        _dbContext = dbContext;
-        _dbSet = dbContext.Set<Curso>();
-    }
+    private readonly DbSet<Curso> _dbSet = dbContext.Set<Curso>();
+    public IUnitOfWork UnitOfWork => dbContext;
 
     public async Task<Curso?> ObterCursoPorAulaId(Guid aulaId)
     {
@@ -27,6 +21,21 @@ public class CursoRepository : ICursoRepository
     {
         return await _dbSet.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
     }
+
+    public async Task<IEnumerable<Aula>> ObterAulasComProgressoFiltradoAluno(Guid cursoId, Guid alunoId)
+    {
+        var aulas = await dbContext.Set<Aula>()
+            .Include(a => a.ProgressoAulas)
+            .Where(a => a.CursoId == cursoId)
+            .AsNoTracking()
+            .ToListAsync();
+
+        foreach (var aula in aulas)
+        {
+            aula.FiltrarProgressoAulaPorAlunoId(alunoId);
+        }
+        return aulas;
+    }
     public async Task<IEnumerable<Curso>> ObterTodos()
     {
         return await _dbSet.AsNoTracking().ToListAsync();
@@ -34,13 +43,13 @@ public class CursoRepository : ICursoRepository
 
     public async Task<Aula?> ObterAulaPorId(Guid aulaId)
     {
-        return await _dbContext.Set<Aula>().AsNoTracking()
+        return await dbContext.Set<Aula>().AsNoTracking()
             .FirstOrDefaultAsync(a => a.Id == aulaId);
     }
 
     public void Adicionar(Aula aula)
     {
-        _dbContext.Set<Aula>().Add(aula);
+        dbContext.Set<Aula>().Add(aula);
     }
 
     public void Adicionar(Curso curso)
@@ -55,13 +64,8 @@ public class CursoRepository : ICursoRepository
     {
         _dbSet.Remove(curso);
     }
-    public async Task<bool> Commit()
-    {
-        return await UnitOfWork.Commit();
-    }
-
     public void Dispose()
     {
-        _dbContext.Dispose();
+        dbContext.Dispose();
     }
 }

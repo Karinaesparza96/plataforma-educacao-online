@@ -11,4 +11,9 @@
     <ProjectReference Include="..\PlataformaEducacao.GestaoAlunos.Domain\PlataformaEducacao.GestaoAlunos.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="iTextSharp" Version="5.5.13.4" />
+    <PackageReference Include="MediatR" Version="12.5.0" />
+  </ItemGroup>
+
 </Project>

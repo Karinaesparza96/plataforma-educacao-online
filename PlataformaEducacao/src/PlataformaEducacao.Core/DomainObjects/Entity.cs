@@ -8,6 +8,10 @@ public abstract class Entity
 
     private List<Event> _notificacoes;
     public IReadOnlyCollection<Event>? Notificacoes => _notificacoes?.AsReadOnly();
+    public DateTime? DataCriacao { get; set; }
+    public DateTime? DataAlteracao { get; set; }
+    public DateTime? DataExclusao { get; set; }
+
     protected Entity()
     {
         Id = Guid.NewGuid();

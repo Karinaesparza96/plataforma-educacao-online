@@ -396,3 +396,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+/PlataformaEducacao/src/PlataformaEducacao.Api/*.db
+/PlataformaEducacao/src/PlataformaEducacao.Api/*.db-shm
+/PlataformaEducacao/src/PlataformaEducacao.Api/*.db-wal

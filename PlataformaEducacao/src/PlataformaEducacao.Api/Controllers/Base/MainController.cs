@@ -1,23 +1,23 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using NetDevPack.SimpleMediator;
+using MediatR;
 using PlataformaEducacao.Core.Messages;
 using System.Net;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Security.Claims;
 
 namespace PlataformaEducacao.Api.Controllers.Base
 {
     [ApiController]
-    public abstract class MainController : ControllerBase
+    public abstract class MainController(
+        INotificationHandler<DomainNotification> notificacoes,
+        IMediator mediator)
+        : ControllerBase
     {
-        private readonly DomainNotificationHandler _notificacoes;
-        private readonly IMediator _mediator;
+        private readonly DomainNotificationHandler _notificacoes = (DomainNotificationHandler)notificacoes;
 
-        protected Guid UsuarioId => Guid.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type == "sub")?.Value ?? string.Empty);
-        protected MainController(INotificationHandler<DomainNotification> notificacoes, 
-                                IMediator mediator)
-        {
-            _notificacoes = (DomainNotificationHandler)notificacoes; ;
-            _mediator = mediator;
-        }
+        protected Guid UsuarioId => Guid.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+
         protected bool OperacaoValida()
         {
             return !_notificacoes.TemNotificacao();
@@ -44,7 +44,21 @@ namespace PlataformaEducacao.Api.Controllers.Base
         }
         protected void NotificarErro(string codigo, string mensagem)
         {
-            _mediator.Publish(new DomainNotification(codigo, mensagem));
+            mediator.Publish(new DomainNotification(codigo, mensagem));
+        }
+        protected void NotificarErro(ModelStateDictionary modelState)
+        {
+            foreach (var error in modelState.Values.SelectMany(v => v.Errors))
+            {
+                NotificarErro("ModelState", error.ErrorMessage);
+            }
+        }
+        protected void NotificarErro(IdentityResult result)
+        {
+            foreach (var error in result.Errors)
+            {
+                NotificarErro("Identity", error.Description);
+            }
         }
     }
 }

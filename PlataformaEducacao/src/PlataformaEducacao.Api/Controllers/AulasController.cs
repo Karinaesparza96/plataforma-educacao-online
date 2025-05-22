@@ -1,49 +1,44 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using NetDevPack.SimpleMediator;
+using MediatR;
 using PlataformaEducacao.Api.Controllers.Base;
 using PlataformaEducacao.Core.Messages;
-using PlataformaEducacao.GestaoAlunos.Aplication.Queries;
-using PlataformaEducacao.GestaoAlunos.Domain;
 using PlataformaEducacao.GestaoConteudos.Aplication.Commands;
 using System.Net;
+using PlataformaEducacao.Api.DTOs;
 
 namespace PlataformaEducacao.Api.Controllers;
 
-[Route("api/aulas")]
+[Route("api/cursos/{cursoId:guid}/aulas")]
 public class AulasController(INotificationHandler<DomainNotification> notificacoes,
-                            IAlunoQueries alunoQueries,
                             IMediator mediator) : MainController(notificacoes, mediator)
 {
     private readonly IMediator _mediator = mediator;
-    private readonly IAlunoQueries _alunoQueries = alunoQueries;
 
-    [HttpPost]
-    public async Task<IActionResult> Adicionar([FromBody] AdicionarAulaCommand aulaCommand)
+    [HttpPost("adicionar-aula")]
+    public async Task<IActionResult> Adicionar([FromBody] AulaDto aulaDto, Guid cursoId)
     {
-        var command = new AdicionarAulaCommand(aulaCommand.Nome, aulaCommand.Conteudo, aulaCommand.CursoId,
-                                               aulaCommand.NomeMaterial, aulaCommand.TipoMaterial);
+        var command = new AdicionarAulaCommand(aulaDto.Nome, aulaDto.Conteudo, cursoId,
+                                               aulaDto.NomeMaterial, aulaDto.TipoMaterial);
 
         await _mediator.Send(command);
 
         return RespostaPadrao(HttpStatusCode.Created);
     }
 
-    [HttpPost("realizar-aula")]
-    public async Task<IActionResult> Realizar([FromBody] RealizarAulaCommand realizarAulaCommand)
+    [HttpPost("{id:guid}/realizar-aula")]
+    public async Task<IActionResult> Realizar(Guid id, Guid cursoId)
     {
-        var matricula = await _alunoQueries.ObterMatriculaPorAlunoECursoId(realizarAulaCommand.CursoId,
-            realizarAulaCommand.AlunoId);
+        var command = new RealizarAulaCommand(id, UsuarioId, cursoId);
+        await _mediator.Send(command);
 
-        if (matricula?.Status != EStatusMatricula.Ativa)
-        {
-            NotificarErro(realizarAulaCommand.MessageType, "Matrícula não encontrada ou não está ativa.");
-        }
-        else
-        {
-            var command = new RealizarAulaCommand(realizarAulaCommand.AulaId, realizarAulaCommand.AlunoId, realizarAulaCommand.CursoId);
-            await _mediator.Send(command);
-        }
-
+        return RespostaPadrao(HttpStatusCode.Created);
+    }
+    [HttpPost("{id:guid}/concluir-aula")]
+    public async Task<IActionResult> Concluir(Guid id, Guid cursoId)
+    {
+        var command = new ConcluirAulaCommand(id, UsuarioId, cursoId);
+        await _mediator.Send(command);
+        
         return RespostaPadrao(HttpStatusCode.Created);
     }
 

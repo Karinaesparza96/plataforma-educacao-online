@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="fluentvalidation" Version="11.11.0" />
-    <PackageReference Include="NetDevPack.SimpleMediator" Version="1.2.0" />
+    <PackageReference Include="MediatR" Version="12.5.0" />
   </ItemGroup>
 
 </Project>

@@ -2,10 +2,10 @@
 
 namespace PlataformaEducacao.GestaoConteudos.Domain;
 
-public class Aula(string nome, string conteudo) : Entity, IAggregateRoot
+public class Aula : Entity, IAggregateRoot
 {
-    public string Nome { get; private set; } = nome;
-    public string Conteudo { get; private set; } = conteudo;
+    public string Nome { get; private set; }
+    public string Conteudo { get; private set; }
     public Guid CursoId { get; private set; }
 
     private readonly List<Material> _materiais = [];
@@ -16,6 +16,13 @@ public class Aula(string nome, string conteudo) : Entity, IAggregateRoot
 
     // EF relationship
     public Curso? Curso { get; private set; }
+
+    public Aula(string nome, string conteudo)
+    {
+        Nome = nome;
+        Conteudo = conteudo;
+        Validar();
+    }
 
     public void AssociarCurso(Guid cursoId)
     {
@@ -36,7 +43,32 @@ public class Aula(string nome, string conteudo) : Entity, IAggregateRoot
         if (ProgressoAulaExistente(progressoAula))
             throw new DomainException("Progresso já registrado para esta aula.");
 
+        progressoAula.EmAndamento();
         _progressoAulas.Add(progressoAula);
+    }
+
+    public void ConcluirAula(ProgressoAula progressoAula)
+    {
+        if (!ProgressoAulaExistente(progressoAula))
+            throw new DomainException("Progresso não encontrado para esta aula.");
+
+        progressoAula.ConcluirAula();
+    }
+
+    public void FiltrarProgressoAulaPorAlunoId(Guid alunoId)
+    {
+        var filtrados = _progressoAulas.Where(p => p.AlunoId == alunoId).ToList();
+        _progressoAulas.Clear();
+        _progressoAulas.AddRange(filtrados);
+    }
+
+    private void Validar()
+    {
+        if (string.IsNullOrWhiteSpace(Nome))
+            throw new DomainException("O nome da aula é obrigatório.");
+
+        if (string.IsNullOrWhiteSpace(Conteudo))
+            throw new DomainException("O conteúdo da aula é obrigatório.");
     }
 
     private bool MaterialExistente(Material material)
@@ -45,6 +77,6 @@ public class Aula(string nome, string conteudo) : Entity, IAggregateRoot
     }
     private bool ProgressoAulaExistente(ProgressoAula progressoAula)
     {
-        return _progressoAulas.Any(p => p.Id == progressoAula.Id);
+        return _progressoAulas.Any(p => p.AlunoId == progressoAula.AlunoId && p.AulaId == progressoAula.AulaId);
     }
 }

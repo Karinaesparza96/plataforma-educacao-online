@@ -4,7 +4,7 @@ using PlataformaEducacao.Core.Messages;
 namespace PlataformaEducacao.GestaoConteudos.Aplication.Commands;
 
 public class AdicionarAulaCommand(string nome, string conteudo, Guid cursoId, 
-                                string nomeMaterial, string tipoMaterial) : Command
+                                 string nomeMaterial, string tipoMaterial) : Command
 {
     public string Nome { get; set; } = nome;
     public string Conteudo { get; set; } = conteudo;
