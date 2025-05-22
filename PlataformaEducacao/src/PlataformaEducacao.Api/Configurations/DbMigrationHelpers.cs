@@ -116,6 +116,8 @@ public static class DbMigrationHelpers
         var curso3 = new Curso("EF Core", "Teste", admin.Id, 150);
         var aula7 = new Aula("Aula 1", "Teste");
 
+        var curso4 = new Curso("Curso de Testes", "Teste", admin.Id, 150);
+
         curso3.AdicionarAula(aula7);
 
         curso2.AdicionarAula(aula4);
@@ -173,7 +175,7 @@ public static class DbMigrationHelpers
         await dbAlunosContext.Set<Usuario>().AddAsync(admin);
         await dbAlunosContext.Set<Matricula>().AddRangeAsync([matriculaConcluida, matriculaAtiva, matriculaAguardando]);
         await dbAlunosContext.Set<Certificado>().AddAsync(certificado);
-        await dbConteudosContext.Set<Curso>().AddRangeAsync([curso, curso2, curso3]);
+        await dbConteudosContext.Set<Curso>().AddRangeAsync([curso, curso2, curso3, curso4]);
         await dbConteudosContext.Set<Aula>().AddRangeAsync([aula, aula2, aula3]);
         await dbConteudosContext.Set<ProgressoAula>().AddRangeAsync([progressoAula, progressoAula2, progressoAula3]);
         await dbPagamentoContext.Set<Pagamento>().AddAsync(pagamento);

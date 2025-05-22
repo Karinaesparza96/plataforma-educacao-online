@@ -11,8 +11,10 @@ namespace PlataformaEducacao.GestaoConteudos.Aplication.Handlers;
 
 public class CursoCommandHandler(ICursoRepository cursoRepository,
                                 IPagamentoService pagamentoService,
-                                IMediator mediator) 
-                                        : IRequestHandler<AdicionarCursoCommand, bool>, IRequestHandler<RealizarPagamentoCursoCommand, bool>
+                                IMediator mediator) : IRequestHandler<AdicionarCursoCommand, bool>, 
+                                                    IRequestHandler<RealizarPagamentoCursoCommand, bool>,
+                                                    IRequestHandler<AtualizarCursoCommand, bool>,
+                                                    IRequestHandler<DeletarCursoCommand, bool>
 {
     public async Task<bool> Handle(AdicionarCursoCommand command, CancellationToken cancellationToken)
     {
@@ -56,6 +58,44 @@ public class CursoCommandHandler(ICursoRepository cursoRepository,
         };
 
         return await pagamentoService.RealizarPagamentoCurso(pagamentoCurso);
+    }
+
+    public async Task<bool> Handle(AtualizarCursoCommand command, CancellationToken cancellationToken)
+    {
+        if (!ValidarComando(command))
+            return false;
+
+        var curso = await cursoRepository.ObterPorId(command.CursoId);
+        if (curso == null)
+        {
+            await mediator.Publish(new DomainNotification(command.MessageType, "Curso não encontrado."), cancellationToken);
+            return false;
+        }
+
+        curso.AtualizarNome(command.Nome);
+        curso.AtualizarConteudo(command.ConteudoProgramatico);
+        curso.AtualizarPreco(command.Preco);
+
+        cursoRepository.Atualizar(curso);
+        return await cursoRepository.UnitOfWork.Commit();
+    }
+    public async Task<bool> Handle(DeletarCursoCommand command, CancellationToken cancellationToken)
+    {
+        if (!ValidarComando(command))
+            return false;
+        var curso = await cursoRepository.ObterCursoComAulas(command.CursoId);
+        if (curso == null)
+        {
+            await mediator.Publish(new DomainNotification(command.MessageType, "Curso não encontrado."), cancellationToken);
+            return false;
+        }
+        if (curso.Aulas.Any())
+        {
+            await mediator.Publish(new DomainNotification(command.MessageType, "Curso não pode ser excluído pois possui aulas associadas."), cancellationToken);
+            return false;
+        }
+        cursoRepository.Remover(curso);
+        return await cursoRepository.UnitOfWork.Commit();
     }
 
     private bool ValidarComando(Command command)

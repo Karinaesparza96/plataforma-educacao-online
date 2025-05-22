@@ -1,4 +1,5 @@
-﻿using Bogus;
+﻿using AngleSharp.Dom;
+using Bogus;
 using Bogus.DataSets;
 using Dapper;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PlataformaEducacao.Api.DTOs;
 using PlataformaEducacao.Core.DomainObjects.Enums;
+using System;
 using System.Text;
 using System.Text.Json;
 
@@ -137,7 +139,14 @@ public class IntegrationTestsFixture : IDisposable
         var content = new StringContent(json, Encoding.UTF8, "application/json");
         return await Client.PostAsync(url, content);
     }
-    
+
+    public async Task<HttpResponseMessage> PutAsync(string url, object data)
+    {
+        var json = JsonSerializer.Serialize(data);
+        var content = new StringContent(json, Encoding.UTF8, "application/json");
+        return await Client.PutAsync(url, content);
+    }
+
     public void SalvarUserToken(string token)
     {
        var response = JsonSerializer.Deserialize<LoginResponseWrapper>(token,
@@ -188,6 +197,23 @@ public class IntegrationTestsFixture : IDisposable
 
         var json = JsonSerializer.Deserialize<JsonElement>(data);
         return json.GetProperty("data")[0].GetProperty("id").GetGuid();
+    }
+
+    public async Task ObterCursoIdSemAulas()
+    {
+        await using var connection = new SqliteConnection(ConnectionString);
+        await connection.OpenAsync();
+        var sql = @"
+                    select c.Id from Cursos c 
+                    left join Aulas a on a.CursoId = c.id
+                    where a.Id is null 
+                   ";
+        var result = await connection.QueryFirstOrDefaultAsync(sql);
+        if (result != null)
+        {
+            CursoId = Guid.Parse(result.Id);
+        }
+        await connection.CloseAsync();
     }
 
     public async Task ObterIdCertificado()

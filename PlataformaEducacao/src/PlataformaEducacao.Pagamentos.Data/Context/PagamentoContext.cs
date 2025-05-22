@@ -28,7 +28,7 @@ public class PagamentoContext(DbContextOptions<PagamentoContext> options, IMedia
     }
     public async Task<bool> Commit()
     {
-        var sucesso = await base.SaveChangesAsync() > 0;
+        var sucesso = await SaveChangesAsync() > 0;
 
         if (sucesso)
             await mediator.PublishDomainEvents(this);

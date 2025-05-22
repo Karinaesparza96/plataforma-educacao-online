@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using PlataformaEducacao.Core.Data;
 using PlataformaEducacao.Core.DomainObjects;
 using PlataformaEducacao.Core.Messages;
+using System.Linq.Expressions;
+using System.Reflection.Emit;
 
 namespace PlataformaEducacao.GestaoConteudos.Data.Context;
 
@@ -18,6 +20,20 @@ public class GestaoConteudosContext(DbContextOptions<GestaoConteudosContext> opt
 
         builder.ApplyConfigurationsFromAssembly(typeof(GestaoConteudosContext).Assembly);
 
+        foreach (var entityType in builder.Model.GetEntityTypes())
+        {
+            if (typeof(Entity).IsAssignableFrom(entityType.ClrType) &&
+                !entityType.ClrType.IsAbstract && entityType.BaseType == null)
+            {
+                var parameter = Expression.Parameter(entityType.ClrType, "e");
+                var property = Expression.Property(parameter, nameof(Entity.DataExclusao));
+                var condition = Expression.Equal(property, Expression.Constant(null));
+                var lambda = Expression.Lambda(condition, parameter);
+
+                builder.Entity(entityType.ClrType).HasQueryFilter(lambda);
+            }
+        }
+
         foreach (var relationShip in builder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
         {
             relationShip.DeleteBehavior = DeleteBehavior.ClientSetNull;
@@ -30,7 +46,7 @@ public class GestaoConteudosContext(DbContextOptions<GestaoConteudosContext> opt
 
     public async Task<bool> Commit()
     {   
-        var sucesso = await base.SaveChangesAsync() > 0;
+        var sucesso = await SaveChangesAsync() > 0;
         
         if (sucesso)
             await mediator.PublishDomainEvents(this);

@@ -45,6 +45,20 @@ namespace PlataformaEducacao.Api.Controllers
 
             return RespostaPadrao(HttpStatusCode.Created);
         }
+        [Authorize(Roles = "ADMIN")]
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> Atualizar(Guid id, [FromBody] CursoDto curso)
+        {
+            if (id != curso.Id)
+            {
+                NotificarErro("Curso", "O ID do curso não pode ser diferente do ID informado na URL.");
+                return RespostaPadrao();
+            }
+            var command = new AtualizarCursoCommand(curso.Id, curso.Nome, curso.Conteudo, curso.Preco);
+
+            await _mediator.Send(command);
+            return RespostaPadrao(HttpStatusCode.NoContent);
+        }
 
         [Authorize(Roles = "ALUNO")]
         [HttpPost("{id:guid}/concluir-curso")]
@@ -66,6 +80,15 @@ namespace PlataformaEducacao.Api.Controllers
             await mediator.Send(command);
 
             return RespostaPadrao(HttpStatusCode.Created);
+        }
+
+        [Authorize(Roles = "ADMIN")]
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Deletar(Guid id)
+        {
+            var command = new DeletarCursoCommand(id);
+            await _mediator.Send(command);
+            return RespostaPadrao(HttpStatusCode.NoContent);
         }
     }
 }

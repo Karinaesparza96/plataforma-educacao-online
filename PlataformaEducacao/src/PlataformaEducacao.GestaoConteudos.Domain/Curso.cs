@@ -31,6 +31,25 @@ public class Curso : Entity, IAggregateRoot
         _aulas.Add(aula);
     }
 
+    public void AtualizarNome(string nome)
+    {
+        if (string.IsNullOrWhiteSpace(nome))
+            throw new DomainException("O nome do curso é obrigatório.");
+        Nome = nome;
+    }
+    public void AtualizarConteudo(string conteudoProgramatico)
+    {
+        if (string.IsNullOrWhiteSpace(conteudoProgramatico))
+            throw new DomainException("O conteúdo programático é obrigatório.");
+        ConteudoProgramatico = conteudoProgramatico;
+    }
+    public void AtualizarPreco(decimal preco)
+    {
+        if (preco <= 0)
+            throw new DomainException("O preço do curso deve ser maior que zero.");
+        Preco = preco;
+    }
+
     private void Validar()
     {
         if (string.IsNullOrWhiteSpace(Nome))

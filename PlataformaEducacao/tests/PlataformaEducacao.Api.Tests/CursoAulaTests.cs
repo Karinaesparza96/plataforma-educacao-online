@@ -162,4 +162,91 @@ public class CursoAulaTests
         // Assert
         response.EnsureSuccessStatusCode();
     }
+    [Fact(DisplayName = "Atualizar Curso com Sucesso")]
+    [Trait("Categoria", "Integração Api - Curso")]
+    public async Task Atualizar_CursoExistente_DeveExecutarComSucesso()
+    {
+        // Arrange
+        await _fixture.RealizarLoginApi();
+        _fixture.Client.AtribuirToken(_fixture.Token);
+        var id = await _fixture.ObterIdCurso();
+        var data = new CursoDto
+        {
+            Id = id,
+            Nome = "Curso .NET Core Atualizado",
+            Conteudo = "Curso de .NET Core Atualizado",
+            Preco = 2000,
+        };
+        // Act
+        var response = await _fixture.PutAsync($"/api/cursos/{id}", data);
+        response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadAsStringAsync();
+        // Assert
+        Assert.True(!string.IsNullOrEmpty(result));
+    }
+    [Fact(DisplayName = "Atualizar Curso com Erro")]
+    [Trait("Categoria", "Integração Api - Curso")]
+    public async Task Atualizar_CursoInexistente_DeveRetornarMensagensErro()
+    {
+        // Arrange
+        await _fixture.RealizarLoginApi();
+        _fixture.Client.AtribuirToken(_fixture.Token);
+        var id = Guid.NewGuid();
+        var data = new CursoDto
+        {
+            Id = id,
+            Nome = "Curso .NET Core Atualizado",
+            Conteudo = "Curso de .NET Core Atualizado",
+            Preco = 2000,
+        };
+        // Act
+        var response = await _fixture.PutAsync($"/api/cursos/{id}", data);
+        var erros = _fixture.ObterErros(await response.Content.ReadAsStringAsync());
+        // Assert
+        Assert.Contains("Curso não encontrado.", erros.ToString());
+    }
+
+    [Fact(DisplayName = "Excluir Curso com Sucesso")]
+    [Trait("Categoria", "Integração Api - Curso")]
+    public async Task Deletar_CursoExistente_DeveExecutarComSucesso()
+    {
+        // Arrange
+        await _fixture.RealizarLoginApi();
+        _fixture.Client.AtribuirToken(_fixture.Token);
+        await _fixture.ObterCursoIdSemAulas();
+        // Act
+        var response = await _fixture.Client.DeleteAsync($"/api/cursos/{_fixture.CursoId}");
+        response.EnsureSuccessStatusCode();
+        var result = await response.Content.ReadAsStringAsync();
+        // Assert
+        Assert.True(!string.IsNullOrEmpty(result));
+    }
+    [Fact(DisplayName = "Excluir Curso com Erro")]
+    [Trait("Categoria", "Integração Api - Curso")]
+    public async Task Deletar_CursoInexistente_DeveRetornarMensagensErro()
+    {
+        // Arrange
+        await _fixture.RealizarLoginApi();
+        _fixture.Client.AtribuirToken(_fixture.Token);
+        var id = Guid.NewGuid();
+        // Act
+        var response = await _fixture.Client.DeleteAsync($"/api/cursos/{id}");
+        var erros = _fixture.ObterErros(await response.Content.ReadAsStringAsync());
+        // Assert
+        Assert.Contains("Curso não encontrado.", erros.ToString());
+    }
+    [Fact(DisplayName = "Excluir Curso com Erro")]
+    [Trait("Categoria", "Integração Api - Curso")]
+    public async Task Deletar_CursoComAulas_DeveRetornarMensagensErro()
+    {
+        // Arrange
+        await _fixture.RealizarLoginApi();
+        _fixture.Client.AtribuirToken(_fixture.Token);
+        await _fixture.ObterIdsPorStatusMatricula(EStatusMatricula.Ativa);
+        // Act
+        var response = await _fixture.Client.DeleteAsync($"/api/cursos/{_fixture.CursoId}");
+        var erros = _fixture.ObterErros(await response.Content.ReadAsStringAsync());
+        // Assert
+        Assert.Contains("Curso não pode ser excluído pois possui aulas associadas.", erros.ToString());
+    }
 }

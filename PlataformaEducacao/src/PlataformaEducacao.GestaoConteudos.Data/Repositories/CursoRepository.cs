@@ -17,6 +17,13 @@ public class CursoRepository(GestaoConteudosContext dbContext) : ICursoRepositor
             .FirstOrDefaultAsync(c => c.Aulas.Any(a => a.Id == aulaId));
     }
 
+    public async Task<Curso?> ObterCursoComAulas(Guid cursoId)
+    {
+        return await _dbSet.AsNoTracking()
+            .Include(c => c.Aulas)
+            .FirstOrDefaultAsync(c => c.Id == cursoId);
+    }
+
     public async Task<Curso?> ObterPorId(Guid id)
     {
         return await _dbSet.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
