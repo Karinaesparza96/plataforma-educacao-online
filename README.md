@@ -85,6 +85,14 @@ dotnet test PlataformaEducacao.sln
 ## ⚙️ Configurações Extras
 - 🔑 **JWT:** As configurações estão em `appsettings.json` da API.
 - 🗃️ **Seed de Dados:** Dados iniciais são criados automaticamente ao rodar a aplicação.
+- 👩‍💻 **Logins / Senhas Cadastrados para Testes**:
+   - Aluno:
+       `aluno@teste.com` /
+       `Teste@123`
+    
+   - Admin:
+       `admin@teste.com` /
+       `Teste@123`
 
 ## 📄 Documentação da API
 Acesse a documentação gerada pelo Swagger após subir a API:
