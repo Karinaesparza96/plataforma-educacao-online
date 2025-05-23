@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using PlataformaEducacao.Api.Controllers.Base;
-using PlataformaEducacao.Core.Messages;
 using PlataformaEducacao.GestaoConteudos.Aplication.Commands;
 using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using PlataformaEducacao.Api.DTOs;
+using PlataformaEducacao.Core.Messages.Notifications;
 
 namespace PlataformaEducacao.Api.Controllers;
 

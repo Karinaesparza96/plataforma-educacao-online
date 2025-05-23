@@ -2,8 +2,8 @@
 using Moq;
 using Moq.AutoMock;
 using PlataformaEducacao.Core.DomainObjects.DTOs;
-using PlataformaEducacao.Core.Messages;
 using PlataformaEducacao.Core.Messages.IntegrationQueries;
+using PlataformaEducacao.Core.Messages.Notifications;
 using PlataformaEducacao.GestaoAlunos.Aplication.Commands;
 using PlataformaEducacao.GestaoAlunos.Aplication.Handlers;
 using PlataformaEducacao.GestaoAlunos.Domain;

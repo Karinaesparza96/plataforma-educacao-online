@@ -1,6 +1,5 @@
 ﻿using MediatR;
-using PlataformaEducacao.Core.DomainObjects;
-using PlataformaEducacao.Core.Messages;
+using PlataformaEducacao.Core.Messages.Notifications;
 using PlataformaEducacao.GestaoAlunos.Aplication.Commands;
 using PlataformaEducacao.GestaoAlunos.Aplication.Queries;
 using PlataformaEducacao.GestaoAlunos.Aplication.Services;

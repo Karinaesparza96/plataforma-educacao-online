@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlataformaEducacao.Api.Controllers.Base;
-using PlataformaEducacao.Core.Messages;
+using PlataformaEducacao.Core.Messages.Notifications;
 using PlataformaEducacao.GestaoAlunos.Aplication.Queries;
 
 namespace PlataformaEducacao.Api.Controllers;

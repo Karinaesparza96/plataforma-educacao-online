@@ -3,7 +3,7 @@ using PlataformaEducacao.Core.Messages;
 
 namespace PlataformaEducacao.GestaoConteudos.Aplication.Commands;
 
-public class RealizarPagamentoCursoCommand(Guid cursoId, Guid alunoId, string nomeCartao, string numeroCartao, string expiracaoCartao, string cvvCartao) : Command
+public class ValidarPagamentoCursoCommand(Guid cursoId, Guid alunoId, string nomeCartao, string numeroCartao, string expiracaoCartao, string cvvCartao) : Command
 {
     public Guid CursoId { get; set; } = cursoId;
     public Guid AlunoId { get; set; } = alunoId;
@@ -13,12 +13,12 @@ public class RealizarPagamentoCursoCommand(Guid cursoId, Guid alunoId, string no
     public string CvvCartao { get; set; } = cvvCartao;
     public override bool EhValido()
     {
-        ValidationResult = new RealizarPagamentoCursoCommandValidation().Validate(this);
+        ValidationResult = new ValidarPagamentoCursoCommandValidation().Validate(this);
         return ValidationResult.IsValid;
     }
 }
 
-public class RealizarPagamentoCursoCommandValidation : AbstractValidator<RealizarPagamentoCursoCommand>
+public class ValidarPagamentoCursoCommandValidation : AbstractValidator<ValidarPagamentoCursoCommand>
 {
     public static string CursoId = "O campo CursoId é obrigatório.";
     public static string AlunoId = "O campo AlunoId é obrigatório.";
@@ -28,7 +28,7 @@ public class RealizarPagamentoCursoCommandValidation : AbstractValidator<Realiza
     public static string CvvCartao = "O campo CVV do Cartão é obrigatório.";
     public static string NumeroCartaoInvalido = "O campo Número do Cartão inválido.";
 
-    public RealizarPagamentoCursoCommandValidation()
+    public ValidarPagamentoCursoCommandValidation()
     {
         RuleFor(c => c.CursoId)
             .NotEqual(Guid.Empty)

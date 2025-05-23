@@ -1,18 +1,18 @@
 ﻿using MediatR;
-using PlataformaEducacao.Core.DomainObjects;
 using PlataformaEducacao.Core.DomainObjects.DTOs;
 using PlataformaEducacao.Core.DomainObjects.Enums;
 using PlataformaEducacao.Core.Messages;
+using PlataformaEducacao.Core.Messages.IntegrationCommands;
 using PlataformaEducacao.Core.Messages.IntegrationQueries;
+using PlataformaEducacao.Core.Messages.Notifications;
 using PlataformaEducacao.GestaoConteudos.Aplication.Commands;
 using PlataformaEducacao.GestaoConteudos.Domain;
 
 namespace PlataformaEducacao.GestaoConteudos.Aplication.Handlers;
 
 public class CursoCommandHandler(ICursoRepository cursoRepository,
-                                IPagamentoService pagamentoService,
                                 IMediator mediator) : IRequestHandler<AdicionarCursoCommand, bool>, 
-                                                    IRequestHandler<RealizarPagamentoCursoCommand, bool>,
+                                                    IRequestHandler<ValidarPagamentoCursoCommand, bool>,
                                                     IRequestHandler<AtualizarCursoCommand, bool>,
                                                     IRequestHandler<DeletarCursoCommand, bool>
 {
@@ -26,7 +26,7 @@ public class CursoCommandHandler(ICursoRepository cursoRepository,
         return await cursoRepository.UnitOfWork.Commit();
     }
 
-    public async Task<bool> Handle(RealizarPagamentoCursoCommand command, CancellationToken cancellationToken)
+    public async Task<bool> Handle(ValidarPagamentoCursoCommand command, CancellationToken cancellationToken)
     {
         if (!ValidarComando(command)) 
             return false;
@@ -56,8 +56,8 @@ public class CursoCommandHandler(ICursoRepository cursoRepository,
             NumeroCartao = command.NumeroCartao,
             Total = curso.Preco
         };
-
-        return await pagamentoService.RealizarPagamentoCurso(pagamentoCurso);
+        
+        return await mediator.Send(new RealizarPagamentoCursoCommand(pagamentoCurso), cancellationToken);
     }
 
     public async Task<bool> Handle(AtualizarCursoCommand command, CancellationToken cancellationToken)

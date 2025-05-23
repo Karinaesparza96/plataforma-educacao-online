@@ -3,15 +3,16 @@ using PlataformaEducacao.Core.DomainObjects.Enums;
 using PlataformaEducacao.Core.Messages;
 using PlataformaEducacao.Core.Messages.IntegrationEvents;
 using PlataformaEducacao.Core.Messages.IntegrationQueries;
+using PlataformaEducacao.Core.Messages.Notifications;
 using PlataformaEducacao.GestaoAlunos.Aplication.Commands;
 using PlataformaEducacao.GestaoAlunos.Domain;
 
 namespace PlataformaEducacao.GestaoAlunos.Aplication.Handlers;
 
-public class MatriculaCommandHandler(IMediator mediator, IAlunoRepository alunoRepository) : CommandHandler,
-    IRequestHandler<AdicionarMatriculaCommand, bool>,
-    IRequestHandler<ConcluirMatriculaCommand, bool>,
-    IRequestHandler<AtivarMatriculaCommand, bool>
+public class MatriculaCommandHandler(IMediator mediator, 
+                                    IAlunoRepository alunoRepository) : IRequestHandler<AdicionarMatriculaCommand, bool>,
+                                                                        IRequestHandler<ConcluirMatriculaCommand, bool>,
+                                                                        IRequestHandler<AtivarMatriculaCommand, bool>
 {
     public async Task<bool> Handle(AdicionarMatriculaCommand request, CancellationToken cancellationToken)
     {
@@ -96,7 +97,7 @@ public class MatriculaCommandHandler(IMediator mediator, IAlunoRepository alunoR
         return await alunoRepository.UnitOfWork.Commit();
     }
 
-    protected override bool ValidarComando(Command command)
+    private bool ValidarComando(Command command)
     {
         if (command.EhValido()) 
             return true;

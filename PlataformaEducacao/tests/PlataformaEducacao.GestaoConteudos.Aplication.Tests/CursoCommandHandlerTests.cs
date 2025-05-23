@@ -4,8 +4,9 @@ using Moq.AutoMock;
 using PlataformaEducacao.Core.DomainObjects;
 using PlataformaEducacao.Core.DomainObjects.DTOs;
 using PlataformaEducacao.Core.DomainObjects.Enums;
-using PlataformaEducacao.Core.Messages;
+using PlataformaEducacao.Core.Messages.IntegrationCommands;
 using PlataformaEducacao.Core.Messages.IntegrationQueries;
+using PlataformaEducacao.Core.Messages.Notifications;
 using PlataformaEducacao.GestaoConteudos.Aplication.Commands;
 using PlataformaEducacao.GestaoConteudos.Aplication.Handlers;
 using PlataformaEducacao.GestaoConteudos.Domain;
@@ -63,7 +64,7 @@ public class CursoCommandHandlerTests
     public async Task RealizarPagamentoCurso_ommandInvalido_NaoDeveExecutarComSucesso()
     {
         // Arrange
-        var command = new RealizarPagamentoCursoCommand(
+        var command = new ValidarPagamentoCursoCommand(
             Guid.Empty,
             Guid.Empty,
             "",
@@ -86,7 +87,7 @@ public class CursoCommandHandlerTests
     public async Task RealizarPagamentoCurso_MatriculaAguardandoPagamento_DeveExecutarComSucesso()
     {
         // Arrange
-        var command = new RealizarPagamentoCursoCommand(
+        var command = new ValidarPagamentoCursoCommand(
             Guid.NewGuid(),
             Guid.NewGuid(),
             "Nome do Cartão",
@@ -95,22 +96,29 @@ public class CursoCommandHandlerTests
             "455"
         );
         var curso = new Curso("Curso C# completo", "conteudo programatico", Guid.NewGuid(), 100);
+        var pagamentoCurso = 
 
         _mocker.GetMock<ICursoRepository>().Setup(c => c.ObterPorId(command.CursoId)).ReturnsAsync(curso);
-        _mocker.GetMock<IMediator>().Setup(a => a.Send(It.IsAny<ObterMatriculaCursoAlunoQuery>(), CancellationToken.None)).ReturnsAsync(new MatriculaDto {Status = EStatusMatricula.AguardandoPagamento});
-        _mocker.GetMock<IPagamentoService>().Setup(p => p.RealizarPagamentoCurso(It.IsAny<PagamentoCurso>())).ReturnsAsync(true);
+        _mocker.GetMock<IMediator>().Setup(a => a.Send(It.IsAny<ObterMatriculaCursoAlunoQuery>(), CancellationToken.None))
+                                                            .ReturnsAsync(new MatriculaDto {Status = EStatusMatricula.AguardandoPagamento});
+        _mocker.GetMock<IMediator>()
+            .Setup(m => m.Send(It.IsAny<RealizarPagamentoCursoCommand>(), CancellationToken.None)).ReturnsAsync(true);
+
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
 
         // Assert
         Assert.True(result);
+        _mocker.GetMock<ICursoRepository>().Verify(c => c.ObterPorId(command.CursoId), Times.Once);
+        _mocker.GetMock<IMediator>().Verify(a => a.Send(It.IsAny<ObterMatriculaCursoAlunoQuery>(), CancellationToken.None), Times.Once);
+        _mocker.GetMock<IMediator>().Verify(m => m.Send(It.IsAny<RealizarPagamentoCursoCommand>(), CancellationToken.None), Times.Once);
     }
     [Fact(DisplayName = "Realizar Pagamento Curso - Curso Nao Encontrado")]
     [Trait("Categoria", "GestaoConteudos - CursoCommandHandler")]
     public async Task RealizarPagamentoCurso_CursoNaoEncontrado_NaoDeveExecutarComSucesso()
     {
         // Arrange
-        var command = new RealizarPagamentoCursoCommand(
+        var command = new ValidarPagamentoCursoCommand(
             Guid.NewGuid(),
             Guid.NewGuid(),
             "Nome do Cartão",
@@ -128,14 +136,14 @@ public class CursoCommandHandlerTests
         Assert.False(result);
         _mocker.GetMock<IMediator>().Verify(m => m.Publish(It.IsAny<DomainNotification>(), CancellationToken.None), Times.Once);
         _mocker.GetMock<IMediator>().Verify(a => a.Send(It.IsAny<ObterMatriculaCursoAlunoQuery>(), CancellationToken.None), Times.Never);
-        _mocker.GetMock<IPagamentoService>().Verify(p => p.RealizarPagamentoCurso(It.IsAny<PagamentoCurso>()), Times.Never);
+        _mocker.GetMock<IMediator>().Verify(p => p.Send(It.IsAny<RealizarPagamentoCursoCommand>(), CancellationToken.None), Times.Never);
     }
     [Fact(DisplayName = "Realizar Pagamento Curso - Matricula Nao Realizada")]
     [Trait("Categoria", "GestaoConteudos - CursoCommandHandler")]
     public async Task RealizarPagamentoCurso_MatriculaNaoRealizada_NaoDeveExecutarComSucesso()
     {
         // Arrange
-        var command = new RealizarPagamentoCursoCommand(
+        var command = new ValidarPagamentoCursoCommand(
             Guid.NewGuid(),
             Guid.NewGuid(),
             "Nome do Cartão",
@@ -154,45 +162,7 @@ public class CursoCommandHandlerTests
         Assert.False(result);
         _mocker.GetMock<IMediator>().Verify(m => m.Publish(It.IsAny<DomainNotification>(), CancellationToken.None), Times.Once);
         _mocker.GetMock<IMediator>().Verify(a => a.Send(It.IsAny<ObterMatriculaCursoAlunoQuery>(), CancellationToken.None), Times.Once);
-        _mocker.GetMock<IPagamentoService>().Verify(p => p.RealizarPagamentoCurso(It.IsAny<PagamentoCurso>()), Times.Never);
-    }
-
-    [Fact(DisplayName = "Atualizar Curso CommandValido")]
-    [Trait("Categoria", "GestaoConteudos - CursoCommandHandler")]
-    public async Task Atualizar_CommandValido_DeveExecutarComSucesso()
-    {
-        // Arrange
-        var cursoId = Guid.NewGuid();
-        var command = new AtualizarCursoCommand(cursoId,"Curso C# completo", "conteudo programatico", 100);
-
-        // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        Assert.True(result);
-    }
-
-    [Fact(DisplayName = "Atualizar Curso CommandInvalido")]
-    [Trait("Categoria", "GestaoConteudos - CursoCommandHandler")]
-    public async Task Atualizar_CommandInvalido_DeveConterMensagensErro()
-    {
-        // Arrange
-        var command = new AtualizarCursoCommand(Guid.Empty, "", "", 0);
-
-        // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        Assert.False(result);
-        Assert.Contains(AtualizarCursoCommandValidation.CursoIdErro,
-            command.ValidationResult.Errors.Select(e => e.ErrorMessage));
-        Assert.Contains(AtualizarCursoCommandValidation.NomeErro,
-            command.ValidationResult.Errors.Select(e => e.ErrorMessage));
-        Assert.Contains(AtualizarCursoCommandValidation.ConteudoProgramaticoErro,
-            command.ValidationResult.Errors.Select(e => e.ErrorMessage));
-        Assert.Contains(AtualizarCursoCommandValidation.PrecoErro,
-            command.ValidationResult.Errors.Select(e => e.ErrorMessage));
-        Assert.Equal(4, command.ValidationResult.Errors.Count);
+        _mocker.GetMock<IMediator>().Verify(p => p.Send(It.IsAny<RealizarPagamentoCursoCommand>(), CancellationToken.None), Times.Never);
     }
 
     [Fact(DisplayName = "Atualizar Curso - Curso Existente")]

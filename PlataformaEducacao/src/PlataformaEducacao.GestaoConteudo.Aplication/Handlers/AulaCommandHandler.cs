@@ -2,6 +2,7 @@
 using PlataformaEducacao.Core.DomainObjects.Enums;
 using PlataformaEducacao.Core.Messages;
 using PlataformaEducacao.Core.Messages.IntegrationQueries;
+using PlataformaEducacao.Core.Messages.Notifications;
 using PlataformaEducacao.GestaoConteudos.Aplication.Commands;
 using PlataformaEducacao.GestaoConteudos.Domain;
 

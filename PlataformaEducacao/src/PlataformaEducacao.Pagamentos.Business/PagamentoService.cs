@@ -1,8 +1,7 @@
 ﻿using MediatR;
-using PlataformaEducacao.Core.DomainObjects;
 using PlataformaEducacao.Core.DomainObjects.DTOs;
-using PlataformaEducacao.Core.Messages;
 using PlataformaEducacao.Core.Messages.IntegrationEvents;
+using PlataformaEducacao.Core.Messages.Notifications;
 
 namespace PlataformaEducacao.Pagamentos.Business;
 

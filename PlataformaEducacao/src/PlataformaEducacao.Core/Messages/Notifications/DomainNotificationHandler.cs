@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace PlataformaEducacao.Core.Messages;
+namespace PlataformaEducacao.Core.Messages.Notifications;
 
 public class DomainNotificationHandler : INotificationHandler<DomainNotification>
 {

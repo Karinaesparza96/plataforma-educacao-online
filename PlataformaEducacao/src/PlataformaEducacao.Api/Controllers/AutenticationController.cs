@@ -6,12 +6,12 @@ using MediatR;
 using PlataformaEducacao.Api.Controllers.Base;
 using PlataformaEducacao.Api.DTOs;
 using PlataformaEducacao.Api.Jwt;
-using PlataformaEducacao.Core.Messages;
 using PlataformaEducacao.GestaoAlunos.Aplication.Commands;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
+using PlataformaEducacao.Core.Messages.Notifications;
 
 namespace PlataformaEducacao.Api.Controllers;
 

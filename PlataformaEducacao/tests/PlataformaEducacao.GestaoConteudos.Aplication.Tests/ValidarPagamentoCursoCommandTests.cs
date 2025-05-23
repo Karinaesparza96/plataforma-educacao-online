@@ -2,14 +2,14 @@
 
 namespace PlataformaEducacao.GestaoConteudos.Aplication.Tests;
 
-public class RealizarPagamentoCursoCommandTests
+public class ValidarPagamentoCursoCommandTests
 {
     [Fact(DisplayName = "Realizar Pagamento Curso Command Válido")]
     [Trait("Categoria", "GestaoConteudos - RealizarPagamentoCursoCommand")]
     public void EhValido_CommandValido_DeveEstarValido()
     {
         // Arrange
-        var command = new RealizarPagamentoCursoCommand(
+        var command = new ValidarPagamentoCursoCommand(
             Guid.NewGuid(),
             Guid.NewGuid(),
             "Nome do Cartão",
@@ -29,7 +29,7 @@ public class RealizarPagamentoCursoCommandTests
     public void EhValido_CommandInvalido_DeveEstarInvalido()
     {
         // Arrange
-        var command = new RealizarPagamentoCursoCommand(
+        var command = new ValidarPagamentoCursoCommand(
             Guid.Empty,
             Guid.Empty,
             "",
@@ -42,11 +42,11 @@ public class RealizarPagamentoCursoCommandTests
         // Assert
         Assert.False(result);
         Assert.Equal(6, command.ValidationResult.Errors.Count);
-        Assert.Contains(RealizarPagamentoCursoCommandValidation.CursoId, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
-        Assert.Contains(RealizarPagamentoCursoCommandValidation.AlunoId, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
-        Assert.Contains(RealizarPagamentoCursoCommandValidation.NomeCartao, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
-        Assert.Contains(RealizarPagamentoCursoCommandValidation.NumeroCartao, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
-        Assert.Contains(RealizarPagamentoCursoCommandValidation.ExpiracaoCartao, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
-        Assert.Contains(RealizarPagamentoCursoCommandValidation.CvvCartao, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
+        Assert.Contains(ValidarPagamentoCursoCommandValidation.CursoId, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
+        Assert.Contains(ValidarPagamentoCursoCommandValidation.AlunoId, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
+        Assert.Contains(ValidarPagamentoCursoCommandValidation.NomeCartao, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
+        Assert.Contains(ValidarPagamentoCursoCommandValidation.NumeroCartao, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
+        Assert.Contains(ValidarPagamentoCursoCommandValidation.ExpiracaoCartao, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
+        Assert.Contains(ValidarPagamentoCursoCommandValidation.CvvCartao, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
     }
 }

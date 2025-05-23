@@ -1,6 +1,6 @@
 ﻿using PlataformaEducacao.Core.DomainObjects.DTOs;
 
-namespace PlataformaEducacao.Core.DomainObjects;
+namespace PlataformaEducacao.Pagamentos.Business;
 
 public interface IPagamentoService
 {

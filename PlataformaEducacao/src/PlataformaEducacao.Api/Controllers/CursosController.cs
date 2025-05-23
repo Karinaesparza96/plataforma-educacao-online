@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlataformaEducacao.Api.Controllers.Base;
 using PlataformaEducacao.Api.DTOs;
-using PlataformaEducacao.Core.Messages;
+using PlataformaEducacao.Core.Messages.Notifications;
 using PlataformaEducacao.GestaoAlunos.Aplication.Commands;
 using PlataformaEducacao.GestaoConteudos.Aplication.Commands;
 using PlataformaEducacao.GestaoConteudos.Aplication.Queries;
@@ -74,7 +74,7 @@ namespace PlataformaEducacao.Api.Controllers
         [HttpPost("{cursoId:guid}/realizar-pagamento")]
         public async Task<IActionResult> RealizarPagamento(Guid cursoId, [FromBody] DadosPagamento dadosPagamento)
         {
-            var command = new RealizarPagamentoCursoCommand(cursoId, UsuarioId,dadosPagamento.NomeCartao, 
+            var command = new ValidarPagamentoCursoCommand(cursoId, UsuarioId,dadosPagamento.NomeCartao, 
                                                         dadosPagamento.NumeroCartao, dadosPagamento.ExpiracaoCartao, 
                                                         dadosPagamento.CvvCartao);
             await mediator.Send(command);
