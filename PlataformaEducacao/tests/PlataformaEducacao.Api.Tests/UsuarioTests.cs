@@ -1,4 +1,5 @@
-﻿using PlataformaEducacao.Api.DTOs;
+﻿using System.Net.Http.Json;
+using PlataformaEducacao.Api.DTOs;
 using PlataformaEducacao.Api.Tests.Config;
 
 namespace PlataformaEducacao.Api.Tests;
@@ -25,7 +26,7 @@ public class UsuarioTests
             Senha = _fixture.SenhaUsuario,
         };
         // Act
-        var response = await _fixture.PostAsync("/api/conta/login", data);
+        var response = await _fixture.Client.PostAsJsonAsync("/api/conta/login", data);
         response.EnsureSuccessStatusCode();
 
         _fixture.SalvarUserToken(await response.Content.ReadAsStringAsync());
@@ -45,7 +46,7 @@ public class UsuarioTests
         };
 
         // Act
-       var response = await _fixture.PostAsync("/api/conta/login", data);
+       var response = await _fixture.Client.PostAsJsonAsync("/api/conta/login", data);
         response.EnsureSuccessStatusCode();
 
         _fixture.SalvarUserToken(await response.Content.ReadAsStringAsync());
@@ -68,7 +69,7 @@ public class UsuarioTests
         };
 
         // Act
-        var response = await _fixture.PostAsync("/api/conta/registrar/aluno", register);
+        var response = await _fixture.Client.PostAsJsonAsync("/api/conta/registrar/aluno", register);
         response.EnsureSuccessStatusCode();
 
         _fixture.SalvarUserToken(await response.Content.ReadAsStringAsync());
@@ -91,7 +92,7 @@ public class UsuarioTests
         };
 
         // Act
-        var response = await _fixture.PostAsync("/api/conta/registrar/admin", register);
+        var response = await _fixture.Client.PostAsJsonAsync("/api/conta/registrar/admin", register);
         response.EnsureSuccessStatusCode();
 
         _fixture.SalvarUserToken(await response.Content.ReadAsStringAsync());

@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PlataformaEducacao.Api.DTOs;
 using PlataformaEducacao.Core.DomainObjects.Enums;
-using System.Text;
+using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace PlataformaEducacao.Api.Tests.Config;
@@ -197,21 +197,7 @@ public class IntegrationTestsFixture : IDisposable
             return retorno;
         });
     }
-
-    public async Task<HttpResponseMessage> PostAsync(string url, object? data = null)
-    {
-        var json = JsonSerializer.Serialize(data);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-        return await Client.PostAsync(url, content);
-    }
-
-    public async Task<HttpResponseMessage> PutAsync(string url, object data)
-    {
-        var json = JsonSerializer.Serialize(data);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-        return await Client.PutAsync(url, content);
-    }
-
+    
     public void SalvarUserToken(string token)
     {
        var response = JsonSerializer.Deserialize<LoginResponseWrapper>(token,
@@ -227,9 +213,8 @@ public class IntegrationTestsFixture : IDisposable
             Email = email ?? "admin@teste.com",
             Senha = senha ?? "Teste@123"
         };
-        Client = Factory.CreateClient();
 
-        var response = await PostAsync("/api/conta/login", userData);
+        var response = await Client.PostAsJsonAsync("/api/conta/login", userData);
         response.EnsureSuccessStatusCode();
 
         SalvarUserToken(await response.Content.ReadAsStringAsync());
@@ -245,9 +230,8 @@ public class IntegrationTestsFixture : IDisposable
             Senha = SenhaUsuario,
             ConfirmacaoSenha = SenhaConfirmacao
         };
-        Client = Factory.CreateClient();
 
-        var response = await PostAsync("/api/conta/registrar/aluno", registerUserDto);
+        var response = await Client.PostAsJsonAsync("/api/conta/registrar/aluno", registerUserDto);
         response.EnsureSuccessStatusCode();
 
         SalvarUserToken(await response.Content.ReadAsStringAsync());

@@ -1,4 +1,5 @@
-﻿using PlataformaEducacao.Api.DTOs;
+﻿using System.Net.Http.Json;
+using PlataformaEducacao.Api.DTOs;
 using PlataformaEducacao.Api.Tests.Config;
 using PlataformaEducacao.Core.DomainObjects.Enums;
 
@@ -28,7 +29,7 @@ public class CursoAulaTests
         _fixture.Client.AtribuirToken(_fixture.Token);
 
         // Act
-        var response = await _fixture.PostAsync("/api/cursos", data);
+        var response = await _fixture.Client.PostAsJsonAsync("/api/cursos", data);
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadAsStringAsync();
@@ -52,7 +53,7 @@ public class CursoAulaTests
         _fixture.Client.AtribuirToken(_fixture.Token);
 
         // Act
-        var response = await _fixture.PostAsync("/api/cursos", data);
+        var response = await _fixture.Client.PostAsJsonAsync("/api/cursos", data);
 
         var erros = _fixture.ObterErros(await response.Content.ReadAsStringAsync());
 
@@ -79,7 +80,7 @@ public class CursoAulaTests
         await _fixture.ObterIdsPorStatusMatricula(EStatusMatricula.Ativa);
 
         // Act
-        var response = await _fixture.PostAsync($"/api/cursos/{_fixture.CursoId}/aulas/adicionar-aula", aula);
+        var response = await _fixture.Client.PostAsJsonAsync($"/api/cursos/{_fixture.CursoId}/aulas/adicionar-aula", aula);
 
         await response.Content.ReadAsStringAsync();
 
@@ -103,7 +104,7 @@ public class CursoAulaTests
         _fixture.Client.AtribuirToken(_fixture.Token);
 
         // Act
-        var response = await _fixture.PostAsync($"/api/cursos/{idCurso}/aulas/adicionar-aula", aula);
+        var response = await _fixture.Client.PostAsJsonAsync($"/api/cursos/{idCurso}/aulas/adicionar-aula", aula);
         var erros = _fixture.ObterErros(await response.Content.ReadAsStringAsync());
 
         // Assert
@@ -123,7 +124,7 @@ public class CursoAulaTests
         _fixture.GerarDadosCartao();
 
         // Act
-        var response = await _fixture.PostAsync($"/api/cursos/{_fixture.CursoId}/realizar-pagamento", _fixture.DadosPagamento);
+        var response = await _fixture.Client.PostAsJsonAsync($"/api/cursos/{_fixture.CursoId}/realizar-pagamento", _fixture.DadosPagamento);
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -140,7 +141,7 @@ public class CursoAulaTests
         await _fixture.ObterIdsAulaSemProgresso(EStatusMatricula.Ativa);
 
         // Act
-        var response = await _fixture.PostAsync($"/api/cursos/{_fixture.CursoId}/aulas/{_fixture.AulaId}/realizar-aula");
+        var response = await _fixture.Client.PostAsync($"/api/cursos/{_fixture.CursoId}/aulas/{_fixture.AulaId}/realizar-aula", null);
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -157,7 +158,7 @@ public class CursoAulaTests
         await _fixture.ObterIdsAulaComProgresso(EStatusMatricula.Ativa);
 
         // Act
-        var response = await _fixture.PostAsync($"/api/cursos/{_fixture.CursoId}/aulas/{_fixture.AulaId}/concluir-aula");
+        var response = await _fixture.Client.PostAsync($"/api/cursos/{_fixture.CursoId}/aulas/{_fixture.AulaId}/concluir-aula", null);
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -174,7 +175,7 @@ public class CursoAulaTests
         await _fixture.ObterIdCursoAssociadoAulasConcluidas();
 
         // Act
-        var response = await _fixture.PostAsync($"/api/cursos/{_fixture.CursoId}/concluir-curso");
+        var response = await _fixture.Client.PostAsync($"/api/cursos/{_fixture.CursoId}/concluir-curso", null);
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -195,7 +196,7 @@ public class CursoAulaTests
             Preco = 2000,
         };
         // Act
-        var response = await _fixture.PutAsync($"/api/cursos/{id}", data);
+        var response = await _fixture.Client.PutAsJsonAsync($"/api/cursos/{id}", data);
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadAsStringAsync();
         // Assert
@@ -217,7 +218,7 @@ public class CursoAulaTests
             Preco = 2000,
         };
         // Act
-        var response = await _fixture.PutAsync($"/api/cursos/{id}", data);
+        var response = await _fixture.Client.PutAsJsonAsync($"/api/cursos/{id}", data);
         var erros = _fixture.ObterErros(await response.Content.ReadAsStringAsync());
         // Assert
         Assert.Contains("Curso não encontrado.", erros.ToString());
