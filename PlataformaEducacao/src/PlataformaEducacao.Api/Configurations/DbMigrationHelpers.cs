@@ -141,6 +141,8 @@ public static class DbMigrationHelpers
         var progressoAula2 = new ProgressoAula(aluno.Id, aula2.Id);
         var progressoAula3 = new ProgressoAula(aluno.Id, aula3.Id);
 
+        aula4.AdicionarProgresso(new ProgressoAula(aluno.Id, aula4.Id));
+
         aula.AdicionarProgresso(progressoAula);
         aula2.AdicionarProgresso(progressoAula2);
         aula3.AdicionarProgresso(progressoAula3);

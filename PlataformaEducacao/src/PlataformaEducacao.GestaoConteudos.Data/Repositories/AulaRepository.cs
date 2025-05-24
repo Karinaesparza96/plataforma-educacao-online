@@ -14,6 +14,10 @@ public class AulaRepository(GestaoConteudosContext dbContext) : IAulaRepository
     {
         dbContext.Set<ProgressoAula>().Add(progressoAula);
     }
+    public void AtualizarProgressoAula(ProgressoAula progressoAula)
+    {
+        dbContext.Set<ProgressoAula>().Update(progressoAula);
+    }
     public async Task<ProgressoAula?> ObterProgressoAula(Guid aulaId, Guid alunoId)
     {
         return await dbContext.Set<ProgressoAula>().AsNoTracking()

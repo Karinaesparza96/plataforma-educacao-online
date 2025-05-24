@@ -1,5 +1,4 @@
-﻿using AngleSharp.Dom;
-using Bogus;
+﻿using Bogus;
 using Bogus.DataSets;
 using Dapper;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -8,7 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PlataformaEducacao.Api.DTOs;
 using PlataformaEducacao.Core.DomainObjects.Enums;
-using System;
 using System.Text;
 using System.Text.Json;
 
@@ -68,47 +66,111 @@ public class IntegrationTestsFixture : IDisposable
 
     public async Task ObterIdsPorStatusMatricula(EStatusMatricula status)
     {
-        await using var connection = new SqliteConnection(ConnectionString);
-        await connection.OpenAsync();
+        var sql = @"
+                select
+	                m.Id matriculaId,
+	                c.Id cursoId,
+	                a.Id alunoId,
+	                al.id aulaId
+                from
+	                Matriculas m
+                join Cursos c on
+	                c.Id = m.CursoId
+                join Alunos a on
+	                a.Id = m.AlunoId
+                join Aulas al on al.CursoId = c.Id
+                where
+	                1=1
+                and m.Status = @Status
+            ";
 
-            var sql = @"
-                    select
-	                    m.Id matriculaId,
-	                    c.Id cursoId,
-	                    a.Id alunoId,
-	                    al.id aulaId
-                    from
-	                    Matriculas m
-                    join Cursos c on
-	                    c.Id = m.CursoId
-                    join Alunos a on
-	                    a.Id = m.AlunoId
-                    join Aulas al on al.CursoId = c.Id
-                    where
-	                    1=1
-                    and m.Status = @Status
+        await ExecutarConsulta(sql, new { Status = status }, (retorno) =>
+        {
+            if (retorno != null)
+            {
+                MatriculaId = Guid.Parse(retorno.matriculaId);
+                CursoId = Guid.Parse(retorno.cursoId);
+                AlunoId = Guid.Parse(retorno.alunoId);
+                AulaId = Guid.Parse(retorno.aulaId);
+            }
+
+            return retorno;
+        });
+    }
+
+    public async Task ObterIdsAulaComProgresso(EStatusMatricula status)
+    {
+        var sql = @"
+                select
+	                m.Id matriculaId,
+	                c.Id cursoId,
+	                a.Id alunoId,
+	                al.id aulaId
+                from
+	                Matriculas m
+                join Cursos c on
+	                c.Id = m.CursoId
+                join Alunos a on
+	                a.Id = m.AlunoId
+                join Aulas al on al.CursoId = c.Id
+                join ProgressoAulas pa on pa.AulaId = al.Id and pa.AlunoId = a.Id  
+                where
+	                1=1
+                and m.Status = @Status
+            ";
+
+        await ExecutarConsulta(sql, new { Status = status }, (retorno) =>
+        {
+            if (retorno != null)
+            {
+                MatriculaId = Guid.Parse(retorno.matriculaId);
+                CursoId = Guid.Parse(retorno.cursoId);
+                AlunoId = Guid.Parse(retorno.alunoId);
+                AulaId = Guid.Parse(retorno.aulaId);
+            }
+
+            return retorno;
+        });
+    }
+
+    public async Task ObterIdsAulaSemProgresso(EStatusMatricula status)
+    {
+        var sql = @"
+                     select
+                         m.Id matriculaId,
+                         c.Id cursoId,
+                         a.Id alunoId,
+                         al.id aulaId,
+                         pa.id
+                     from
+                         Matriculas m
+                     join Cursos c on
+                         c.Id = m.CursoId
+                     join Alunos a on
+                         a.Id = m.AlunoId
+                     join Aulas al on al.CursoId = c.Id
+                     left join ProgressoAulas pa on pa.AulaId = al.Id and pa.AlunoId = a.Id
+                     where
+                         1=1
+                     and m.Status = @Status
+                     and pa.id is null
                 ";
 
-        var result = await connection.QueryFirstOrDefaultAsync(sql, new
+        await ExecutarConsulta(sql, new { Status = status }, (retorno) =>
         {
-            Status = status
+            if (retorno != null)
+            {
+                MatriculaId = Guid.Parse(retorno.matriculaId);
+                CursoId = Guid.Parse(retorno.cursoId);
+                AlunoId = Guid.Parse(retorno.alunoId);
+                AulaId = Guid.Parse(retorno.aulaId);
+            }
+            return retorno;
         });
-
-        if (result != null)
-        {
-            MatriculaId = Guid.Parse(result.matriculaId);
-            CursoId = Guid.Parse(result.cursoId);
-            AlunoId = Guid.Parse(result.alunoId);
-            AulaId = Guid.Parse(result.aulaId);
-        }
-        await connection.CloseAsync();
     }
 
     public async Task ObterIdCursoAssociadoAulasConcluidas()
     {
-        await using var connection = new SqliteConnection(ConnectionString);
-        await connection.OpenAsync();
-
         var sql = @"
                     select
 	                    distinct c.Id
@@ -125,12 +187,15 @@ public class IntegrationTestsFixture : IDisposable
                     where
 	                    1=1
 	                    and pa.Status = 2";
-        var result = await connection.QueryFirstOrDefaultAsync(sql);
-        if (result != null)
+
+        await ExecutarConsulta(sql, param: null, (retorno) =>
         {
-            CursoId = Guid.Parse(result.Id);
-        }
-        await connection.CloseAsync();
+            if (retorno != null)
+            {
+                CursoId = Guid.Parse(retorno.Id);
+            }
+            return retorno;
+        });
     }
 
     public async Task<HttpResponseMessage> PostAsync(string url, object? data = null)
@@ -201,36 +266,33 @@ public class IntegrationTestsFixture : IDisposable
 
     public async Task ObterCursoIdSemAulas()
     {
-        await using var connection = new SqliteConnection(ConnectionString);
-        await connection.OpenAsync();
         var sql = @"
                     select c.Id from Cursos c 
                     left join Aulas a on a.CursoId = c.id
                     where a.Id is null 
                    ";
-        var result = await connection.QueryFirstOrDefaultAsync(sql);
-        if (result != null)
+        await ExecutarConsulta(sql, param: null, (retorno) =>
         {
-            CursoId = Guid.Parse(result.Id);
-        }
-        await connection.CloseAsync();
+            if (retorno != null)
+            {
+                CursoId = Guid.Parse(retorno.Id);
+            }
+            return retorno;
+        });
     }
 
     public async Task ObterIdCertificado()
-    {
-        await using var connection = new SqliteConnection(ConnectionString);
-        await connection.OpenAsync();
+    { 
+         var sql = @"select c.Id from Certificados c";
 
-        var sql = @"
-                    select c.Id from Certificados c
-                   ";
-         var result = await connection.QueryFirstOrDefaultAsync(sql);
-
-        if (result != null)
-        {
-            CertificadoId = Guid.Parse(result.Id);
-        }
-        await connection.CloseAsync();
+         await ExecutarConsulta(sql, param: null, (retorno) =>
+         {
+             if (retorno != null)
+             {
+                 CertificadoId = Guid.Parse(retorno.Id);
+             }
+             return retorno;
+         });
     }
 
     public JsonElement ObterErros(string result)
@@ -242,5 +304,16 @@ public class IntegrationTestsFixture : IDisposable
     {
         Factory.Dispose();
         Client.Dispose();
+    }
+
+    private async Task<TResult?> ExecutarConsulta<TResult>(string sql, object? param, Func<dynamic, TResult?> processar)
+    {
+        await using var connection = new SqliteConnection(ConnectionString);
+        await connection.OpenAsync();
+
+        var result = await connection.QueryFirstOrDefaultAsync<TResult>(sql, param);
+
+        await connection.CloseAsync();
+        return processar(result);
     }
 }

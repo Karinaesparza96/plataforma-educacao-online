@@ -137,10 +137,27 @@ public class CursoAulaTests
         await _fixture.RealizarLoginApi("aluno@teste.com", "Teste@123");
         _fixture.Client.AtribuirToken(_fixture.Token);
 
-        await _fixture.ObterIdsPorStatusMatricula(EStatusMatricula.Ativa);
+        await _fixture.ObterIdsAulaSemProgresso(EStatusMatricula.Ativa);
 
         // Act
         var response = await _fixture.PostAsync($"/api/cursos/{_fixture.CursoId}/aulas/{_fixture.AulaId}/realizar-aula");
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+    }
+
+    [Fact(DisplayName = "Concluir Aula com Sucesso")]
+    [Trait("Categoria", "Integração Api - Aula")]
+    public async Task Concluir_MatriculaAtiva_DeveExecutarComSucesso()
+    {
+        // Arrange
+        await _fixture.RealizarLoginApi("aluno@teste.com", "Teste@123");
+        _fixture.Client.AtribuirToken(_fixture.Token);
+
+        await _fixture.ObterIdsAulaComProgresso(EStatusMatricula.Ativa);
+
+        // Act
+        var response = await _fixture.PostAsync($"/api/cursos/{_fixture.CursoId}/aulas/{_fixture.AulaId}/concluir-aula");
 
         // Assert
         response.EnsureSuccessStatusCode();

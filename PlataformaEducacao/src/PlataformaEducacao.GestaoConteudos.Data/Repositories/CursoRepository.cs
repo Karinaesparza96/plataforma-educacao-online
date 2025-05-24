@@ -51,6 +51,7 @@ public class CursoRepository(GestaoConteudosContext dbContext) : ICursoRepositor
     public async Task<Aula?> ObterAulaPorId(Guid aulaId)
     {
         return await dbContext.Set<Aula>().AsNoTracking()
+            .Include(a => a.ProgressoAulas)
             .FirstOrDefaultAsync(a => a.Id == aulaId);
     }
 

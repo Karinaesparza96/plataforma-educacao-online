@@ -10,8 +10,9 @@ namespace PlataformaEducacao.GestaoConteudos.Aplication.Handlers;
 
 public class AulaCommandHandler(IMediator mediator, 
                                 ICursoRepository cursoRepository,
-                                IAulaRepository aulaRepository) 
-    : IRequestHandler<AdicionarAulaCommand, bool>, IRequestHandler<RealizarAulaCommand, bool>
+                                IAulaRepository aulaRepository) : IRequestHandler<AdicionarAulaCommand, bool>,
+                                                                    IRequestHandler<RealizarAulaCommand, bool>,
+                                                                    IRequestHandler<ConcluirAulaCommand,bool>
 {
     public async Task<bool> Handle(AdicionarAulaCommand request, CancellationToken cancellationToken)
     {
@@ -87,7 +88,7 @@ public class AulaCommandHandler(IMediator mediator,
 
         aula.ConcluirAula(progressoAula);
 
-        aulaRepository.AdicionarProgressoAula(progressoAula);
+        aulaRepository.AtualizarProgressoAula(progressoAula);
 
         return await aulaRepository.UnitOfWork.Commit();
     }

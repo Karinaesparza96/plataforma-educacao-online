@@ -83,17 +83,20 @@ public class CursoCommandHandler(ICursoRepository cursoRepository,
     {
         if (!ValidarComando(command))
             return false;
+
         var curso = await cursoRepository.ObterCursoComAulas(command.CursoId);
         if (curso == null)
         {
             await mediator.Publish(new DomainNotification(command.MessageType, "Curso não encontrado."), cancellationToken);
             return false;
         }
+
         if (curso.Aulas.Any())
         {
             await mediator.Publish(new DomainNotification(command.MessageType, "Curso não pode ser excluído pois possui aulas associadas."), cancellationToken);
             return false;
         }
+
         cursoRepository.Remover(curso);
         return await cursoRepository.UnitOfWork.Commit();
     }

@@ -6,4 +6,5 @@ public interface IAulaRepository : IRepository<Aula>
 {
     Task<ProgressoAula?> ObterProgressoAula(Guid aulaId, Guid alunoId);
     void AdicionarProgressoAula(ProgressoAula progressoAula);
+    void AtualizarProgressoAula(ProgressoAula progressoAula);
 }
