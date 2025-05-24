@@ -9,7 +9,7 @@ Este repositório contém a implementação da **Plataforma de Educação Online
 ## 🚀 Funcionalidades
 - 📚 Gestão de cursos, alunos, matrículas, pagamentos, certificados e aulas
 - 🔐 Autenticação e autorização com ASP.NET Core Identity e JWT
-- 🌐 API RESTful com documentação automática via Swagger
+- 🌐 API REST com documentação via Swagger
 - ✅ Testes unitários e de integração com xUnit
 
 ## 🧪 Tecnologias
