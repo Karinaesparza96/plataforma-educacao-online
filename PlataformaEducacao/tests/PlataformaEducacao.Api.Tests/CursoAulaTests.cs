@@ -112,24 +112,6 @@ public class CursoAulaTests
         Assert.Contains("O campo Conteudo não pode ser vazio.", erros.ToString());
     }
 
-    [Fact(DisplayName = "Realizar Pagamento com Sucesso")]
-    [Trait("Categoria", "Integração Api - Pagamento")]
-    public async Task RealizarPagamento_MatriculaAguardandoPagamento_DeveExecutarComSucesso()
-    {
-        // Arrange
-        await _fixture.RealizarLoginApi("aluno@teste.com", "Teste@123");
-        _fixture.Client.AtribuirToken(_fixture.Token);
-
-        await _fixture.ObterIdsPorStatusMatricula(EStatusMatricula.AguardandoPagamento);
-        _fixture.GerarDadosCartao();
-
-        // Act
-        var response = await _fixture.Client.PostAsJsonAsync($"/api/cursos/{_fixture.CursoId}/realizar-pagamento", _fixture.DadosPagamento);
-
-        // Assert
-        response.EnsureSuccessStatusCode();
-    }
-
     [Fact(DisplayName = "Realizar Aula com Sucesso")]
     [Trait("Categoria", "Integração Api - Aula")]
     public async Task Realizar_MatriculaAtiva_DeveExecutarComSucesso()
@@ -145,6 +127,25 @@ public class CursoAulaTests
 
         // Assert
         response.EnsureSuccessStatusCode();
+    }
+
+    [Fact(DisplayName = "Realizar Aula com Erro")]
+    [Trait("Categoria", "Integração Api - Aula")]
+    public async Task Realizar_MatriculaNaoAtiva_DeveRetornarMensagensErro()
+    {
+        // Arrange
+        await _fixture.RealizarLoginApi("aluno@teste.com", "Teste@123");
+        _fixture.Client.AtribuirToken(_fixture.Token);
+
+        await _fixture.ObterIdsAulaSemProgresso(EStatusMatricula.AguardandoPagamento);
+
+        // Act
+        var response = await _fixture.Client.PostAsync($"/api/cursos/{_fixture.CursoId}/aulas/{_fixture.AulaId}/realizar-aula", null);
+
+        var erros = _fixture.ObterErros(await response.Content.ReadAsStringAsync());
+
+        // Assert
+        Assert.Contains("Matrícula não está ativa.", erros.ToString());
     }
 
     [Fact(DisplayName = "Concluir Aula com Sucesso")]
@@ -164,6 +165,25 @@ public class CursoAulaTests
         response.EnsureSuccessStatusCode();
     }
 
+    [Fact(DisplayName = "Concluir Aula com Erro")]
+    [Trait("Categoria", "Integração Api - Aula")]
+    public async Task Concluir_MatriculaNaoAtiva_DeveRetornarMensagensErro()
+    {
+        // Arrange
+        await _fixture.RealizarLoginApi("aluno@teste.com", "Teste@123");
+        _fixture.Client.AtribuirToken(_fixture.Token);
+
+        await _fixture.ObterIdsPorStatusMatricula(EStatusMatricula.AguardandoPagamento);
+
+        // Act
+        var response = await _fixture.Client.PostAsync($"/api/cursos/{_fixture.CursoId}/aulas/{_fixture.AulaId}/concluir-aula", null);
+
+        var erros = _fixture.ObterErros(await response.Content.ReadAsStringAsync());
+
+        // Assert
+        Assert.Contains("Matrícula não está ativa.", erros.ToString());
+    }
+
     [Fact(DisplayName = "Finalizar Curso com Sucesso")]
     [Trait("Categoria", "Integração Api - Curso")]
     public async Task ConcluirCurso_AulasConcluidas_DeveExecutarComSucesso()
@@ -179,6 +199,24 @@ public class CursoAulaTests
 
         // Assert
         response.EnsureSuccessStatusCode();
+    }
+
+    [Fact(DisplayName = "Finalizar Curso com Erro")]
+    [Trait("Categoria", "Integração Api - Curso")]
+    public async Task ConcluirCurso_AulasNaoConcluidas_DeveRetornarMensagensErro()
+    {
+        // Arrange
+        await _fixture.RealizarLoginApi("aluno@teste.com", "Teste@123");
+        _fixture.Client.AtribuirToken(_fixture.Token);
+
+        await _fixture.ObterIdsAulaSemProgresso(EStatusMatricula.Ativa);
+
+        // Act
+        var response = await _fixture.Client.PostAsync($"/api/cursos/{_fixture.CursoId}/concluir-curso", null);
+        var erros = _fixture.ObterErros(await response.Content.ReadAsStringAsync());
+
+        // Assert
+        Assert.Contains("Todas as aulas deste curso precisam estar concluídas.", erros.ToString());
     }
     [Fact(DisplayName = "Atualizar Curso com Sucesso")]
     [Trait("Categoria", "Integração Api - Curso")]

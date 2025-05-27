@@ -54,6 +54,25 @@ public class UsuarioTests
         Assert.True(!string.IsNullOrEmpty(_fixture.Token));
     }
 
+    [Fact(DisplayName = "Realizar Login Com Erro")]
+    [Trait("Categoria", "Integração Api - Usuario")]
+    public async Task RealizarLogin_UsuarioInexistente_DeveRetornarMensagensDeErro()
+    {
+        // Arrange
+        var data = new LoginUserDto()
+        {
+            Email = "email@email.com",
+            Senha = "Teste@123",
+        };
+
+        // Act
+        var response = await _fixture.Client.PostAsJsonAsync("/api/conta/login", data);
+
+        // Assert
+        var erros = _fixture.ObterErros(await response.Content.ReadAsStringAsync());
+        Assert.Contains("Usuário ou Senha incorretos", erros.ToString());
+    }
+
     [Fact(DisplayName = "Realizar Cadastro Com Sucesso"), TestPriority(1)]
     [Trait("Categoria", "Integração Api - Aluno")]
     public async Task Aluno_RealizarCadastro_DeveExecutarComSucesso()

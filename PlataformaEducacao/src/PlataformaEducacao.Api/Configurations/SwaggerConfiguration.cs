@@ -6,10 +6,9 @@ public static class SwaggerConfiguration
     public static WebApplicationBuilder AddSwaggerConfiguration(this WebApplicationBuilder builder)
     {
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
 
         builder.Services.AddSwaggerGen(opt =>
-        {
+        {   
             opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 Description = "Insira o token JWT desta forma: Bearer {seu token}",

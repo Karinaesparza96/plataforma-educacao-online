@@ -49,7 +49,6 @@ public static class DependencyInjection
         builder.Services.AddScoped<IPagamentoCartaoCreditoFacade, PagamentoCartaoCreditoFacade>();
         builder.Services.AddScoped<IPayPalGateway, PayPalGateway>();
         builder.Services.AddScoped<PagamentoContext>();
-        builder.Services.Configure<PagamentoSettings>(builder.Configuration.GetSection("Pagamentos"));
 
         return builder;
 

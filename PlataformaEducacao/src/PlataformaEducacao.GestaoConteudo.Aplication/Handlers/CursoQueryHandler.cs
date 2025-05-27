@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using PlataformaEducacao.Core.DomainObjects.DTOs;
+using PlataformaEducacao.Core.DomainObjects.Enums;
 using PlataformaEducacao.Core.Messages.IntegrationQueries;
 using PlataformaEducacao.GestaoConteudos.Domain;
 
@@ -29,14 +30,19 @@ public class CursoQueryHandler(ICursoRepository cursoRepository) : IRequestHandl
         return new CursoDto
         {
             Id = request.CursoId,
-            Aulas = aulas?.Select(a => new AulaDto
+            Aulas = aulas?.Select(a =>
             {
-                Id = a.Id,
-                CursoId = a.CursoId,
-                Nome = a.Nome,
-                Conteudo = a.Conteudo,
-                Status = a.ProgressoAulas.FirstOrDefault().Status,
-            }).ToList()
+                var progresso = a.ProgressoAulas.FirstOrDefault();
+
+                return new AulaDto
+                {
+                    Id = a.Id,
+                    CursoId = a.CursoId,
+                    Nome = a.Nome,
+                    Conteudo = a.Conteudo,
+                    Status = progresso?.Status ?? EProgressoAulaStatus.NaoIniciada
+                };
+            }).ToList() ?? []
         };
     }
 }

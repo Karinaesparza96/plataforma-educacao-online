@@ -110,7 +110,6 @@ namespace PlataformaEducacao.Pagamentos.Business.Tests
 
             // Assert
             Assert.True(result);
-
         }
     }
 }

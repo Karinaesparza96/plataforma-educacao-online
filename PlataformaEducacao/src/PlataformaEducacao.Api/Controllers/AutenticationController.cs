@@ -33,33 +33,19 @@ public class AutenticationController(INotificationHandler<DomainNotification> no
             return RespostaPadrao();
         }
 
-        var userIdentity = new IdentityUser()
-        {
-            UserName = registerUser.Nome,
-            Email = registerUser.Email,
-            EmailConfirmed = true,
-        };
+        var result = await RegistrarUsuario(registerUser, "ALUNO");
 
-        var result = await userManager.CreateAsync(userIdentity, registerUser.Senha!);
-
-        if (!result.Succeeded)
+        if (!result.IdentityResult.Succeeded)
         {
-            NotificarErro(result);
+            NotificarErro(result.IdentityResult);
             return RespostaPadrao();
         }
 
-        await userManager.AddToRoleAsync(userIdentity, "ALUNO");
-
-        var command = new AdicionarAlunoCommand(userIdentity.Id, userIdentity.UserName);
+        var command = new AdicionarAlunoCommand(result.UsuarioId, registerUser.Nome);
         await _mediator.Send(command);
 
-        var login = await signInManager.PasswordSignInAsync(userIdentity, registerUser.Senha!, false, true);
-
-        if (!login.Succeeded)
-        {
-            NotificarErro(result);
+        if (!OperacaoValida())
             return RespostaPadrao();
-        }
 
         var token = await GerarToken(registerUser.Email!);
         return RespostaPadrao(HttpStatusCode.Created, token);
@@ -73,33 +59,19 @@ public class AutenticationController(INotificationHandler<DomainNotification> no
             return RespostaPadrao();
         }
 
-        var userIdentity = new IdentityUser()
-        {
-            UserName = registerUser.Nome,
-            Email = registerUser.Email,
-            EmailConfirmed = true,
-        };
+        var result = await RegistrarUsuario(registerUser, "ADMIN");
 
-        var result = await userManager.CreateAsync(userIdentity, registerUser.Senha!);
-
-        if (!result.Succeeded)
+        if (!result.IdentityResult.Succeeded)
         {
-            NotificarErro(result);
+            NotificarErro(result.IdentityResult);
             return RespostaPadrao();
         }
 
-        await userManager.AddToRoleAsync(userIdentity, "ADMIN");
-
-        var command = new AdicionarAdminCommand(userIdentity.Id);
+        var command = new AdicionarAdminCommand(result.UsuarioId);
         await _mediator.Send(command);
 
-        var login = await signInManager.PasswordSignInAsync(userIdentity, registerUser.Senha!, false, true);
-
-        if (!login.Succeeded)
-        {
-            NotificarErro(result);
+        if (!OperacaoValida()) 
             return RespostaPadrao();
-        }
 
         var token = await GerarToken(registerUser.Email!);
         return RespostaPadrao(HttpStatusCode.Created, token);
@@ -122,8 +94,32 @@ public class AutenticationController(INotificationHandler<DomainNotification> no
             return RespostaPadrao(HttpStatusCode.Created, loginResponse);
         }
 
+        if (result.IsLockedOut)
+        {
+            NotificarErro("Identity", "Usuário bloqueado temporariamente. Tente novamente mais tarde.");
+            return RespostaPadrao();
+        }
+
         NotificarErro("Identity", "Usuário ou Senha incorretos");
         return RespostaPadrao();
+    }
+    private async Task<(IdentityResult IdentityResult, string UsuarioId)> RegistrarUsuario(RegisterUserDto registerUser, string role)
+    {
+        var userIdentity = new IdentityUser
+        {
+            UserName = registerUser.Nome,
+            Email = registerUser.Email,
+            EmailConfirmed = true,
+        };
+
+        var result = await userManager.CreateAsync(userIdentity, registerUser.Senha!);
+
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(userIdentity, role);
+        }
+
+        return (result, result.Succeeded ? userIdentity.Id : string.Empty);
     }
 
     private async Task<LoginResponseDto> GerarToken(string email)
@@ -137,6 +133,13 @@ public class AutenticationController(INotificationHandler<DomainNotification> no
 
         claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
 
+        var encodedToken = CodificarToken(claims);
+
+        return ObterRespostaToken(user, claims, encodedToken);
+    }
+
+    private string CodificarToken(List<Claim> claims)
+    {
         var tokenHandler = new JwtSecurityTokenHandler();
 
         var key = Encoding.ASCII.GetBytes(jwtSettings.Value.Segredo!);
@@ -150,8 +153,11 @@ public class AutenticationController(INotificationHandler<DomainNotification> no
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         });
 
-        var encodedToken = tokenHandler.WriteToken(token);
+        return tokenHandler.WriteToken(token);
+    }
 
+    private LoginResponseDto ObterRespostaToken(IdentityUser user, List<Claim> claims, string encodedToken)
+    {
         var response = new LoginResponseDto
         {
             AccessToken = encodedToken,
