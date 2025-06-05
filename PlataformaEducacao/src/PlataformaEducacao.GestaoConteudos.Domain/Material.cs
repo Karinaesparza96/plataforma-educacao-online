@@ -11,6 +11,8 @@ public class Material : Entity
     // EF relationship
     public Aula Aula { get; private set; }
 
+    // Ef Constructor
+    protected Material() { }
     public Material(string nome, string tipo)
     {
         Nome = nome;

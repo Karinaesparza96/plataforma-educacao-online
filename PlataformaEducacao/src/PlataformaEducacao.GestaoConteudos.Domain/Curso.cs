@@ -11,6 +11,8 @@ public class Curso : Entity, IAggregateRoot
     private readonly List<Aula> _aulas;
     public IReadOnlyCollection<Aula> Aulas => _aulas;
 
+    // Ef Constructor
+    protected Curso() {}
     public Curso(string nome, string conteudoProgramatico, Guid usuarioCriacaoId, decimal preco)
     {
         Nome = nome;

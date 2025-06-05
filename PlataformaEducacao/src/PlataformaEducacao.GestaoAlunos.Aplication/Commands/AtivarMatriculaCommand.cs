@@ -3,10 +3,17 @@ using PlataformaEducacao.Core.Messages;
 
 namespace PlataformaEducacao.GestaoAlunos.Aplication.Commands;
 
-public class AtivarMatriculaCommand(Guid alunoId, Guid cursoId) : Command
+public class AtivarMatriculaCommand : Command
 {
-    public Guid AlunoId { get; set; } = alunoId;
-    public Guid CursoId { get; set; } = cursoId;
+    public Guid AlunoId { get; set; }
+    public Guid CursoId { get; set; }
+
+    public AtivarMatriculaCommand(Guid alunoId, Guid cursoId)
+    {
+        AggregateId = alunoId;
+        AlunoId = alunoId;
+        CursoId = cursoId;
+    }
     public override bool EhValido()
     {
         ValidationResult = new AtivarMatriculaCommandValidation().Validate(this);

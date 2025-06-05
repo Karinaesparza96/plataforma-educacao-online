@@ -3,11 +3,19 @@ using PlataformaEducacao.Core.Messages;
 
 namespace PlataformaEducacao.GestaoConteudos.Aplication.Commands;
 
-public class ConcluirAulaCommand(Guid aulaId, Guid alunoId, Guid cursoId) : Command
+public class ConcluirAulaCommand : Command
 {
-    public Guid AulaId { get; set; } = aulaId;
-    public Guid AlunoId { get; set; } = alunoId;
-    public Guid CursoId { get; set; } = cursoId;
+    public Guid AulaId { get; set; }
+    public Guid AlunoId { get; set; }
+    public Guid CursoId { get; set; }
+
+    public ConcluirAulaCommand(Guid aulaId, Guid alunoId, Guid cursoId)
+    {
+        AggregateId = cursoId;
+        AulaId = aulaId;
+        AlunoId = alunoId;
+        CursoId = cursoId;
+    }
     public override bool EhValido()
     {
         ValidationResult = new ConcluirAulaCommandValidation().Validate(this);

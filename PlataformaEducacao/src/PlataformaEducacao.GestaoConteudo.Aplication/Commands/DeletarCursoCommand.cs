@@ -3,9 +3,15 @@ using PlataformaEducacao.Core.Messages;
 
 namespace PlataformaEducacao.GestaoConteudos.Aplication.Commands;
 
-public class DeletarCursoCommand(Guid cursoId) : Command
+public class DeletarCursoCommand : Command
 {
-    public Guid CursoId { get; set; } = cursoId;
+    public Guid CursoId { get; set; }
+
+    public DeletarCursoCommand(Guid cursoId)
+    {
+        AggregateId = cursoId;
+        CursoId = cursoId;
+    }
     public override bool EhValido()
     {
         ValidationResult = new DeletarCursoCommandValidation().Validate(this);

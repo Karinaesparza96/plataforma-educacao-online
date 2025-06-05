@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlataformaEducacao.Api.Controllers.Base;
+using PlataformaEducacao.Core.DomainObjects;
 using PlataformaEducacao.Core.Messages.Notifications;
 using PlataformaEducacao.GestaoAlunos.Aplication.Queries;
 
@@ -9,8 +10,9 @@ namespace PlataformaEducacao.Api.Controllers;
 
 [Route("api/alunos")]
 public class AlunosController(INotificationHandler<DomainNotification> notificacoes,
-                            IAlunoQueries alunoQueries, 
-                             IMediator mediator) : MainController(notificacoes, mediator)
+                            IAlunoQueries alunoQueries,
+                            IAppIdentityUser identityUser,
+                             IMediator mediator) : MainController(notificacoes, mediator, identityUser)
 {
 
     [Authorize(Roles = "ALUNO")]
@@ -20,7 +22,7 @@ public class AlunosController(INotificationHandler<DomainNotification> notificac
         var certificado = await alunoQueries.ObterCertificado(id, UsuarioId);
         if (certificado?.Arquivo == null)
         {
-            return NotFound();
+            return NoContent();
         }
 
         return File(certificado.Arquivo, "application/pdf", "certificado.pdf");

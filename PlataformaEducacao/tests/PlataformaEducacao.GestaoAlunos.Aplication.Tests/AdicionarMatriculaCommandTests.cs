@@ -53,7 +53,7 @@ public class AdicionarMatriculaCommandTests
         // Arrange
         var command = new AdicionarMatriculaCommand(Guid.NewGuid(), Guid.NewGuid());
         var mocker = new AutoMocker();
-        var aluno = new Aluno("fulano");
+        var aluno = new Aluno(Guid.NewGuid(), "teste");
         var handler = mocker.CreateInstance<MatriculaCommandHandler>();
         mocker.GetMock<IAlunoRepository>().Setup(x => x.ObterPorId(command.AlunoId)).ReturnsAsync(aluno);
         mocker.GetMock<IAlunoRepository>().Setup(x => x.UnitOfWork.Commit()).Returns(Task.FromResult(true));

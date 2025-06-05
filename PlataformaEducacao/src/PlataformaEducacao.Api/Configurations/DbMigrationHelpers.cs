@@ -97,11 +97,9 @@ public static class DbMigrationHelpers
         var user = await dbApplicationContext.Users.FirstOrDefaultAsync(x => x.Email == "aluno@teste.com");
         var userAdmin = await dbApplicationContext.Users.FirstOrDefaultAsync(x => x.Email == "admin@teste.com");
 
-        var admin = new Usuario();
-        admin.AssociarUsuario(userAdmin.Id);
+        var admin = new Usuario(Guid.Parse(userAdmin.Id));
 
-        var aluno = new Aluno("fulano");
-        aluno.AssociarUsuario(user.Id);
+        var aluno = new Aluno( Guid.Parse(user.Id),"fulano");
 
         var curso = new Curso("Curso C#", "Teste", admin.Id, 250);
         var aula = new Aula("Aula 1", "Teste");

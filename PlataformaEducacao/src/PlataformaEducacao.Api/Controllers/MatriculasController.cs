@@ -7,6 +7,7 @@ using PlataformaEducacao.GestaoAlunos.Aplication.Queries;
 using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using PlataformaEducacao.Core.Messages.Notifications;
+using PlataformaEducacao.Core.DomainObjects;
 
 namespace PlataformaEducacao.Api.Controllers;
 
@@ -14,7 +15,8 @@ namespace PlataformaEducacao.Api.Controllers;
 [Route("api/matriculas")]
 public class MatriculasController(INotificationHandler<DomainNotification> notificacoes,
                                  IAlunoQueries alunoQueries,
-                                 IMediator mediator) : MainController(notificacoes, mediator)
+                                 IAppIdentityUser identityUser,
+                                 IMediator mediator) : MainController(notificacoes, mediator, identityUser)
 {
     private readonly IMediator _mediator = mediator;
 

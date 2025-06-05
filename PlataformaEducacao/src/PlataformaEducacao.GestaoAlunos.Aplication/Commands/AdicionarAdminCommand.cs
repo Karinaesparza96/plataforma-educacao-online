@@ -3,9 +3,18 @@ using PlataformaEducacao.Core.Messages;
 
 namespace PlataformaEducacao.GestaoAlunos.Aplication.Commands;
 
-public class AdicionarAdminCommand(string usuarioId) : Command
+public class AdicionarAdminCommand : Command
 {
-    public string UsuarioId { get; set; } = usuarioId;
+    public string UsuarioId { get; set; }
+
+    public AdicionarAdminCommand(string usuarioId)
+    {
+        if (Guid.TryParse(usuarioId, out var parsedGuid))
+        {
+            AggregateId = parsedGuid;
+        }
+        UsuarioId = usuarioId;
+    }
 
     public override bool EhValido()
     {

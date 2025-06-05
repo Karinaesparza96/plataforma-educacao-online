@@ -9,10 +9,13 @@ public class ProgressoAula : Entity
     public Guid AulaId { get; private set; }
     public EProgressoAulaStatus Status { get; private set; }
 
+    // Ef Constructor
+    protected ProgressoAula() {}
     public ProgressoAula(Guid alunoId, Guid aulaId)
     {
         AlunoId = alunoId;
         AulaId = aulaId;
+        Status = EProgressoAulaStatus.NaoIniciada;
         Validar();
     }
 

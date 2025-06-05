@@ -42,11 +42,11 @@ public class ValidarPagamentoCursoCommandTests
         // Assert
         Assert.False(result);
         Assert.Equal(6, command.ValidationResult.Errors.Count);
-        Assert.Contains(ValidarPagamentoCursoCommandValidation.CursoId, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
-        Assert.Contains(ValidarPagamentoCursoCommandValidation.AlunoId, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
-        Assert.Contains(ValidarPagamentoCursoCommandValidation.NomeCartao, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
-        Assert.Contains(ValidarPagamentoCursoCommandValidation.NumeroCartao, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
-        Assert.Contains(ValidarPagamentoCursoCommandValidation.ExpiracaoCartao, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
-        Assert.Contains(ValidarPagamentoCursoCommandValidation.CvvCartao, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
+        Assert.Contains(ValidarPagamentoCursoCommandValidation.CursoIdErro, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
+        Assert.Contains(ValidarPagamentoCursoCommandValidation.AlunoIdErro, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
+        Assert.Contains(ValidarPagamentoCursoCommandValidation.NomeCartaoErro, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
+        Assert.Contains(ValidarPagamentoCursoCommandValidation.NumeroCartaoErro, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
+        Assert.Contains(ValidarPagamentoCursoCommandValidation.ExpiracaoCartaoErro, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
+        Assert.Contains(ValidarPagamentoCursoCommandValidation.CvvCartaoErro, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
     }
 }

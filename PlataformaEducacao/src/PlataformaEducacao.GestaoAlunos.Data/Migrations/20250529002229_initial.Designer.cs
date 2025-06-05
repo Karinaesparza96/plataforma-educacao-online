@@ -11,7 +11,7 @@ using PlataformaEducacao.GestaoAlunos.Data.Context;
 namespace PlataformaEducacao.GestaoAlunos.Data.Migrations
 {
     [DbContext(typeof(GestaoAlunosContext))]
-    [Migration("20250521230912_initial")]
+    [Migration("20250529002229_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -20,7 +20,29 @@ namespace PlataformaEducacao.GestaoAlunos.Data.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
 
-            modelBuilder.Entity("Certificado", b =>
+            modelBuilder.Entity("PlataformaEducacao.Core.DomainObjects.Usuario", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DataAlteracao")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DataCriacao")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DataExclusao")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Usuarios", (string)null);
+
+                    b.UseTptMappingStrategy();
+                });
+
+            modelBuilder.Entity("PlataformaEducacao.GestaoAlunos.Domain.Certificado", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -36,7 +58,7 @@ namespace PlataformaEducacao.GestaoAlunos.Data.Migrations
                     b.Property<DateTime?>("DataAlteracao")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("DataConclusao")
+                    b.Property<DateTime?>("DataConclusao")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("DataCriacao")
@@ -72,28 +94,6 @@ namespace PlataformaEducacao.GestaoAlunos.Data.Migrations
                     b.ToTable("Certificados", (string)null);
                 });
 
-            modelBuilder.Entity("PlataformaEducacao.Core.DomainObjects.Usuario", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("DataAlteracao")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("DataCriacao")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("DataExclusao")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Usuarios", (string)null);
-
-                    b.UseTptMappingStrategy();
-                });
-
             modelBuilder.Entity("PlataformaEducacao.GestaoAlunos.Domain.Matricula", b =>
                 {
                     b.Property<Guid>("Id")
@@ -109,7 +109,7 @@ namespace PlataformaEducacao.GestaoAlunos.Data.Migrations
                     b.Property<DateTime?>("DataAlteracao")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("DataConclusao")
+                    b.Property<DateTime?>("DataConclusao")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("DataCriacao")
@@ -118,7 +118,7 @@ namespace PlataformaEducacao.GestaoAlunos.Data.Migrations
                     b.Property<DateTime?>("DataExclusao")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("DataMatricula")
+                    b.Property<DateTime?>("DataMatricula")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Status")
@@ -142,7 +142,7 @@ namespace PlataformaEducacao.GestaoAlunos.Data.Migrations
                     b.ToTable("Alunos", (string)null);
                 });
 
-            modelBuilder.Entity("Certificado", b =>
+            modelBuilder.Entity("PlataformaEducacao.GestaoAlunos.Domain.Certificado", b =>
                 {
                     b.HasOne("PlataformaEducacao.GestaoAlunos.Domain.Aluno", "Aluno")
                         .WithMany("Certificados")

@@ -11,7 +11,8 @@ using PlataformaEducacao.GestaoConteudos.Domain;
 namespace PlataformaEducacao.GestaoConteudos.Aplication.Handlers;
 
 public class CursoCommandHandler(ICursoRepository cursoRepository,
-                                IMediator mediator) : IRequestHandler<AdicionarCursoCommand, bool>, 
+                                 IMediator mediator) : CommandHandler,
+                                                    IRequestHandler<AdicionarCursoCommand, bool>, 
                                                     IRequestHandler<ValidarPagamentoCursoCommand, bool>,
                                                     IRequestHandler<AtualizarCursoCommand, bool>,
                                                     IRequestHandler<DeletarCursoCommand, bool>
@@ -33,8 +34,8 @@ public class CursoCommandHandler(ICursoRepository cursoRepository,
 
         var curso = await cursoRepository.ObterPorId(command.CursoId);
         if (curso == null)
-        {
-            await mediator.Publish(new DomainNotification(command.MessageType, "Curso não encontrado."), cancellationToken);
+        {   
+            await AdicionarNotificacao(command.MessageType, "Curso não encontrado.", cancellationToken);
             return false;
         }
 
@@ -42,7 +43,7 @@ public class CursoCommandHandler(ICursoRepository cursoRepository,
 
         if (matricula is not { Status: EStatusMatricula.AguardandoPagamento })
         {
-            await mediator.Publish(new DomainNotification(command.MessageType, "Matrícula não realizada."), cancellationToken);
+            await AdicionarNotificacao(command.MessageType, "Matrícula não realizada.", cancellationToken);
             return false;
         }
 
@@ -68,7 +69,7 @@ public class CursoCommandHandler(ICursoRepository cursoRepository,
         var curso = await cursoRepository.ObterPorId(command.CursoId);
         if (curso == null)
         {
-            await mediator.Publish(new DomainNotification(command.MessageType, "Curso não encontrado."), cancellationToken);
+            await AdicionarNotificacao(command.MessageType, "Curso não encontrado.", cancellationToken);
             return false;
         }
 
@@ -87,20 +88,23 @@ public class CursoCommandHandler(ICursoRepository cursoRepository,
         var curso = await cursoRepository.ObterCursoComAulas(command.CursoId);
         if (curso == null)
         {
-            await mediator.Publish(new DomainNotification(command.MessageType, "Curso não encontrado."), cancellationToken);
+            await AdicionarNotificacao(command.MessageType, "Curso não encontrado.", cancellationToken);
             return false;
         }
 
         if (curso.Aulas.Any())
         {
-            await mediator.Publish(new DomainNotification(command.MessageType, "Curso não pode ser excluído pois possui aulas associadas."), cancellationToken);
+            await AdicionarNotificacao(command.MessageType, "Curso não pode ser excluído pois possui aulas associadas.", cancellationToken);
             return false;
         }
 
         cursoRepository.Remover(curso);
         return await cursoRepository.UnitOfWork.Commit();
     }
-
+    protected override async Task AdicionarNotificacao(string messageType, string descricao, CancellationToken cancellationToken)
+    {
+        await mediator.Publish(new DomainNotification(messageType, descricao), cancellationToken);
+    }
     private bool ValidarComando(Command command)
     {
         if (command.EhValido()) return true;

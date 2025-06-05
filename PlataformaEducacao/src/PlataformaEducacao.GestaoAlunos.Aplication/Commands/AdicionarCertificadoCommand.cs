@@ -3,11 +3,19 @@ using PlataformaEducacao.Core.Messages;
 
 namespace PlataformaEducacao.GestaoAlunos.Aplication.Commands;
 
-public class AdicionarCertificadoCommand(Guid alunoId, Guid matriculaId, Guid cursoId) : Command
+public class AdicionarCertificadoCommand : Command
 {
-    public Guid AlunoId { get; set; } = alunoId;
-    public Guid MatriculaId { get; set; } = matriculaId;
-    public Guid CursoId { get; set; } = cursoId;
+    public Guid AlunoId { get; set; }
+    public Guid MatriculaId { get; set; }
+    public Guid CursoId { get; set; }
+
+    public AdicionarCertificadoCommand(Guid alunoId, Guid matriculaId, Guid cursoId)
+    {
+        AggregateId = alunoId;
+        AlunoId = alunoId;
+        MatriculaId = matriculaId;
+        CursoId = cursoId;
+    }
     public override bool EhValido()
     {
        ValidationResult = new GerarCertificadoCommandValidator().Validate(this);

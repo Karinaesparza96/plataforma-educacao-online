@@ -3,14 +3,24 @@ using PlataformaEducacao.Core.Messages;
 
 namespace PlataformaEducacao.GestaoConteudos.Aplication.Commands;
 
-public class AdicionarAulaCommand(string nome, string conteudo, Guid cursoId, 
-                                 string nomeMaterial, string tipoMaterial) : Command
+public class AdicionarAulaCommand : Command
 {
-    public string Nome { get; set; } = nome;
-    public string Conteudo { get; set; } = conteudo;
-    public Guid CursoId { get; set; } = cursoId;
-    public string? NomeMaterial { get; set; } = nomeMaterial;
-    public string? TipoMaterial { get; set; } = tipoMaterial;
+    public string Nome { get; set; }
+    public string Conteudo { get; set; }
+    public Guid CursoId { get; set; }
+    public string? NomeMaterial { get; set; }
+    public string? TipoMaterial { get; set; }
+
+    public AdicionarAulaCommand(string nome, string conteudo, Guid cursoId,
+                                string nomeMaterial, string tipoMaterial)
+    {
+        AggregateId = cursoId;
+        Nome = nome;
+        Conteudo = conteudo;
+        CursoId = cursoId;
+        NomeMaterial = nomeMaterial;
+        TipoMaterial = tipoMaterial;
+    }
 
     public override bool EhValido()
     {

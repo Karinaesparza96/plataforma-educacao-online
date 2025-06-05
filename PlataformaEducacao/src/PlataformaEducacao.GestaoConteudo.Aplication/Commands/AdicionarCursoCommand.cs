@@ -3,12 +3,21 @@ using PlataformaEducacao.Core.Messages;
 
 namespace PlataformaEducacao.GestaoConteudos.Aplication.Commands;
 
-public class AdicionarCursoCommand(string nome, string conteudoProgramatico, Guid usuarioCriacaoId, decimal preco) : Command
+public class AdicionarCursoCommand : Command
 {
-    public string Nome { get; set; } = nome;
-    public string ConteudoProgramatico { get; set; } = conteudoProgramatico;
-    public Guid UsuarioCriacaoId { get; set; } = usuarioCriacaoId;
-    public decimal Preco { get; set; } = preco;
+    public string Nome { get; set; }
+    public string ConteudoProgramatico { get; set; }
+    public Guid UsuarioCriacaoId { get; set; }
+    public decimal Preco { get; set; }
+
+    public AdicionarCursoCommand(string nome, string conteudoProgramatico, Guid usuarioCriacaoId, decimal preco)
+    {
+        AggregateId = usuarioCriacaoId;
+        Nome = nome;
+        ConteudoProgramatico = conteudoProgramatico;
+        UsuarioCriacaoId = usuarioCriacaoId;
+        Preco = preco;
+    }
 
     public override bool EhValido()
     {

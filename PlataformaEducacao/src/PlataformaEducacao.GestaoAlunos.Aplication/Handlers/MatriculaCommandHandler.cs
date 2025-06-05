@@ -10,9 +10,10 @@ using PlataformaEducacao.GestaoAlunos.Domain;
 namespace PlataformaEducacao.GestaoAlunos.Aplication.Handlers;
 
 public class MatriculaCommandHandler(IMediator mediator, 
-                                    IAlunoRepository alunoRepository) : IRequestHandler<AdicionarMatriculaCommand, bool>,
-                                                                        IRequestHandler<ConcluirMatriculaCommand, bool>,
-                                                                        IRequestHandler<AtivarMatriculaCommand, bool>
+                                    IAlunoRepository alunoRepository) : CommandHandler,
+                                    IRequestHandler<AdicionarMatriculaCommand, bool>,
+                                    IRequestHandler<ConcluirMatriculaCommand, bool>,
+                                    IRequestHandler<AtivarMatriculaCommand, bool>
 {
     public async Task<bool> Handle(AdicionarMatriculaCommand request, CancellationToken cancellationToken)
     {
@@ -22,21 +23,21 @@ public class MatriculaCommandHandler(IMediator mediator,
         var curso = await mediator.Send(new ObterCursoQuery(request.CursoId), cancellationToken);
         if (curso == null)
         {
-            await mediator.Publish(new DomainNotification(request.MessageType, "Curso não encontrado."), cancellationToken);
+            await AdicionarNotificacao(request.MessageType, "Curso não encontrado.", cancellationToken);
             return false;
         }
 
         var aluno = await alunoRepository.ObterPorId(request.AlunoId);
         if (aluno == null)
         {
-            await mediator.Publish(new DomainNotification(request.MessageType, "Aluno não encontrado."), cancellationToken);
+            await AdicionarNotificacao(request.MessageType, "Aluno não encontrado.", cancellationToken);
             return false;
         }
 
         var matriculaExiste = await alunoRepository.ObterMatriculaPorCursoEAlunoId(request.CursoId, aluno.Id);
         if (matriculaExiste != null)
         {
-            await mediator.Publish(new DomainNotification(request.MessageType, "Matrícula já existente."), cancellationToken);
+            await AdicionarNotificacao(request.MessageType, "Matrícula já existente.", cancellationToken);
             return false;
         }
 
@@ -47,6 +48,7 @@ public class MatriculaCommandHandler(IMediator mediator,
 
         return await alunoRepository.UnitOfWork.Commit();
     }
+
     public async Task<bool> Handle(ConcluirMatriculaCommand request, CancellationToken cancellationToken)
     {
         if (!ValidarComando(request))
@@ -55,21 +57,21 @@ public class MatriculaCommandHandler(IMediator mediator,
         var aulas = await mediator.Send(new ObterAulasCursoAlunoQuery(request.CursoId, request.AlunoId), cancellationToken);
         if (!aulas.Aulas.Any())
         {
-            await mediator.Publish(new DomainNotification(request.MessageType, "Aulas não encontradas."), cancellationToken);
+            await AdicionarNotificacao(request.MessageType, "Aulas não encontradas.", cancellationToken);
             return false;
         }
 
         var todasAulasConcluidas = aulas.Aulas.All(a => a.Status == EProgressoAulaStatus.Concluida);
         if (!todasAulasConcluidas)
         {
-            await mediator.Publish(new DomainNotification(request.MessageType, "Todas as aulas deste curso precisam estar concluídas."), cancellationToken);
+            await AdicionarNotificacao(request.MessageType, "Todas as aulas deste curso precisam estar concluídas.", cancellationToken);
             return false;
         }
 
         var matricula = await alunoRepository.ObterMatriculaPorCursoEAlunoId(request.CursoId, request.AlunoId);
         if (matricula == null)
         {
-            await mediator.Publish(new DomainNotification(request.MessageType, "Matrícula não encontrada."), cancellationToken);
+            await AdicionarNotificacao(request.MessageType, "Matrícula não encontrada.", cancellationToken);
             return false;
         }
         matricula.Concluir();
@@ -88,7 +90,7 @@ public class MatriculaCommandHandler(IMediator mediator,
         var matricula = await alunoRepository.ObterMatriculaPorCursoEAlunoId(request.CursoId, request.AlunoId);
         if (matricula == null)
         {
-            await mediator.Publish(new DomainNotification(request.MessageType, "Matrícula não encontrada."), cancellationToken);
+           await AdicionarNotificacao(request.MessageType, "Matrícula não encontrada.", cancellationToken);
             return false;
         }
         matricula.Ativar();
@@ -97,9 +99,14 @@ public class MatriculaCommandHandler(IMediator mediator,
         return await alunoRepository.UnitOfWork.Commit();
     }
 
+    protected override async Task AdicionarNotificacao(string messageType, string descricao, CancellationToken cancellationToken)
+    {
+       await mediator.Publish(new DomainNotification(messageType, descricao), cancellationToken);
+    }
+
     private bool ValidarComando(Command command)
     {
-        if (command.EhValido()) 
+        if (command.EhValido())
             return true;
         foreach (var erro in command.ValidationResult.Errors)
         {

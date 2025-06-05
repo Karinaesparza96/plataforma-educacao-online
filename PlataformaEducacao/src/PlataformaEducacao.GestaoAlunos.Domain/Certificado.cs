@@ -7,7 +7,7 @@ public class Certificado : Entity
     public string NomeAluno { get; private set; }
     public string NomeCurso { get; private set; }
     public DateTime DataEmissao { get; private set; }
-    public DateTime DataConclusao { get; private set; }
+    public DateTime? DataConclusao { get; private set; }
     public string Descricao { get; private set; }
     public byte[] Arquivo { get; private set; }
     public Guid AlunoId { get; private set; }
@@ -17,7 +17,9 @@ public class Certificado : Entity
     public Aluno Aluno { get;  set; }
     public Matricula Matricula { get; set; }
 
-    public Certificado(string nomeAluno, string nomeCurso, Guid matriculaId, Guid alunoId, DateTime dataConclusao)
+    // Ef Constructor
+    protected Certificado() { }
+    public Certificado(string nomeAluno, string nomeCurso, Guid matriculaId, Guid alunoId, DateTime? dataConclusao)
     {
         NomeAluno = nomeAluno;
         NomeCurso = nomeCurso;
@@ -54,5 +56,7 @@ public class Certificado : Entity
             throw new DomainException("O campo Nome Aluno é obrigatório.");
         if (string.IsNullOrWhiteSpace(NomeCurso))
             throw new DomainException("O campo Nome Curso é obrigatório.");
+        if (!DataConclusao.HasValue)
+            throw new DomainException("O campo Data Conclusão é obrigatório.");
     }
 }

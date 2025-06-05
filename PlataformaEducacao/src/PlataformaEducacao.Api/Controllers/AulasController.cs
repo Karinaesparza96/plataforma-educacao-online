@@ -5,13 +5,15 @@ using PlataformaEducacao.GestaoConteudos.Aplication.Commands;
 using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using PlataformaEducacao.Api.DTOs;
+using PlataformaEducacao.Core.DomainObjects;
 using PlataformaEducacao.Core.Messages.Notifications;
 
 namespace PlataformaEducacao.Api.Controllers;
 
 [Route("api/cursos/{cursoId:guid}/aulas")]
 public class AulasController(INotificationHandler<DomainNotification> notificacoes,
-                            IMediator mediator) : MainController(notificacoes, mediator)
+                            IAppIdentityUser identityUser,
+                            IMediator mediator) : MainController(notificacoes, mediator, identityUser)
 {
     private readonly IMediator _mediator = mediator;
 

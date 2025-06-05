@@ -24,7 +24,7 @@ public class MatriculaCommandHandlerTests
         _mocker = new AutoMocker();
         _handler = _mocker.CreateInstance<MatriculaCommandHandler>();
         _alunoRepositoryMock = _mocker.GetMock<IAlunoRepository>();
-        _aluno = new Aluno("fulano");
+        _aluno = new Aluno(Guid.NewGuid(), "teste");
         _cursoId = Guid.NewGuid();
         _alunoId = Guid.NewGuid(); 
     }

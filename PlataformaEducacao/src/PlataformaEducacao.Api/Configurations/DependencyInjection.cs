@@ -1,4 +1,6 @@
 ﻿using MediatR;
+using PlataformaEducacao.Api.Extensions;
+using PlataformaEducacao.Core.DomainObjects;
 using PlataformaEducacao.Core.Messages.Notifications;
 using PlataformaEducacao.GestaoAlunos.Aplication.Commands;
 using PlataformaEducacao.GestaoAlunos.Aplication.Queries;
@@ -49,6 +51,9 @@ public static class DependencyInjection
         builder.Services.AddScoped<IPagamentoCartaoCreditoFacade, PagamentoCartaoCreditoFacade>();
         builder.Services.AddScoped<IPayPalGateway, PayPalGateway>();
         builder.Services.AddScoped<PagamentoContext>();
+
+        //Identity User
+        builder.Services.AddScoped<IAppIdentityUser, AppIdentityUser>();
 
         return builder;
 

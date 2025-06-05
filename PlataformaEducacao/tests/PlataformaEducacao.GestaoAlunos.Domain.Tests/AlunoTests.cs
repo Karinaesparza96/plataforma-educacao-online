@@ -10,7 +10,7 @@ public class AlunoTests
     public void AdicionarMatricula_NovaMatricula_StatusAguardandoPagamento()
     {
         // Arrange
-        var aluno = new Aluno("teste");
+        var aluno = new Aluno(Guid.NewGuid(), "teste");
         var cursoId = Guid.NewGuid();
         var matricula = new Matricula(aluno.Id, cursoId);
 
@@ -26,7 +26,7 @@ public class AlunoTests
     public void AdicionarMatricula_ExistenteMatricula_DeveLancarException()
     {
         // Arrange
-        var aluno = new Aluno("teste");
+        var aluno = new Aluno(Guid.NewGuid(), "teste"); ;
         var cursoId = Guid.NewGuid();
         var matricula = new Matricula(aluno.Id, cursoId);
 
@@ -43,7 +43,7 @@ public class AlunoTests
     public void AdicionarCertificado_NovoCertificado_DeveAdicionarComSucesso()
     {
         // Arrange
-        var aluno = new Aluno("teste");
+        var aluno = new Aluno(Guid.NewGuid(), "teste");
         var curso = "Curso teste";
         var certificado = new Certificado(aluno.Nome, curso, Guid.NewGuid(), aluno.Id, DateTime.Now);
 
@@ -59,7 +59,7 @@ public class AlunoTests
     public void GerarDescricao_DadosValidos_DeveGerarDescricao()
     {
         // Arrange
-        var aluno = new Aluno("teste");
+        var aluno = new Aluno(Guid.NewGuid(), "teste");
         var curso = "Curso teste";
         var certificado = new Certificado(aluno.Nome, curso, Guid.NewGuid(), aluno.Id, DateTime.Now);
 
@@ -84,7 +84,7 @@ public class AlunoTests
     public void AdicionarCertificado_CertificadoExistente_DeveLancarException()
     {
         // Arrange
-        var aluno = new Aluno("teste");
+        var aluno = new Aluno(Guid.NewGuid(), "teste");
         var curso = "Curso teste";
         var certificado = new Certificado(aluno.Nome, curso, Guid.NewGuid(), aluno.Id, DateTime.Now);
 
@@ -100,7 +100,7 @@ public class AlunoTests
     public void AdicionarCertificado_SemArquivo_DeveLancarException()
     {
         // Arrange
-        var aluno = new Aluno("teste");
+        var aluno = new Aluno(Guid.NewGuid(), "teste");
         var curso = "Curso teste";
         var certificado = new Certificado(aluno.Nome, curso, Guid.NewGuid(), aluno.Id, DateTime.Now);
         // Act && Assert

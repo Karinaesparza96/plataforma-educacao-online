@@ -39,11 +39,11 @@ public class PagamentoTests
         await _fixture.RealizarLoginApi("aluno@teste.com", "Teste@123");
         _fixture.Client.AtribuirToken(_fixture.Token);
 
-       var cursoId = await _fixture.ObterIdCurso();
+        await _fixture.ObterIdsPorStatusMatricula(EStatusMatricula.Ativa);
         _fixture.GerarDadosCartao();
 
         // Act
-        var response = await _fixture.Client.PostAsJsonAsync($"/api/cursos/{cursoId}/realizar-pagamento", _fixture.DadosPagamento);
+        var response = await _fixture.Client.PostAsJsonAsync($"/api/cursos/{_fixture.CursoId}/realizar-pagamento", _fixture.DadosPagamento);
 
 
         var erros = _fixture.ObterErros(await response.Content.ReadAsStringAsync());
