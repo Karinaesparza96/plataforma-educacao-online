@@ -11,6 +11,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
+using PlataformaEducacao.Core.DomainObjects;
 using PlataformaEducacao.Core.Messages.Notifications;
 
 namespace PlataformaEducacao.Api.Controllers;
@@ -20,9 +21,11 @@ public class AutenticationController(INotificationHandler<DomainNotification> no
                                 IMediator mediator, 
                                 SignInManager<IdentityUser> signInManager, 
                                 UserManager<IdentityUser> userManager,
-                                IOptions<JwtSettings> jwtSettings) : MainController(notificacoes, mediator)
+                                IAppIdentityUser identityUser,
+                                IOptions<JwtSettings> jwtSettings) : MainController(notificacoes, mediator, identityUser)
 {
     private readonly IMediator _mediator = mediator;
+    private readonly JwtSettings _jwtSettings = jwtSettings.Value;
 
     [HttpPost("registrar/aluno")]
     public async Task<ActionResult> RegistrarAluno(RegisterUserDto registerUser)
@@ -35,17 +38,19 @@ public class AutenticationController(INotificationHandler<DomainNotification> no
 
         var result = await RegistrarUsuario(registerUser, "ALUNO");
 
-        if (!result.IdentityResult.Succeeded)
+        if (!result.Result.Succeeded)
         {
-            NotificarErro(result.IdentityResult);
+            NotificarErro(result.Result);
             return RespostaPadrao();
         }
 
-        var command = new AdicionarAlunoCommand(result.UsuarioId, registerUser.Nome);
-        await _mediator.Send(command);
-
-        if (!OperacaoValida())
+        var command = new AdicionarAlunoCommand(result.User.Id, registerUser.Nome);
+        
+        if (!await _mediator.Send(command))
+        {
+            await userManager.DeleteAsync(result.User);
             return RespostaPadrao();
+        }
 
         var token = await GerarToken(registerUser.Email!);
         return RespostaPadrao(HttpStatusCode.Created, token);
@@ -61,17 +66,19 @@ public class AutenticationController(INotificationHandler<DomainNotification> no
 
         var result = await RegistrarUsuario(registerUser, "ADMIN");
 
-        if (!result.IdentityResult.Succeeded)
+        if (!result.Result.Succeeded)
         {
-            NotificarErro(result.IdentityResult);
+            NotificarErro(result.Result);
             return RespostaPadrao();
         }
 
-        var command = new AdicionarAdminCommand(result.UsuarioId);
-        await _mediator.Send(command);
+        var command = new AdicionarAdminCommand(result.User.Id);
 
-        if (!OperacaoValida()) 
+        if (!await _mediator.Send(command))
+        {
+            await userManager.DeleteAsync(result.User);
             return RespostaPadrao();
+        }
 
         var token = await GerarToken(registerUser.Email!);
         return RespostaPadrao(HttpStatusCode.Created, token);
@@ -103,7 +110,7 @@ public class AutenticationController(INotificationHandler<DomainNotification> no
         NotificarErro("Identity", "Usuário ou Senha incorretos");
         return RespostaPadrao();
     }
-    private async Task<(IdentityResult IdentityResult, string UsuarioId)> RegistrarUsuario(RegisterUserDto registerUser, string role)
+    private async Task<(IdentityUser User, IdentityResult Result)> RegistrarUsuario(RegisterUserDto registerUser, string role)
     {
         var userIdentity = new IdentityUser
         {
@@ -119,49 +126,68 @@ public class AutenticationController(INotificationHandler<DomainNotification> no
             await userManager.AddToRoleAsync(userIdentity, role);
         }
 
-        return (result, result.Succeeded ? userIdentity.Id : string.Empty);
+        return (userIdentity, result);
     }
 
     private async Task<LoginResponseDto> GerarToken(string email)
     {
         var user = await userManager.FindByEmailAsync(email);
         var roles = await userManager.GetRolesAsync(user);
-        var claims = new List<Claim>
-        {
-            new(ClaimTypes.NameIdentifier, user.Id)
-        };
+        var claimsUser = await userManager.GetClaimsAsync(user);
 
-        claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
+        var identityClaims = GerarClaimsUser(claimsUser, roles, user);
 
-        var encodedToken = CodificarToken(claims);
+        var encodedToken = CodificarToken(identityClaims);
 
-        return ObterRespostaToken(user, claims, encodedToken);
+        return ObterRespostaToken(user, claimsUser, encodedToken);
     }
 
-    private string CodificarToken(List<Claim> claims)
+    private ClaimsIdentity GerarClaimsUser(IList<Claim> claims, IList<string> roles, IdentityUser user)
+    {
+        claims.Add(new Claim(JwtRegisteredClaimNames.Sub, user.Id));
+        claims.Add(new Claim(JwtRegisteredClaimNames.Email, user.Email!));
+        claims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
+        claims.Add(new Claim(JwtRegisteredClaimNames.Nbf, ToUnixEpochDate(DateTime.Now).ToString()));
+        claims.Add(new Claim(JwtRegisteredClaimNames.Iat, ToUnixEpochDate(DateTime.Now).ToString(), ClaimValueTypes.Integer64));
+
+        roles.ToList().ForEach(r =>
+        {
+            claims.Add(new Claim("role", r));
+        });
+
+        return new ClaimsIdentity(claims);
+    }
+
+    private static long ToUnixEpochDate(DateTime date)
+    {
+        return (long)Math.Round(
+            (date.ToUniversalTime() - new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero)).TotalSeconds);
+    }
+
+    private string CodificarToken(ClaimsIdentity claims)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
 
-        var key = Encoding.ASCII.GetBytes(jwtSettings.Value.Segredo!);
+        var key = Encoding.ASCII.GetBytes(_jwtSettings.Segredo!);
 
         var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(claims),
-            Issuer = jwtSettings.Value.Emissor,
-            Audience = jwtSettings.Value.Audiencia,
-            Expires = DateTime.UtcNow.AddHours(jwtSettings.Value.ExpiracaoHoras),
+            Subject = claims,
+            Issuer = _jwtSettings.Emissor,
+            Audience = _jwtSettings.Audiencia,
+            Expires = DateTime.UtcNow.AddHours(_jwtSettings.ExpiracaoHoras),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         });
 
         return tokenHandler.WriteToken(token);
     }
 
-    private LoginResponseDto ObterRespostaToken(IdentityUser user, List<Claim> claims, string encodedToken)
+    private LoginResponseDto ObterRespostaToken(IdentityUser user, IList<Claim> claims, string encodedToken)
     {
         var response = new LoginResponseDto
         {
             AccessToken = encodedToken,
-            ExpiresIn = TimeSpan.FromHours(jwtSettings.Value.ExpiracaoHoras).TotalSeconds,
+            ExpiresIn = TimeSpan.FromHours(_jwtSettings.ExpiracaoHoras).TotalSeconds,
             UserToken = new UserTokenDto
             {
                 Id = user.Id,

@@ -2,9 +2,9 @@
 
 namespace PlataformaEducacao.GestaoAlunos.Domain;
 
-public class Aluno(string nome) : Usuario
+public class Aluno : Usuario
 {
-    public string Nome { get; private set; } = nome;
+    public string Nome { get; private set; }
 
     private readonly List<Matricula> _matriculas = [];
 
@@ -12,6 +12,14 @@ public class Aluno(string nome) : Usuario
     public IReadOnlyCollection<Matricula> Matriculas => _matriculas;
 
     public IReadOnlyCollection<Certificado> Certificados => _certificados;
+
+    // Ef Constructor
+    protected Aluno() : base(Guid.NewGuid()) {}
+
+    public Aluno(Guid id, string nome) : base(id)
+    {
+        Nome = nome;
+    }
 
     public void AdicionarMatricula(Matricula matricula)
     {

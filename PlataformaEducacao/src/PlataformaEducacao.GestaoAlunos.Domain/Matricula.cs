@@ -7,19 +7,21 @@ public class Matricula : Entity
 {
     public Guid AlunoId { get; private set; }
     public Guid CursoId { get; private set; }
-    public DateTime DataMatricula { get; private set; }
-    public DateTime DataConclusao { get; private set; }
+    public DateTime? DataMatricula { get; private set; }
+    public DateTime? DataConclusao { get; private set; }
     public EStatusMatricula Status { get; private set; }
 
     // Ef relationship
     public Aluno Aluno { get; set; }
 
+    // Ef Constructor
+    protected Matricula() { }
     public Matricula(Guid alunoId, Guid cursoId)
     {
         AlunoId = alunoId;
         CursoId = cursoId;
-        Iniciar();
         Validar();
+        Iniciar();
     }
 
     public void Iniciar()

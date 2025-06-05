@@ -7,18 +7,18 @@ using PlataformaEducacao.GestaoAlunos.Domain;
 
 namespace PlataformaEducacao.GestaoAlunos.Aplication.Handlers;
 
-public class UsuarioCommandHandler(IMediator mediator
-                                   , IAlunoRepository alunoRepository
-                                   , IUsuarioRepository usuarioRepository) : IRequestHandler<AdicionarAlunoCommand, bool>,
-                                                                             IRequestHandler<AdicionarAdminCommand, bool>
+public class UsuarioCommandHandler(IMediator mediator, 
+                                   IAlunoRepository alunoRepository,
+                                   IUsuarioRepository usuarioRepository) : CommandHandler,
+                                    IRequestHandler<AdicionarAlunoCommand, bool>,
+                                    IRequestHandler<AdicionarAdminCommand, bool>
 {
     public async Task<bool> Handle(AdicionarAlunoCommand request, CancellationToken cancellationToken)
     {
         if (!ValidarComando(request))
             return false;
 
-        var aluno = new Aluno(request.Nome);
-        aluno.AssociarUsuario(request.UsuarioId);
+        var aluno = new Aluno(Guid.Parse(request.UsuarioId),  request.Nome);
 
         alunoRepository.Adicionar(aluno);
         return await alunoRepository.UnitOfWork.Commit();
@@ -29,8 +29,7 @@ public class UsuarioCommandHandler(IMediator mediator
         if (!ValidarComando(request))
             return false;
 
-        var usuario = new Usuario();
-        usuario.AssociarUsuario(request.UsuarioId);
+        var usuario = new Usuario(Guid.Parse(request.UsuarioId));
 
         usuarioRepository.Adicionar(usuario);
         return await usuarioRepository.UnitOfWork.Commit();

@@ -3,14 +3,26 @@ using PlataformaEducacao.Core.Messages;
 
 namespace PlataformaEducacao.GestaoConteudos.Aplication.Commands;
 
-public class ValidarPagamentoCursoCommand(Guid cursoId, Guid alunoId, string nomeCartao, string numeroCartao, string expiracaoCartao, string cvvCartao) : Command
+public class ValidarPagamentoCursoCommand : Command
 {
-    public Guid CursoId { get; set; } = cursoId;
-    public Guid AlunoId { get; set; } = alunoId;
-    public string NomeCartao { get; set; } = nomeCartao;
-    public string NumeroCartao { get; set; } = numeroCartao;
-    public string ExpiracaoCartao { get; set; } = expiracaoCartao;
-    public string CvvCartao { get; set; } = cvvCartao;
+    public Guid CursoId { get; set; }
+    public Guid AlunoId { get; set; }
+    public string NomeCartao { get; set; }
+    public string NumeroCartao { get; set; }
+    public string ExpiracaoCartao { get; set; }
+    public string CvvCartao { get; set; }
+
+    public ValidarPagamentoCursoCommand(Guid cursoId, Guid alunoId, string nomeCartao, 
+                                        string numeroCartao, string expiracaoCartao, string cvvCartao)
+    {
+        AggregateId = alunoId;
+        CursoId = cursoId;
+        AlunoId = alunoId;
+        NomeCartao = nomeCartao;
+        NumeroCartao = numeroCartao;
+        ExpiracaoCartao = expiracaoCartao;
+        CvvCartao = cvvCartao;
+    }
     public override bool EhValido()
     {
         ValidationResult = new ValidarPagamentoCursoCommandValidation().Validate(this);
@@ -20,35 +32,35 @@ public class ValidarPagamentoCursoCommand(Guid cursoId, Guid alunoId, string nom
 
 public class ValidarPagamentoCursoCommandValidation : AbstractValidator<ValidarPagamentoCursoCommand>
 {
-    public static string CursoId = "O campo CursoId é obrigatório.";
-    public static string AlunoId = "O campo AlunoId é obrigatório.";
-    public static string NomeCartao = "O campo Nome do Cartão é obrigatório.";
-    public static string NumeroCartao = "O campo Número do Cartão é obrigatório.";
-    public static string ExpiracaoCartao = "O campo Expiração do Cartão é obrigatório.";
-    public static string CvvCartao = "O campo CVV do Cartão é obrigatório.";
+    public static string CursoIdErro = "O campo CursoId é obrigatório.";
+    public static string AlunoIdErro = "O campo AlunoId é obrigatório.";
+    public static string NomeCartaoErro = "O campo Nome do Cartão é obrigatório.";
+    public static string NumeroCartaoErro = "O campo Número do Cartão é obrigatório.";
+    public static string ExpiracaoCartaoErro = "O campo Expiração do Cartão é obrigatório.";
+    public static string CvvCartaoErro = "O campo CVV do Cartão é obrigatório.";
     public static string NumeroCartaoInvalido = "O campo Número do Cartão inválido.";
 
     public ValidarPagamentoCursoCommandValidation()
     {
         RuleFor(c => c.CursoId)
             .NotEqual(Guid.Empty)
-            .WithMessage(CursoId);
+            .WithMessage(CursoIdErro);
         RuleFor(c => c.AlunoId)
             .NotEqual(Guid.Empty)
-            .WithMessage(AlunoId);
+            .WithMessage(AlunoIdErro);
         RuleFor(c => c.NomeCartao)
             .NotEmpty()
-            .WithMessage(NomeCartao);
+            .WithMessage(NomeCartaoErro);
         RuleFor(c => c.NumeroCartao)
             .NotEmpty()
-            .WithMessage(NumeroCartao)
+            .WithMessage(NumeroCartaoErro)
             .CreditCard()
             .WithMessage(NumeroCartaoInvalido);
         RuleFor(c => c.ExpiracaoCartao)
             .NotEmpty()
-            .WithMessage(ExpiracaoCartao);
+            .WithMessage(ExpiracaoCartaoErro);
         RuleFor(c => c.CvvCartao)
             .NotEmpty()
-            .WithMessage(CvvCartao);
+            .WithMessage(CvvCartaoErro);
     }
 }

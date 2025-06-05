@@ -10,9 +10,10 @@ namespace PlataformaEducacao.GestaoConteudos.Aplication.Handlers;
 
 public class AulaCommandHandler(IMediator mediator, 
                                 ICursoRepository cursoRepository,
-                                IAulaRepository aulaRepository) : IRequestHandler<AdicionarAulaCommand, bool>,
-                                                                    IRequestHandler<RealizarAulaCommand, bool>,
-                                                                    IRequestHandler<ConcluirAulaCommand,bool>
+                                IAulaRepository aulaRepository) : CommandHandler,
+                                IRequestHandler<AdicionarAulaCommand, bool>,
+                                IRequestHandler<RealizarAulaCommand, bool>,
+                                IRequestHandler<ConcluirAulaCommand,bool>
 {
     public async Task<bool> Handle(AdicionarAulaCommand request, CancellationToken cancellationToken)
     {
@@ -23,7 +24,7 @@ public class AulaCommandHandler(IMediator mediator,
 
         if (curso == null)
         {
-            await mediator.Publish(new DomainNotification(request.MessageType, "Curso não encontrado."), cancellationToken);
+            await AdicionarNotificacao(request.MessageType, "Curso não encontrado.", cancellationToken);
             return false;
         }
 
@@ -50,7 +51,7 @@ public class AulaCommandHandler(IMediator mediator,
 
         if (aula == null)
         {
-            await mediator.Publish(new DomainNotification(request.MessageType, "Aula não encontrada."), cancellationToken);
+            await AdicionarNotificacao(request.MessageType, "Aula não encontrada.", cancellationToken);
             return false;
         }
         var progressoAula = new ProgressoAula(request.AlunoId, request.AulaId);
@@ -74,7 +75,7 @@ public class AulaCommandHandler(IMediator mediator,
 
         if (aula == null)
         {
-            await mediator.Publish(new DomainNotification(request.MessageType, "Aula não encontrada."), cancellationToken);
+            await AdicionarNotificacao(request.MessageType, "Aula não encontrada.", cancellationToken);
             return false;
         }
 
@@ -82,7 +83,7 @@ public class AulaCommandHandler(IMediator mediator,
 
         if (progressoAula == null)
         {
-            await mediator.Publish(new DomainNotification(request.MessageType, "Progresso não encontrado."), cancellationToken);
+            await AdicionarNotificacao(request.MessageType, "Progresso não encontrado.", cancellationToken);
             return false;
         }
 
@@ -97,16 +98,21 @@ public class AulaCommandHandler(IMediator mediator,
         var matricula = await mediator.Send(new ObterMatriculaCursoAlunoQuery(cursoId, alunoId), cancellationToken);
         if (matricula == null)
         {
-            await mediator.Publish(new DomainNotification(messageType, "Matrícula não encontrada."), cancellationToken);
+            await AdicionarNotificacao(messageType, "Matrícula não encontrada.", cancellationToken);
             return false;
         }
 
         if (matricula.Status != EStatusMatricula.Ativa)
         {
-            await mediator.Publish(new DomainNotification(messageType, "Matrícula não está ativa."), cancellationToken);
+            await AdicionarNotificacao(messageType, "Matrícula não está ativa.", cancellationToken);
             return false;
         }
         return true;
+    }
+
+    protected override async Task AdicionarNotificacao(string messageType, string descricao, CancellationToken cancellationToken)
+    {
+       await mediator.Publish(new DomainNotification(messageType, descricao), cancellationToken);
     }
 
     private bool ValidarComando(Command command)

@@ -9,15 +9,16 @@ using PlataformaEducacao.GestaoConteudos.Aplication.Commands;
 using PlataformaEducacao.GestaoConteudos.Aplication.Queries;
 using PlataformaEducacao.GestaoConteudos.Aplication.Queries.ViewModels;
 using System.Net;
+using PlataformaEducacao.Core.DomainObjects;
 
 namespace PlataformaEducacao.Api.Controllers
 {
     [Route("api/cursos")]
     public class CursosController(INotificationHandler<DomainNotification> notificacoes,
-                                  IMediator mediator,
-                                  ICursoQueries cursoQueries) 
-        : MainController(notificacoes, mediator)
-    {   
+                            IMediator mediator,
+                            IAppIdentityUser identityUser,
+                            ICursoQueries cursoQueries) : MainController(notificacoes, mediator, identityUser)
+    {
         private readonly IMediator _mediator = mediator;
 
         [AllowAnonymous]
@@ -38,13 +39,14 @@ namespace PlataformaEducacao.Api.Controllers
 
         [Authorize(Roles = "ADMIN")]
         [HttpPost]
-        public async Task<IActionResult> Adicionar([FromBody]CursoDto curso)
+        public async Task<IActionResult> Adicionar([FromBody] CursoDto curso)
         {
             var command = new AdicionarCursoCommand(curso.Nome, curso.Conteudo, UsuarioId, curso.Preco);
             await _mediator.Send(command);
 
             return RespostaPadrao(HttpStatusCode.Created);
         }
+
         [Authorize(Roles = "ADMIN")]
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> Atualizar(Guid id, [FromBody] CursoDto curso)
@@ -63,7 +65,7 @@ namespace PlataformaEducacao.Api.Controllers
         [Authorize(Roles = "ALUNO")]
         [HttpPost("{id:guid}/concluir-curso")]
         public async Task<IActionResult> ConcluirCurso(Guid id)
-        {   
+        {
             var command = new ConcluirMatriculaCommand(UsuarioId, id);
             await _mediator.Send(command);
 
@@ -74,10 +76,10 @@ namespace PlataformaEducacao.Api.Controllers
         [HttpPost("{cursoId:guid}/realizar-pagamento")]
         public async Task<IActionResult> RealizarPagamento(Guid cursoId, [FromBody] DadosPagamento dadosPagamento)
         {
-            var command = new ValidarPagamentoCursoCommand(cursoId, UsuarioId,dadosPagamento.NomeCartao, 
-                                                        dadosPagamento.NumeroCartao, dadosPagamento.ExpiracaoCartao, 
-                                                        dadosPagamento.CvvCartao);
-            await mediator.Send(command);
+            var command = new ValidarPagamentoCursoCommand(cursoId, UsuarioId, dadosPagamento.NomeCartao,
+                                                           dadosPagamento.NumeroCartao, dadosPagamento.ExpiracaoCartao,
+                                                           dadosPagamento.CvvCartao);
+            await _mediator.Send(command);
 
             return RespostaPadrao(HttpStatusCode.Created);
         }

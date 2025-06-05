@@ -25,12 +25,12 @@ public class CursoQueries : ICursoQueries
             Nome = curso.Nome,
             ConteudoProgramatico = curso.ConteudoProgramatico,
             Preco = curso.Preco,
-            Aulas = curso.Aulas.Select(a => new AulaViewModel
+            Aulas = curso.Aulas?.Select(a => new AulaViewModel
             {
                 Id = a.Id,
                 Nome = a.Nome,
                 Conteudo = a.Conteudo
-            }).ToList()
+            }).ToList() ?? []
         };
     }
 
@@ -44,12 +44,12 @@ public class CursoQueries : ICursoQueries
             Nome = c.Nome,
             ConteudoProgramatico = c.ConteudoProgramatico,
             Preco = c.Preco,
-            Aulas = c.Aulas.Select(a => new AulaViewModel
+            Aulas = c.Aulas?.Select(a => new AulaViewModel
             {
                 Id = a.Id,
                 Nome = a.Nome,
                 Conteudo = a.Conteudo
-            }).ToList()
+            }).ToList() ?? []
         }).ToList();
     }
 }

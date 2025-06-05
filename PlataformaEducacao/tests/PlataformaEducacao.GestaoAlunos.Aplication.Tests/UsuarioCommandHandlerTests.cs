@@ -56,21 +56,6 @@ public class UsuarioCommandHandlerTests
         mocker.GetMock<IUsuarioRepository>().Verify(x => x.UnitOfWork.Commit(), Times.Once);
     }
 
-
-    [Fact(DisplayName = "Associar Id Usuario")]
-    [Trait("Categoria", "GestaoAlunos - Usuario")]
-    public async Task AssociarUsuario_IdString_DeveConverterParaGuid()
-    {
-        // Arrange
-        var usuarioId = Guid.NewGuid().ToString();
-        var usuario = new Usuario();
-
-        // Act
-        usuario.AssociarUsuario(usuarioId);
-
-        // Assert
-        Assert.True(usuario.Id is Guid);
-    }
     [Fact(DisplayName = "Novo Aluno - AdicionarAlunoCommand Invalido")]
     [Trait("Categoria", "GestaoAlunos - UsuarioCommandHandler")]
     public async Task Adicionar_CommandInvalido_NaoDeveSalvarComSucesso()

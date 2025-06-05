@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using PlataformaEducacao.Api.Data;
 using PlataformaEducacao.GestaoAlunos.Data.Context;
 using PlataformaEducacao.GestaoConteudos.Data.Context;
@@ -49,10 +48,7 @@ public static class DbContextConfiguration
                 opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
         }
-        builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-            .AddRoles<IdentityRole>()
-            .AddEntityFrameworkStores<ApplicationContext>()
-            .AddDefaultTokenProviders();
+       
         return builder;
     }
 }

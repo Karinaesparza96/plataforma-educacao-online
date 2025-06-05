@@ -3,12 +3,21 @@ using PlataformaEducacao.Core.Messages;
 
 namespace PlataformaEducacao.GestaoConteudos.Aplication.Commands;
 
-public class AtualizarCursoCommand(Guid cursoId, string nome, string conteudoProgramatico, decimal preco) : Command
+public class AtualizarCursoCommand : Command
 {
-    public Guid CursoId { get; set; } = cursoId;
-    public string Nome { get; set; } = nome;
-    public string ConteudoProgramatico { get; set; } = conteudoProgramatico;
-    public decimal Preco { get; set; } = preco;
+    public Guid CursoId { get; set; }
+    public string Nome { get; set; }
+    public string ConteudoProgramatico { get; set; }
+    public decimal Preco { get; set; }
+
+    public AtualizarCursoCommand(Guid cursoId, string nome, string conteudoProgramatico, decimal preco)
+    {
+        AggregateId = cursoId;
+        CursoId = cursoId;
+        Nome = nome;
+        ConteudoProgramatico = conteudoProgramatico;
+        Preco = preco;
+    }
 
     public override bool EhValido()
     {

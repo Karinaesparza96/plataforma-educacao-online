@@ -1,9 +1,7 @@
-using System.Diagnostics;
 using PlataformaEducacao.Api.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//Debugger.Launch();
 builder.AddDbContextConfiguration()
         .AddApiConfiguration()
         .RegisterServices()
@@ -17,7 +15,10 @@ var enableSwagger = builder.Configuration.GetValue<bool>("EnableSwagger");
 if (enableSwagger)
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+    });
 }
 
 app.UseHttpsRedirection();

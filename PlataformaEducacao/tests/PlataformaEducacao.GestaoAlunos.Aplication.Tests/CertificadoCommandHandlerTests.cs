@@ -29,7 +29,7 @@ public class CertificadoCommandHandlerTests
         _handler = _mocker.CreateInstance<CertificadoCommandHandler>();
         _alunoRepositoryMock = _mocker.GetMock<IAlunoRepository>();
         _certificadoPdfServiceMock = _mocker.GetMock<ICertificadoPdfService>();
-        _aluno = new Aluno("fulano");
+        _aluno = new Aluno(Guid.NewGuid(), "teste");
         _cursoId = Guid.NewGuid();
         _alunoId = Guid.NewGuid();
         _matriculaId = Guid.NewGuid();
@@ -42,6 +42,8 @@ public class CertificadoCommandHandlerTests
         // Arrange
         var command = new AdicionarCertificadoCommand(_alunoId, _matriculaId, _cursoId);
         var matricula = new Matricula(_alunoId, _cursoId);
+        matricula.Concluir();
+
         _alunoRepositoryMock.Setup(r => r.ObterPorId(command.AlunoId)).ReturnsAsync(_aluno);
         _alunoRepositoryMock.Setup(r => r.ObterMatriculaPorCursoEAlunoId(command.CursoId, command.AlunoId)).ReturnsAsync(matricula);
         _alunoRepositoryMock.Setup(r => r.UnitOfWork.Commit()).ReturnsAsync(true);
@@ -153,6 +155,8 @@ public class CertificadoCommandHandlerTests
         // Arrange
         var command = new AdicionarCertificadoCommand(_alunoId, _matriculaId, _cursoId);
         var matricula = new Matricula(_alunoId, _cursoId);
+        matricula.Concluir();
+
         _alunoRepositoryMock.Setup(r => r.ObterPorId(command.AlunoId)).ReturnsAsync(_aluno);
         _alunoRepositoryMock.Setup(r => r.ObterMatriculaPorCursoEAlunoId(command.CursoId, command.AlunoId)).ReturnsAsync(matricula);
         _alunoRepositoryMock.Setup(r => r.UnitOfWork.Commit()).ReturnsAsync(true);

@@ -1,22 +1,22 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using MediatR;
-using System.Net;
+﻿using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System.Security.Claims;
+using PlataformaEducacao.Core.DomainObjects;
 using PlataformaEducacao.Core.Messages.Notifications;
+using System.Net;
 
 namespace PlataformaEducacao.Api.Controllers.Base
 {
     [ApiController]
     public abstract class MainController(
         INotificationHandler<DomainNotification> notificacoes,
-        IMediator mediator)
+        IMediator mediator, IAppIdentityUser identityUser)
         : ControllerBase
     {
         private readonly DomainNotificationHandler _notificacoes = (DomainNotificationHandler)notificacoes;
 
-        protected Guid UsuarioId => Guid.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty);
+        protected Guid UsuarioId => Guid.Parse(identityUser.GetUserId());
 
         protected bool OperacaoValida()
         {

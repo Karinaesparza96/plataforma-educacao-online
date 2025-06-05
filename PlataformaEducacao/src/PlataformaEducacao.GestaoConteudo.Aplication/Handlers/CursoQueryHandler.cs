@@ -6,7 +6,8 @@ using PlataformaEducacao.GestaoConteudos.Domain;
 
 namespace PlataformaEducacao.GestaoConteudos.Aplication.Handlers;
 
-public class CursoQueryHandler(ICursoRepository cursoRepository) : IRequestHandler<ObterCursoQuery, CursoDto?>, IRequestHandler<ObterAulasCursoAlunoQuery, CursoDto>
+public class CursoQueryHandler(ICursoRepository cursoRepository) : IRequestHandler<ObterCursoQuery, CursoDto?>, 
+                                                                    IRequestHandler<ObterAulasCursoAlunoQuery, CursoDto>
 {
     public async Task<CursoDto?> Handle(ObterCursoQuery request, CancellationToken cancellationToken)
     {

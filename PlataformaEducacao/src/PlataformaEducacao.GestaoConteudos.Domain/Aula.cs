@@ -17,6 +17,9 @@ public class Aula : Entity, IAggregateRoot
     // EF relationship
     public Curso? Curso { get; private set; }
 
+    // Ef Constructor
+    protected Aula() {}
+
     public Aula(string nome, string conteudo)
     {
         Nome = nome;

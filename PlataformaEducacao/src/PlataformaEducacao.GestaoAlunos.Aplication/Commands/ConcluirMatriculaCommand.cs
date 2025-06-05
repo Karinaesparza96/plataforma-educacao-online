@@ -10,6 +10,7 @@ public class ConcluirMatriculaCommand : Command
 
     public ConcluirMatriculaCommand(Guid alunoId, Guid cursoId)
     {
+        AggregateId = alunoId;
         AlunoId = alunoId;
         CursoId = cursoId;
     }
