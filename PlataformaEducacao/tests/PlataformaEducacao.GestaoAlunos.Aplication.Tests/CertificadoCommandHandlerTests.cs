@@ -1,8 +1,6 @@
 ﻿using MediatR;
 using Moq;
 using Moq.AutoMock;
-using PlataformaEducacao.Core.DomainObjects.DTOs;
-using PlataformaEducacao.Core.Messages.IntegrationQueries;
 using PlataformaEducacao.Core.Messages.Notifications;
 using PlataformaEducacao.GestaoAlunos.Aplication.Commands;
 using PlataformaEducacao.GestaoAlunos.Aplication.Handlers;
@@ -40,20 +38,13 @@ public class CertificadoCommandHandlerTests
     public async Task AdicionarCertificado_NovoCertificado_DeveExecutarComSucesso()
     {
         // Arrange
-        var command = new AdicionarCertificadoCommand(_alunoId, _matriculaId, _cursoId);
+        var command = new AdicionarCertificadoCommand(_alunoId, _matriculaId, _cursoId, "Curso C#");
         var matricula = new Matricula(_alunoId, _cursoId);
         matricula.Concluir();
 
         _alunoRepositoryMock.Setup(r => r.ObterPorId(command.AlunoId)).ReturnsAsync(_aluno);
         _alunoRepositoryMock.Setup(r => r.ObterMatriculaPorCursoEAlunoId(command.CursoId, command.AlunoId)).ReturnsAsync(matricula);
         _alunoRepositoryMock.Setup(r => r.UnitOfWork.Commit()).ReturnsAsync(true);
-        _mocker.GetMock<IMediator>().Setup(m => m.Send(It.IsAny<ObterCursoQuery>(), CancellationToken.None))
-            .ReturnsAsync(new CursoDto
-            {
-                Id = command.CursoId,
-                Nome = "curso teste",
-                Preco = 100,
-            });
         _certificadoPdfServiceMock.Setup(r => r.GerarPdf(It.IsAny<Certificado>())).Returns(new byte[10]);
 
         // Act
@@ -64,7 +55,6 @@ public class CertificadoCommandHandlerTests
         _alunoRepositoryMock.Verify(r => r.UnitOfWork.Commit(), Times.Once);
         _alunoRepositoryMock.Verify(r => r.ObterPorId(command.AlunoId), Times.Once);
         _alunoRepositoryMock.Verify(r => r.AdicionarCertificado(It.IsAny<Certificado>()), Times.Once);
-        _mocker.GetMock<IMediator>().Verify(m => m.Send(It.IsAny<ObterCursoQuery>(), CancellationToken.None), Times.Once);
     }
 
     [Fact(DisplayName = "Criar Certificado Command invalido")]
@@ -72,7 +62,7 @@ public class CertificadoCommandHandlerTests
     public async Task AdicionarCertificado_CommandInvalido_NaoDeveExecutarComSucesso()
     {
         // Arrange
-        var command = new AdicionarCertificadoCommand(Guid.Empty, Guid.Empty, Guid.Empty);
+        var command = new AdicionarCertificadoCommand(Guid.Empty, Guid.Empty, Guid.Empty, "");
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -82,6 +72,15 @@ public class CertificadoCommandHandlerTests
         _alunoRepositoryMock.Verify(r => r.UnitOfWork.Commit(), Times.Never);
         _alunoRepositoryMock.Verify(r => r.ObterPorId(command.AlunoId), Times.Never);
         _alunoRepositoryMock.Verify(r => r.AdicionarCertificado(It.IsAny<Certificado>()), Times.Never);
+        Assert.Contains(GerarCertificadoCommandValidator.CursoIdErro,
+            command.ValidationResult.Errors.Select(e => e.ErrorMessage));
+        Assert.Contains(GerarCertificadoCommandValidator.AlunoIdErro,
+            command.ValidationResult.Errors.Select(e => e.ErrorMessage));
+        Assert.Contains(GerarCertificadoCommandValidator.MatriculaIdErro,
+            command.ValidationResult.Errors.Select(e => e.ErrorMessage));
+        Assert.Contains(GerarCertificadoCommandValidator.NomeCursoErro,
+            command.ValidationResult.Errors.Select(e => e.ErrorMessage));
+        Assert.Equal(4, command.ValidationResult.Errors.Count);
     }
 
     [Fact(DisplayName = "Criar Certificado - Aluno não encontrado")]
@@ -89,7 +88,7 @@ public class CertificadoCommandHandlerTests
     public async Task AdicionarCertificado_AlunoNaoEncontrado_NaoDeveExecutarComSucesso()
     {
         // Arrange
-        var command = new AdicionarCertificadoCommand(_alunoId, _matriculaId, _cursoId);
+        var command = new AdicionarCertificadoCommand(_alunoId, _matriculaId, _cursoId, "Curso C#");
         _alunoRepositoryMock.Setup(r => r.ObterPorId(command.AlunoId)).ReturnsAsync((Aluno?)null);
 
         // Act
@@ -108,7 +107,7 @@ public class CertificadoCommandHandlerTests
     public async Task AdicionarCertificado_MatriculaNaoEncontrada_NaoDeveExecutarComSucesso()
     {
         // Arrange
-        var command = new AdicionarCertificadoCommand(_alunoId, _matriculaId, _cursoId);
+        var command = new AdicionarCertificadoCommand(_alunoId, _matriculaId, _cursoId, "Curso C#");
         _alunoRepositoryMock.Setup(r => r.ObterPorId(command.AlunoId)).ReturnsAsync(_aluno);
         _alunoRepositoryMock.Setup(r => r.ObterMatriculaPorCursoEAlunoId(command.CursoId, command.AlunoId)).ReturnsAsync((Matricula?)null);
 
@@ -124,16 +123,15 @@ public class CertificadoCommandHandlerTests
         _mocker.GetMock<IMediator>().Verify(m => m.Publish(It.IsAny<DomainNotification>(), CancellationToken.None), Times.Once);
     }
 
-    [Fact(DisplayName = "Criar Certificado - Curso não encontrado")]
+    [Fact(DisplayName = "Criar Certificado - Matricula Sem Data de Conclusao")]
     [Trait("Categoria", "GestaoAlunos - CertificadoCommandHandler")]
-    public async Task AdicionarCertificado_CursoNaoEncontrado_NaoDeveExecutarComSucesso()
+    public async Task AdicionarCertificado_MatriculaSemDataConclusao_NaoDeveExecutarComSucesso()
     {
         // Arrange
         var matricula = new Matricula(_alunoId, _cursoId);
-        var command = new AdicionarCertificadoCommand(_alunoId, _matriculaId, _cursoId);
+        var command = new AdicionarCertificadoCommand(_alunoId, _matriculaId, _cursoId, "Curso C#");
         _alunoRepositoryMock.Setup(r => r.ObterPorId(command.AlunoId)).ReturnsAsync(_aluno);
         _alunoRepositoryMock.Setup(r => r.ObterMatriculaPorCursoEAlunoId(command.CursoId, command.AlunoId)).ReturnsAsync(matricula);
-        _mocker.GetMock<IMediator>().Setup(m => m.Send(It.IsAny<ObterCursoQuery>(), CancellationToken.None)).ReturnsAsync((CursoDto?)null);
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -145,7 +143,6 @@ public class CertificadoCommandHandlerTests
         _alunoRepositoryMock.Verify(r => r.ObterMatriculaPorCursoEAlunoId(command.CursoId, command.AlunoId), Times.Once);
         _alunoRepositoryMock.Verify(r => r.AdicionarCertificado(It.IsAny<Certificado>()), Times.Never);
         _mocker.GetMock<IMediator>().Verify(m => m.Publish(It.IsAny<DomainNotification>(), CancellationToken.None), Times.Once);
-        _mocker.GetMock<IMediator>().Verify(m => m.Send(It.IsAny<ObterCursoQuery>(), CancellationToken.None), Times.Once);
     }
 
     [Fact(DisplayName = "Criar Certificado - PDF não encontrado")]
@@ -153,20 +150,13 @@ public class CertificadoCommandHandlerTests
     public async Task AdicionarCertificado_PdfNaoEncontrado_NaoDeveExecutarComSucesso()
     {
         // Arrange
-        var command = new AdicionarCertificadoCommand(_alunoId, _matriculaId, _cursoId);
+        var command = new AdicionarCertificadoCommand(_alunoId, _matriculaId, _cursoId, "Curso C#");
         var matricula = new Matricula(_alunoId, _cursoId);
         matricula.Concluir();
 
         _alunoRepositoryMock.Setup(r => r.ObterPorId(command.AlunoId)).ReturnsAsync(_aluno);
         _alunoRepositoryMock.Setup(r => r.ObterMatriculaPorCursoEAlunoId(command.CursoId, command.AlunoId)).ReturnsAsync(matricula);
         _alunoRepositoryMock.Setup(r => r.UnitOfWork.Commit()).ReturnsAsync(true);
-        _mocker.GetMock<IMediator>().Setup(m => m.Send(It.IsAny<ObterCursoQuery>(), CancellationToken.None))
-            .ReturnsAsync(new CursoDto
-            {
-                Id = command.CursoId,
-                Nome = "curso teste",
-                Preco = 100,
-            });
         _certificadoPdfServiceMock.Setup(r => r.GerarPdf(It.IsAny<Certificado>())).Returns(new byte[0]);
 
         // Act
@@ -178,7 +168,6 @@ public class CertificadoCommandHandlerTests
         _alunoRepositoryMock.Verify(r => r.ObterPorId(command.AlunoId), Times.Once);
         _alunoRepositoryMock.Verify(r => r.AdicionarCertificado(It.IsAny<Certificado>()), Times.Never);
         _mocker.GetMock<IMediator>().Verify(m => m.Publish(It.IsAny<DomainNotification>(), CancellationToken.None), Times.Once);
-        _mocker.GetMock<IMediator>().Verify(m => m.Send(It.IsAny<ObterCursoQuery>(), CancellationToken.None), Times.Once);
     }
 
     [Fact(DisplayName = "Gerar PDF")]

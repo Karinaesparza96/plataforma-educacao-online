@@ -41,7 +41,7 @@ public class MatriculaEventHandlerTests
     public async Task Handle_MatriculaConcluidaEvent_DeveExecutarComSucesso()
     {
         // Arrange
-        var command = new MatriculaConcluidaEvent(_alunoId, _matriculaId, _cursoId);
+        var command = new MatriculaConcluidaEvent(_alunoId, _matriculaId, _cursoId, "Curso C#");
 
         // Act
         await _handler.Handle(command, CancellationToken.None);

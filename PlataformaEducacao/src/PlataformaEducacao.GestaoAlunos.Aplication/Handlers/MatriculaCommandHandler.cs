@@ -1,8 +1,6 @@
 ﻿using MediatR;
-using PlataformaEducacao.Core.DomainObjects.Enums;
 using PlataformaEducacao.Core.Messages;
 using PlataformaEducacao.Core.Messages.IntegrationEvents;
-using PlataformaEducacao.Core.Messages.IntegrationQueries;
 using PlataformaEducacao.Core.Messages.Notifications;
 using PlataformaEducacao.GestaoAlunos.Aplication.Commands;
 using PlataformaEducacao.GestaoAlunos.Domain;
@@ -20,22 +18,15 @@ public class MatriculaCommandHandler(IMediator mediator,
         if (!ValidarComando(request))
             return false;
 
-        var curso = await mediator.Send(new ObterCursoQuery(request.CursoId), cancellationToken);
-        if (curso == null)
-        {
-            await AdicionarNotificacao(request.MessageType, "Curso não encontrado.", cancellationToken);
-            return false;
-        }
-
         var aluno = await alunoRepository.ObterPorId(request.AlunoId);
-        if (aluno == null)
+        if (aluno is null)
         {
             await AdicionarNotificacao(request.MessageType, "Aluno não encontrado.", cancellationToken);
             return false;
         }
 
         var matriculaExiste = await alunoRepository.ObterMatriculaPorCursoEAlunoId(request.CursoId, aluno.Id);
-        if (matriculaExiste != null)
+        if (matriculaExiste is not null)
         {
             await AdicionarNotificacao(request.MessageType, "Matrícula já existente.", cancellationToken);
             return false;
@@ -54,22 +45,8 @@ public class MatriculaCommandHandler(IMediator mediator,
         if (!ValidarComando(request))
             return false;
 
-        var aulas = await mediator.Send(new ObterAulasCursoAlunoQuery(request.CursoId, request.AlunoId), cancellationToken);
-        if (!aulas.Aulas.Any())
-        {
-            await AdicionarNotificacao(request.MessageType, "Aulas não encontradas.", cancellationToken);
-            return false;
-        }
-
-        var todasAulasConcluidas = aulas.Aulas.All(a => a.Status == EProgressoAulaStatus.Concluida);
-        if (!todasAulasConcluidas)
-        {
-            await AdicionarNotificacao(request.MessageType, "Todas as aulas deste curso precisam estar concluídas.", cancellationToken);
-            return false;
-        }
-
         var matricula = await alunoRepository.ObterMatriculaPorCursoEAlunoId(request.CursoId, request.AlunoId);
-        if (matricula == null)
+        if (matricula is null)
         {
             await AdicionarNotificacao(request.MessageType, "Matrícula não encontrada.", cancellationToken);
             return false;
@@ -77,7 +54,7 @@ public class MatriculaCommandHandler(IMediator mediator,
         matricula.Concluir();
         alunoRepository.AtualizarMatricula(matricula);
 
-        matricula.AdicionarEvento(new MatriculaConcluidaEvent(request.AlunoId, matricula.Id, matricula.CursoId));
+        matricula.AdicionarEvento(new MatriculaConcluidaEvent(request.AlunoId, matricula.Id, request.CursoId, request.NomeCurso));
 
         return await alunoRepository.UnitOfWork.Commit();
     }
@@ -88,7 +65,7 @@ public class MatriculaCommandHandler(IMediator mediator,
             return false;
 
         var matricula = await alunoRepository.ObterMatriculaPorCursoEAlunoId(request.CursoId, request.AlunoId);
-        if (matricula == null)
+        if (matricula is null)
         {
            await AdicionarNotificacao(request.MessageType, "Matrícula não encontrada.", cancellationToken);
             return false;

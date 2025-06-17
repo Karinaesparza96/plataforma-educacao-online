@@ -133,7 +133,7 @@ public class AulaTests
         aula.AdicionarProgresso(progressoAula2);
 
         // Act
-        aula.FiltrarProgressoAulaPorAlunoId(alunoId1);
+        aula.FiltrarProgressoAulaPorAluno(alunoId1);
 
         // Assert
         Assert.Equal(1, aula.ProgressoAulas.Count());

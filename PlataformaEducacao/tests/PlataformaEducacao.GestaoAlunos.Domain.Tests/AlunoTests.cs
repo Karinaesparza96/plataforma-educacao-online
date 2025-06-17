@@ -95,6 +95,7 @@ public class AlunoTests
         Assert.Throws<DomainException>(() => aluno.AdicionarCertificado(certificado));
         Assert.Equal(1, aluno.Certificados.Count);
     }
+
     [Fact(DisplayName = "Aluno - Adicionar Certificado Sem Arquivo")]
     [Trait("Categoria", "GestaoAlunos - AdicionarCertificado")]
     public void AdicionarCertificado_SemArquivo_DeveLancarException()
@@ -103,6 +104,7 @@ public class AlunoTests
         var aluno = new Aluno(Guid.NewGuid(), "teste");
         var curso = "Curso teste";
         var certificado = new Certificado(aluno.Nome, curso, Guid.NewGuid(), aluno.Id, DateTime.Now);
+
         // Act && Assert
         Assert.Throws<DomainException>(() => certificado.AdicionarArquivo(null));
     }

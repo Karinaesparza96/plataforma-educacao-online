@@ -15,6 +15,6 @@ public class MatriculaEventHandler(IMediator mediator)
 
     public async Task Handle(MatriculaConcluidaEvent notification, CancellationToken cancellationToken)
     {
-        await mediator.Send(new AdicionarCertificadoCommand(notification.AlunoId, notification.MatriculaId, notification.CursoId), cancellationToken);
+        await mediator.Send(new AdicionarCertificadoCommand(notification.AlunoId, notification.MatriculaId, notification.CursoId, notification.NomeCurso), cancellationToken);
     }
 }

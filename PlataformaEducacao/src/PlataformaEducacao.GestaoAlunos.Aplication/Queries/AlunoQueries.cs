@@ -9,7 +9,7 @@ public class AlunoQueries(IAlunoRepository alunoRepository) : IAlunoQueries
     {
         var matricula = await alunoRepository.ObterMatriculaPorCursoEAlunoId(cursoId, alunoId);
 
-        if (matricula == null)
+        if (matricula is null)
             return null;
 
         return new MatriculaViewModel
@@ -36,16 +36,13 @@ public class AlunoQueries(IAlunoRepository alunoRepository) : IAlunoQueries
         }).ToList();
     }
 
-    public async Task<CertificadoViewModel?> ObterCertificado(Guid certificadoId, Guid alunoId)
+    public async Task<CertificadoViewModel> ObterCertificado(Guid certificadoId, Guid alunoId)
     {
         var certificado = await alunoRepository.ObterCertificadoPorId(certificadoId, alunoId);
 
-        if(certificado == null)
-            return null;
-
         return new CertificadoViewModel
         {
-            Arquivo = certificado.Arquivo,
+            Arquivo = certificado?.Arquivo ?? []
         };
     }
 }

@@ -49,6 +49,7 @@ public class PagamentoTests
         var erros = _fixture.ObterErros(await response.Content.ReadAsStringAsync());
 
         // Assert
-        Assert.Contains("Matrícula não realizada.", erros.ToString());
+        Assert.Contains("A matrícula deve estar com status 'Aguardando Pagamento' para realizar o pagamento."
+            , erros.ToString());
     }
 }

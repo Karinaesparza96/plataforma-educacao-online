@@ -1,9 +1,6 @@
 ﻿using MediatR;
 using Moq;
 using Moq.AutoMock;
-using PlataformaEducacao.Core.DomainObjects.DTOs;
-using PlataformaEducacao.Core.DomainObjects.Enums;
-using PlataformaEducacao.Core.Messages.IntegrationQueries;
 using PlataformaEducacao.Core.Messages.Notifications;
 using PlataformaEducacao.GestaoConteudos.Aplication.Commands;
 using PlataformaEducacao.GestaoConteudos.Aplication.Handlers;
@@ -91,6 +88,11 @@ public class AulaCommandHandlerTests
         Assert.False(result);
         _mocker.GetMock<ICursoRepository>().Verify(r => r.Adicionar(It.IsAny<Aula>()), Times.Never);
         _mocker.GetMock<ICursoRepository>().Verify(x => x.UnitOfWork.Commit(), Times.Never);
+        Assert.Contains(RealizarAulaCommandValidation.CursoIdErro,
+            command.ValidationResult.Errors.Select(e => e.ErrorMessage));
+        Assert.Contains(RealizarAulaCommandValidation.AulaIdErro, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
+        Assert.Contains(RealizarAulaCommandValidation.AlunoIdErro, command.ValidationResult.Errors.Select(e => e.ErrorMessage));
+        Assert.Equal(3, command.ValidationResult.Errors.Count);
     }
 
     [Fact(DisplayName = "Realizar Aula Command - Com Sucesso")]
@@ -101,13 +103,6 @@ public class AulaCommandHandlerTests
         var command = new RealizarAulaCommand(_aulaId, _alunoId, _cursoId);
         _mocker.GetMock<ICursoRepository>().Setup(x => x.ObterAulaPorId(command.AulaId)).ReturnsAsync(new Aula("Aula 1", "Conteudo da aula"));
         _mocker.GetMock<IAulaRepository>().Setup(x => x.UnitOfWork.Commit()).Returns(Task.FromResult(true));
-        _mocker.GetMock<IMediator>()
-            .Setup(x => x.Send(It.IsAny<ObterMatriculaCursoAlunoQuery>(), CancellationToken.None)).ReturnsAsync(
-                new MatriculaDto
-                {
-                    Id = Guid.NewGuid(),
-                    Status = EStatusMatricula.Ativa
-                });
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -124,8 +119,6 @@ public class AulaCommandHandlerTests
         // Arrange
         var command = new RealizarAulaCommand(_aulaId, _alunoId, _cursoId);
         _mocker.GetMock<ICursoRepository>().Setup(x => x.ObterAulaPorId(command.AulaId)).ReturnsAsync((Aula)null);
-        _mocker.GetMock<IMediator>().Setup(a => a.Send(It.IsAny<ObterMatriculaCursoAlunoQuery>(), CancellationToken.None))
-            .ReturnsAsync(new MatriculaDto { Status = EStatusMatricula.Ativa });
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -134,30 +127,6 @@ public class AulaCommandHandlerTests
         Assert.False(result);
         _mocker.GetMock<ICursoRepository>().Verify(x => x.ObterAulaPorId(command.AulaId), Times.Once);
        _mocker.GetMock<IAulaRepository>().Verify(r => r.AdicionarProgressoAula(It.IsAny<ProgressoAula>()), Times.Never);
-        _mocker.GetMock<IAulaRepository>().Verify(x => x.UnitOfWork.Commit(), Times.Never);
-        _mocker.GetMock<IMediator>().Verify(m => m.Publish(It.IsAny<DomainNotification>(), CancellationToken.None), Times.Once);
-    }
-
-    [Fact(DisplayName = "Realizar Aula Command - Matricula Invalida")]
-    [Trait("Categoria", "GestaoConteudos - AulaCommandHandler")]
-    public async Task AdicionarProgresso_MatriculaInvalida_NaoDeveExecutarComSucesso()
-    {
-        // Arrange
-        var command = new RealizarAulaCommand(_aulaId, _alunoId, _cursoId);
-        _mocker.GetMock<ICursoRepository>().Setup(x => x.ObterAulaPorId(command.AulaId)).ReturnsAsync((Aula)null);
-        _mocker.GetMock<IMediator>().Setup(x => x.Send(It.IsAny<ObterMatriculaCursoAlunoQuery>(), CancellationToken.None))
-            .ReturnsAsync(new MatriculaDto
-            {
-                Status = EStatusMatricula.AguardandoPagamento
-            });
-
-        // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        Assert.False(result);
-        _mocker.GetMock<ICursoRepository>().Verify(x => x.ObterAulaPorId(command.AulaId), Times.Never);
-        _mocker.GetMock<IAulaRepository>().Verify(r => r.AdicionarProgressoAula(It.IsAny<ProgressoAula>()), Times.Never);
         _mocker.GetMock<IAulaRepository>().Verify(x => x.UnitOfWork.Commit(), Times.Never);
         _mocker.GetMock<IMediator>().Verify(m => m.Publish(It.IsAny<DomainNotification>(), CancellationToken.None), Times.Once);
     }
@@ -175,8 +144,6 @@ public class AulaCommandHandlerTests
         _mocker.GetMock<ICursoRepository>().Setup(x => x.ObterAulaPorId(command.AulaId)).ReturnsAsync(aula);
         _mocker.GetMock<IAulaRepository>().Setup(x => x.ObterProgressoAula(aula.Id, command.AlunoId)).ReturnsAsync(progressoAula);
         _mocker.GetMock<IAulaRepository>().Setup(x => x.UnitOfWork.Commit()).Returns(Task.FromResult(true));
-        _mocker.GetMock<IMediator>().Setup(a => a.Send(It.IsAny<ObterMatriculaCursoAlunoQuery>(), CancellationToken.None))
-            .ReturnsAsync(new MatriculaDto { Status = EStatusMatricula.Ativa });
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -211,35 +178,12 @@ public class AulaCommandHandlerTests
         // Arrange
         var command = new ConcluirAulaCommand(_aulaId, _alunoId, _cursoId);
         _mocker.GetMock<ICursoRepository>().Setup(x => x.ObterAulaPorId(command.AulaId)).ReturnsAsync((Aula)null);
-        _mocker.GetMock<IMediator>().Setup(a => a.Send(It.IsAny<ObterMatriculaCursoAlunoQuery>(), CancellationToken.None))
-            .ReturnsAsync(new MatriculaDto {Status = EStatusMatricula.Ativa});
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
         // Assert
         Assert.False(result);
         _mocker.GetMock<ICursoRepository>().Verify(x => x.ObterAulaPorId(command.AulaId), Times.Once);
-        _mocker.GetMock<IAulaRepository>().Verify(r => r.AtualizarProgressoAula(It.IsAny<ProgressoAula>()), Times.Never);
-        _mocker.GetMock<IAulaRepository>().Verify(x => x.UnitOfWork.Commit(), Times.Never);
-        _mocker.GetMock<IMediator>().Verify(m => m.Publish(It.IsAny<DomainNotification>(), CancellationToken.None), Times.Once);
-    }
-
-    [Fact(DisplayName = "Concluir Aula Command - Matricula Invalida")]
-    [Trait("Categoria", "GestaoConteudos - AulaCommandHandler")]
-    public async Task ConcluirAula_MatriculaInvalida_NaoDeveExecutarComSucesso()
-    {
-        // Arrange
-        var command = new ConcluirAulaCommand(_aulaId, _alunoId, _cursoId);
-        _mocker.GetMock<ICursoRepository>().Setup(x => x.ObterAulaPorId(command.AulaId)).ReturnsAsync((Aula)null);
-        _mocker.GetMock<IMediator>().Setup(a => a.Send(It.IsAny<ObterMatriculaCursoAlunoQuery>(), CancellationToken.None))
-            .ReturnsAsync(new MatriculaDto { Status = EStatusMatricula.AguardandoPagamento });
-
-        // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        Assert.False(result);
-        _mocker.GetMock<ICursoRepository>().Verify(x => x.ObterAulaPorId(command.AulaId), Times.Never);
         _mocker.GetMock<IAulaRepository>().Verify(r => r.AtualizarProgressoAula(It.IsAny<ProgressoAula>()), Times.Never);
         _mocker.GetMock<IAulaRepository>().Verify(x => x.UnitOfWork.Commit(), Times.Never);
         _mocker.GetMock<IMediator>().Verify(m => m.Publish(It.IsAny<DomainNotification>(), CancellationToken.None), Times.Once);
@@ -254,8 +198,6 @@ public class AulaCommandHandlerTests
         var aula = new Aula("Aula 1", "Conteudo da aula");
         _mocker.GetMock<ICursoRepository>().Setup(x => x.ObterAulaPorId(command.AulaId)).ReturnsAsync(aula);
         _mocker.GetMock<IAulaRepository>().Setup(x => x.ObterProgressoAula(aula.Id, command.AlunoId)).ReturnsAsync((ProgressoAula)null);
-        _mocker.GetMock<IMediator>().Setup(a => a.Send(It.IsAny<ObterMatriculaCursoAlunoQuery>(), CancellationToken.None))
-            .ReturnsAsync(new MatriculaDto { Status = EStatusMatricula.Ativa });
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);

@@ -3,20 +3,13 @@ using PlataformaEducacao.GestaoConteudos.Domain;
 
 namespace PlataformaEducacao.GestaoConteudos.Aplication.Queries;
 
-public class CursoQueries : ICursoQueries
+public class CursoQueries(ICursoRepository cursoRepository) : ICursoQueries
 {
-    private readonly ICursoRepository _cursoRepository;
-
-    public CursoQueries(ICursoRepository cursoRepository)
-    {
-        _cursoRepository = cursoRepository;
-    }
-
     public async Task<CursoViewModel?> ObterPorId(Guid cursoId)
     {
-        var curso = await _cursoRepository.ObterPorId(cursoId);
+        var curso = await cursoRepository.ObterPorId(cursoId);
 
-        if (curso == null) 
+        if (curso is null)
             return null;
 
         return new CursoViewModel
@@ -36,7 +29,7 @@ public class CursoQueries : ICursoQueries
 
     public async Task<IEnumerable<CursoViewModel>> ObterTodos()
     {
-        var cursos = await _cursoRepository.ObterTodos(); 
+        var cursos = await cursoRepository.ObterTodos(); 
 
         return cursos.Select(c => new CursoViewModel
         {
@@ -51,5 +44,12 @@ public class CursoQueries : ICursoQueries
                 Conteudo = a.Conteudo
             }).ToList() ?? []
         }).ToList();
+    }
+
+    public async Task<bool> TodasAulasConcluidas(Guid cursoId, Guid alunoId)
+    {
+        var aulas = await cursoRepository.ObterAulasComProgressoFiltradoAluno(cursoId, alunoId);
+
+        return aulas.All(a => a.EstaConcluida(alunoId));
     }
 }

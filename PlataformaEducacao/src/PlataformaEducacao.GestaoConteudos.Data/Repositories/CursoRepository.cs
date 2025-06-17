@@ -39,7 +39,7 @@ public class CursoRepository(GestaoConteudosContext dbContext) : ICursoRepositor
 
         foreach (var aula in aulas)
         {
-            aula.FiltrarProgressoAulaPorAlunoId(alunoId);
+            aula.FiltrarProgressoAulaPorAluno(alunoId);
         }
         return aulas;
     }

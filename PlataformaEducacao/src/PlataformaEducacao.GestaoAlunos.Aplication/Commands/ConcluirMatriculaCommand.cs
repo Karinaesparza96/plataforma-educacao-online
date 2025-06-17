@@ -7,12 +7,14 @@ public class ConcluirMatriculaCommand : Command
 {
     public Guid AlunoId { get; set; }
     public Guid CursoId { get; set; }
+    public string NomeCurso { get; set; }
 
-    public ConcluirMatriculaCommand(Guid alunoId, Guid cursoId)
+    public ConcluirMatriculaCommand(Guid alunoId, Guid cursoId, string nomeCurso)
     {
         AggregateId = alunoId;
         AlunoId = alunoId;
         CursoId = cursoId;
+        NomeCurso = nomeCurso;
     }
     public override bool EhValido()
     {
@@ -24,6 +26,7 @@ public class ConcluirMatriculaCommandValidation : AbstractValidator<ConcluirMatr
 {
     public static string AlunoId = "O campo AlunoId é obrigatório.";
     public static string CursoId = "O campo CursoId é obrigatório.";
+    public static string NomeCurso = "O campo Nome Curso é obrigatório.";
     public ConcluirMatriculaCommandValidation()
     {
         RuleFor(c => c.AlunoId)
@@ -32,5 +35,8 @@ public class ConcluirMatriculaCommandValidation : AbstractValidator<ConcluirMatr
         RuleFor(c => c.CursoId)
             .NotEqual(Guid.Empty)
             .WithMessage(CursoId);
+        RuleFor(c => c.NomeCurso)
+            .NotEmpty()
+            .WithMessage(NomeCurso);
     }
 }

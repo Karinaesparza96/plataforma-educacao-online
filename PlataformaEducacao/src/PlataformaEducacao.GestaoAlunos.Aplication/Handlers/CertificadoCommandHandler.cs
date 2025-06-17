@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using PlataformaEducacao.Core.Messages;
-using PlataformaEducacao.Core.Messages.IntegrationQueries;
 using PlataformaEducacao.Core.Messages.Notifications;
 using PlataformaEducacao.GestaoAlunos.Aplication.Commands;
 using PlataformaEducacao.GestaoAlunos.Domain;
@@ -18,26 +17,25 @@ public class CertificadoCommandHandler(ICertificadoPdfService certificadoPdfServ
             return false;
 
         var aluno = await alunoRepository.ObterPorId(request.AlunoId);
-        if (aluno == null)
+        if (aluno is null)
         {
             await AdicionarNotificacao(request.MessageType, "Aluno não encontrado.", cancellationToken);
             return false;
         }
         var matricula = await alunoRepository.ObterMatriculaPorCursoEAlunoId(request.CursoId, request.AlunoId);
-        if (matricula == null)
+        if (matricula is null)
         {
             await AdicionarNotificacao(request.MessageType, "Matrícula não encontrada.", cancellationToken);
             return false;
         }
 
-        var curso = await mediator.Send(new ObterCursoQuery(request.CursoId), cancellationToken);
-        if (curso == null) 
+        if (!matricula.DataConclusao.HasValue)
         {
-            await AdicionarNotificacao(request.MessageType, "Curso não encontrado.", cancellationToken);
+            await AdicionarNotificacao(request.MessageType, "Matrícula não está concluída.", cancellationToken);
             return false;
         }
 
-        var certificado = new Certificado(aluno.Nome, curso.Nome, matricula.Id, aluno.Id, matricula.DataConclusao);
+        var certificado = new Certificado(aluno.Nome, request.NomeCurso, matricula.Id, aluno.Id, matricula.DataConclusao);
 
         var pdf = certificadoPdfService.GerarPdf(certificado);
 

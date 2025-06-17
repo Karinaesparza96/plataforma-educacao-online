@@ -3,13 +3,17 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlataformaEducacao.Api.Controllers.Base;
 using PlataformaEducacao.Api.DTOs;
+using PlataformaEducacao.Core.DomainObjects;
+using PlataformaEducacao.Core.DomainObjects.Enums;
 using PlataformaEducacao.Core.Messages.Notifications;
 using PlataformaEducacao.GestaoAlunos.Aplication.Commands;
+using PlataformaEducacao.GestaoAlunos.Aplication.Queries;
 using PlataformaEducacao.GestaoConteudos.Aplication.Commands;
 using PlataformaEducacao.GestaoConteudos.Aplication.Queries;
 using PlataformaEducacao.GestaoConteudos.Aplication.Queries.ViewModels;
 using System.Net;
-using PlataformaEducacao.Core.DomainObjects;
+using PlataformaEducacao.Pagamentos.Business.Commands;
+using PlataformaEducacao.GestaoConteudos.Domain;
 
 namespace PlataformaEducacao.Api.Controllers
 {
@@ -17,6 +21,7 @@ namespace PlataformaEducacao.Api.Controllers
     public class CursosController(INotificationHandler<DomainNotification> notificacoes,
                             IMediator mediator,
                             IAppIdentityUser identityUser,
+                            IAlunoQueries alunoQueries,
                             ICursoQueries cursoQueries) : MainController(notificacoes, mediator, identityUser)
     {
         private readonly IMediator _mediator = mediator;
@@ -40,7 +45,7 @@ namespace PlataformaEducacao.Api.Controllers
         [Authorize(Roles = "ADMIN")]
         [HttpPost]
         public async Task<IActionResult> Adicionar([FromBody] CursoDto curso)
-        {
+        {   
             var command = new AdicionarCursoCommand(curso.Nome, curso.Conteudo, UsuarioId, curso.Preco);
             await _mediator.Send(command);
 
@@ -65,8 +70,15 @@ namespace PlataformaEducacao.Api.Controllers
         [Authorize(Roles = "ALUNO")]
         [HttpPost("{id:guid}/concluir-curso")]
         public async Task<IActionResult> ConcluirCurso(Guid id)
-        {
-            var command = new ConcluirMatriculaCommand(UsuarioId, id);
+        {   
+            var curso = await cursoQueries.ObterPorId(id);
+
+            await ValidarAulasCurso(curso);
+
+            if (!OperacaoValida())
+                return RespostaPadrao();
+
+            var command = new ConcluirMatriculaCommand(UsuarioId, id, curso.Nome);
             await _mediator.Send(command);
 
             return RespostaPadrao(HttpStatusCode.Created);
@@ -76,9 +88,15 @@ namespace PlataformaEducacao.Api.Controllers
         [HttpPost("{cursoId:guid}/realizar-pagamento")]
         public async Task<IActionResult> RealizarPagamento(Guid cursoId, [FromBody] DadosPagamento dadosPagamento)
         {
-            var command = new ValidarPagamentoCursoCommand(cursoId, UsuarioId, dadosPagamento.NomeCartao,
-                                                           dadosPagamento.NumeroCartao, dadosPagamento.ExpiracaoCartao,
-                                                           dadosPagamento.CvvCartao);
+            var curso = await cursoQueries.ObterPorId(cursoId);
+
+            await ValidarCursoMatricula(curso);
+
+            if (!OperacaoValida())
+                return RespostaPadrao();
+
+            var command = new RealizarPagamentoCursoCommand(UsuarioId, cursoId, dadosPagamento.CvvCartao, dadosPagamento.ExpiracaoCartao, dadosPagamento.NomeCartao, dadosPagamento.NumeroCartao, curso.Preco);
+
             await _mediator.Send(command);
 
             return RespostaPadrao(HttpStatusCode.Created);
@@ -91,6 +109,36 @@ namespace PlataformaEducacao.Api.Controllers
             var command = new DeletarCursoCommand(id);
             await _mediator.Send(command);
             return RespostaPadrao(HttpStatusCode.NoContent);
+        }
+
+        private async Task ValidarCursoMatricula(CursoViewModel? curso)
+        {
+            if (curso is null)
+            {
+                NotificarErro("Curso", "Curso não encontrado.");
+                return;
+            }
+            var matricula = await alunoQueries.ObterMatricula(curso.Id, UsuarioId);
+
+            if (matricula is not { Status: EStatusMatricula.AguardandoPagamento })
+            {
+                NotificarErro( "Matricula", "A matrícula deve estar com status 'Aguardando Pagamento' para realizar o pagamento.");
+            }
+        }
+
+        private async Task ValidarAulasCurso(CursoViewModel? curso)
+        {
+            if (curso is null)
+            {
+                NotificarErro("Curso", "Curso não encontrado.");
+                return;
+            }
+            var aulasConcluidas = await cursoQueries.TodasAulasConcluidas(curso.Id, UsuarioId);
+
+            if (!aulasConcluidas)
+            {
+                NotificarErro("Curso", "Todas as aulas deste curso precisam estar concluídas.");
+            }
         }
     }
 }

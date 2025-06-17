@@ -1,5 +1,4 @@
 ﻿using PlataformaEducacao.GestaoConteudos.Aplication.Commands;
-using PlataformaEducacao.GestaoConteudos.Domain;
 
 namespace PlataformaEducacao.GestaoConteudos.Aplication.Tests;
 

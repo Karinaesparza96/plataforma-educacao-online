@@ -9,14 +9,12 @@ public class CursoQueriesTests
 {
     private readonly AutoMocker _mocker;
     private readonly CursoQueries _query;
-    private readonly Guid _aulaId;
     private readonly Curso _curso;
 
     public CursoQueriesTests()
     {
         _mocker = new AutoMocker();
         _query = _mocker.CreateInstance<CursoQueries>();
-        _aulaId = Guid.NewGuid();
         _curso = new Curso("Curso Teste", "Descricao Teste", Guid.NewGuid(), 10);
     }
 

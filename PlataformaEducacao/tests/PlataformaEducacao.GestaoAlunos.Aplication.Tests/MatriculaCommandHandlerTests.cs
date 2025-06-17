@@ -1,8 +1,6 @@
 ﻿using MediatR;
 using Moq;
 using Moq.AutoMock;
-using PlataformaEducacao.Core.DomainObjects.DTOs;
-using PlataformaEducacao.Core.Messages.IntegrationQueries;
 using PlataformaEducacao.Core.Messages.Notifications;
 using PlataformaEducacao.GestaoAlunos.Aplication.Commands;
 using PlataformaEducacao.GestaoAlunos.Aplication.Handlers;
@@ -37,8 +35,6 @@ public class MatriculaCommandHandlerTests
 
         _alunoRepositoryMock.Setup(r => r.ObterPorId(_alunoId)).ReturnsAsync(_aluno);
         _alunoRepositoryMock.Setup(r => r.UnitOfWork.Commit()).ReturnsAsync(true);
-        _mocker.GetMock<IMediator>().Setup(m => m.Send(It.IsAny<ObterCursoQuery>(), CancellationToken.None))
-            .ReturnsAsync(new CursoDto { Id = _cursoId });
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -81,8 +77,6 @@ public class MatriculaCommandHandlerTests
         var command = new AdicionarMatriculaCommand(_alunoId, _cursoId);
 
         _mocker.GetMock<IAlunoRepository>().Setup(r => r.ObterPorId(command.AlunoId)).ReturnsAsync((Aluno?)null);
-        _mocker.GetMock<IMediator>().Setup(m => m.Send(It.IsAny<ObterCursoQuery>(), CancellationToken.None))
-            .ReturnsAsync(new CursoDto { Id = _cursoId });
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -100,8 +94,6 @@ public class MatriculaCommandHandlerTests
         // Arrange
         var command = new AdicionarMatriculaCommand(_alunoId, _cursoId);
         var matriculaExistente = new Matricula(_alunoId, _cursoId);
-        _mocker.GetMock<IMediator>().Setup(m => m.Send(It.IsAny<ObterCursoQuery>(), CancellationToken.None))
-            .ReturnsAsync(new CursoDto { Id = _cursoId });
 
         _alunoRepositoryMock.Setup(r => r.ObterPorId(_alunoId)).ReturnsAsync(_aluno);
         _alunoRepositoryMock.Setup(r => r.ObterMatriculaPorCursoEAlunoId(_cursoId, _aluno.Id))

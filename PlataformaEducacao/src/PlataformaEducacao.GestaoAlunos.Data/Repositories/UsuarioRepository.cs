@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PlataformaEducacao.Core.Data;
-using PlataformaEducacao.Core.DomainObjects;
 using PlataformaEducacao.GestaoAlunos.Data.Context;
 using PlataformaEducacao.GestaoAlunos.Domain;
 

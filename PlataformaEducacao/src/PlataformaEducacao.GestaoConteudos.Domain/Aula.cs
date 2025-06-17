@@ -1,4 +1,5 @@
 ﻿using PlataformaEducacao.Core.DomainObjects;
+using PlataformaEducacao.Core.DomainObjects.Enums;
 
 namespace PlataformaEducacao.GestaoConteudos.Domain;
 
@@ -58,11 +59,17 @@ public class Aula : Entity, IAggregateRoot
         progressoAula.ConcluirAula();
     }
 
-    public void FiltrarProgressoAulaPorAlunoId(Guid alunoId)
+    public void FiltrarProgressoAulaPorAluno(Guid alunoId)
     {
         var filtrados = _progressoAulas.Where(p => p.AlunoId == alunoId).ToList();
         _progressoAulas.Clear();
         _progressoAulas.AddRange(filtrados);
+    }
+
+    public bool EstaConcluida(Guid alunoId)
+    {
+        FiltrarProgressoAulaPorAluno(alunoId);
+        return _progressoAulas.Any(p => p.AulaId == Id && p.Status == EProgressoAulaStatus.Concluida);
     }
 
     private void Validar()

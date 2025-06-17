@@ -1,6 +1,4 @@
 ﻿using PlataformaEducacao.GestaoConteudos.Aplication.Commands;
-using System.Reflection.Metadata;
-using Moq.AutoMock;
 
 namespace PlataformaEducacao.GestaoConteudos.Aplication.Tests;
 

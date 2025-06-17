@@ -7,12 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="fluentvalidation" Version="11.11.0" />
-    <PackageReference Include="MediatR" Version="12.5.0" />
+    <Compile Remove="Extensions\**" />
+    <EmbeddedResource Remove="Extensions\**" />
+    <None Remove="Extensions\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Extensions\" />
+    <PackageReference Include="fluentvalidation" Version="11.11.0" />
+    <PackageReference Include="MediatR" Version="12.5.0" />
   </ItemGroup>
 
 </Project>

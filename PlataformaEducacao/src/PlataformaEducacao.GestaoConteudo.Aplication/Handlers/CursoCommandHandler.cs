@@ -1,9 +1,5 @@
 ﻿using MediatR;
-using PlataformaEducacao.Core.DomainObjects.DTOs;
-using PlataformaEducacao.Core.DomainObjects.Enums;
 using PlataformaEducacao.Core.Messages;
-using PlataformaEducacao.Core.Messages.IntegrationCommands;
-using PlataformaEducacao.Core.Messages.IntegrationQueries;
 using PlataformaEducacao.Core.Messages.Notifications;
 using PlataformaEducacao.GestaoConteudos.Aplication.Commands;
 using PlataformaEducacao.GestaoConteudos.Domain;
@@ -13,7 +9,6 @@ namespace PlataformaEducacao.GestaoConteudos.Aplication.Handlers;
 public class CursoCommandHandler(ICursoRepository cursoRepository,
                                  IMediator mediator) : CommandHandler,
                                                     IRequestHandler<AdicionarCursoCommand, bool>, 
-                                                    IRequestHandler<ValidarPagamentoCursoCommand, bool>,
                                                     IRequestHandler<AtualizarCursoCommand, bool>,
                                                     IRequestHandler<DeletarCursoCommand, bool>
 {
@@ -26,48 +21,14 @@ public class CursoCommandHandler(ICursoRepository cursoRepository,
 
         return await cursoRepository.UnitOfWork.Commit();
     }
-
-    public async Task<bool> Handle(ValidarPagamentoCursoCommand command, CancellationToken cancellationToken)
-    {
-        if (!ValidarComando(command)) 
-            return false;
-
-        var curso = await cursoRepository.ObterPorId(command.CursoId);
-        if (curso == null)
-        {   
-            await AdicionarNotificacao(command.MessageType, "Curso não encontrado.", cancellationToken);
-            return false;
-        }
-
-        var matricula = await mediator.Send(new ObterMatriculaCursoAlunoQuery(command.CursoId, command.AlunoId), cancellationToken);
-
-        if (matricula is not { Status: EStatusMatricula.AguardandoPagamento })
-        {
-            await AdicionarNotificacao(command.MessageType, "Matrícula não realizada.", cancellationToken);
-            return false;
-        }
-
-        var pagamentoCurso = new PagamentoCurso
-        {
-            AlunoId = command.AlunoId,
-            CursoId = curso.Id,
-            CvvCartao = command.CvvCartao,
-            ExpiracaoCartao = command.ExpiracaoCartao,
-            NomeCartao = command.NomeCartao,
-            NumeroCartao = command.NumeroCartao,
-            Total = curso.Preco
-        };
-        
-        return await mediator.Send(new RealizarPagamentoCursoCommand(pagamentoCurso), cancellationToken);
-    }
-
+    
     public async Task<bool> Handle(AtualizarCursoCommand command, CancellationToken cancellationToken)
     {
         if (!ValidarComando(command))
             return false;
 
         var curso = await cursoRepository.ObterPorId(command.CursoId);
-        if (curso == null)
+        if (curso is null)
         {
             await AdicionarNotificacao(command.MessageType, "Curso não encontrado.", cancellationToken);
             return false;
@@ -86,7 +47,7 @@ public class CursoCommandHandler(ICursoRepository cursoRepository,
             return false;
 
         var curso = await cursoRepository.ObterCursoComAulas(command.CursoId);
-        if (curso == null)
+        if (curso is null)
         {
             await AdicionarNotificacao(command.MessageType, "Curso não encontrado.", cancellationToken);
             return false;

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using PlataformaEducacao.Core.DomainObjects;
+using PlataformaEducacao.GestaoAlunos.Domain;
 
 namespace PlataformaEducacao.GestaoAlunos.Data.Mappings;
 
