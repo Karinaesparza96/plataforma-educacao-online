@@ -72,6 +72,13 @@ public static class DbMigrationHelpers
             UserName = "aluno@teste.com",
         };
 
+        var user2 = new IdentityUser
+        {
+            Email = "aluno2@teste.com",
+            EmailConfirmed = true,
+            UserName = "aluno2@teste.com",
+        };
+
         var userAdmin = new IdentityUser
         {
             Email = "admin@teste.com",
@@ -80,13 +87,20 @@ public static class DbMigrationHelpers
         };
 
         await userManager.CreateAsync(user, "Teste@123");
+        await userManager.CreateAsync(user2, "Teste@123");
         await userManager.CreateAsync(userAdmin, "Teste@123");
 
         await userManager.AddToRoleAsync(user, "ALUNO");
+        await userManager.AddToRoleAsync(user2, "ALUNO");
         await userManager.AddToRoleAsync(userAdmin, "ADMIN");
     }
 
-    private static async Task SeedDataInitial(GestaoAlunosContext dbAlunosContext, GestaoConteudosContext dbConteudosContext, ApplicationContext dbApplicationContext, PagamentoContext dbPagamentoContext, ICertificadoPdfService certificadoPdfService)
+    private static async Task SeedDataInitial(
+         GestaoAlunosContext dbAlunosContext,
+         GestaoConteudosContext dbConteudosContext,
+         ApplicationContext dbApplicationContext,
+         PagamentoContext dbPagamentoContext,
+         ICertificadoPdfService pdfService)
     {
         if (dbAlunosContext.Set<Aluno>().Any() || dbAlunosContext.Set<Matricula>().Any() || dbAlunosContext.Set<Usuario>().Any())
             return;
@@ -94,63 +108,68 @@ public static class DbMigrationHelpers
             return;
 
         var user = await dbApplicationContext.Users.FirstOrDefaultAsync(x => x.Email == "aluno@teste.com");
+        var user2 = await dbApplicationContext.Users.FirstOrDefaultAsync(x => x.Email == "aluno2@teste.com");
         var userAdmin = await dbApplicationContext.Users.FirstOrDefaultAsync(x => x.Email == "admin@teste.com");
 
         var admin = new Usuario(Guid.Parse(userAdmin.Id));
+        var aluno = new Aluno(Guid.Parse(user.Id), "fulano");
+        var aluno2 = new Aluno(Guid.Parse(user2.Id), "fulano2");
 
-        var aluno = new Aluno( Guid.Parse(user.Id),"fulano");
-
+        // CURSO 1 - C#
         var curso = new Curso("Curso C#", "Teste", admin.Id, 250);
         var aula = new Aula("Aula 1", "Teste");
         var aula2 = new Aula("Aula 2", "Teste");
         var aula3 = new Aula("Aula 3", "Teste");
-
-        var curso2 = new Curso("Angular", "Teste", admin.Id, 150);
-        var aula4 = new Aula("Aula 1", "Teste");
-        var aula5 = new Aula("Aula 2", "Teste");
-        var aula6 = new Aula("Aula 3", "Teste");
-
-        var curso3 = new Curso("EF Core", "Teste", admin.Id, 150);
-        var aula7 = new Aula("Aula 1", "Teste");
-
-        var curso4 = new Curso("Curso de Testes", "Teste", admin.Id, 150);
-
-        curso3.AdicionarAula(aula7);
-
-        curso2.AdicionarAula(aula4);
-        curso2.AdicionarAula(aula5);
-        curso2.AdicionarAula(aula6);
-
         curso.AdicionarAula(aula);
         curso.AdicionarAula(aula2);
         curso.AdicionarAula(aula3);
 
-        var matriculaConcluida = new Matricula(aluno.Id, curso.Id);
-        matriculaConcluida.Concluir();
+        // CURSO 2 - Angular 
+        var curso2 = new Curso("Angular", "Teste", admin.Id, 150);
+        var aula4 = new Aula("Aula 1", "Teste");
+        var aula5 = new Aula("Aula 2", "Teste");
+        var aula6 = new Aula("Aula 3", "Teste");
+        curso2.AdicionarAula(aula4);
+        curso2.AdicionarAula(aula5);
+        curso2.AdicionarAula(aula6);
 
-        var matriculaAtiva = new Matricula(aluno.Id, curso2.Id);
+        // Matriculas
+        var matriculaAtiva = new Matricula(aluno2.Id, curso.Id);
         matriculaAtiva.Ativar();
 
-        var matriculaAguardando = new Matricula(aluno.Id, curso3.Id);
+        var matriculaAguardando = new Matricula(aluno.Id, curso.Id);
         matriculaAguardando.AguardarPagamento();
 
-        var progressoAula = new ProgressoAula(aluno.Id, aula.Id);
-        var progressoAula2 = new ProgressoAula(aluno.Id, aula2.Id);
-        var progressoAula3 = new ProgressoAula(aluno.Id, aula3.Id);
+        var matriculaConcluida = new Matricula(aluno.Id, curso2.Id);
+        matriculaConcluida.Concluir();
 
-        aula4.AdicionarProgresso(new ProgressoAula(aluno.Id, aula4.Id));
+        // Progresso das aulas para a matrícula concluída
+        var progressoAula1 = new ProgressoAula(aluno.Id, aula4.Id);
+        progressoAula1.ConcluirAula();
+        var progressoAula2 = new ProgressoAula(aluno.Id, aula5.Id);
+        progressoAula2.ConcluirAula();
+        var progressoAula3 = new ProgressoAula(aluno.Id, aula6.Id);
+        progressoAula3.ConcluirAula();
 
-        aula.AdicionarProgresso(progressoAula);
-        aula2.AdicionarProgresso(progressoAula2);
-        aula3.AdicionarProgresso(progressoAula3);
+        // Progresso das aulas para a matrícula ativa
+        var progressoAulaAtiva1 = new ProgressoAula(aluno2.Id, aula.Id);
+        progressoAulaAtiva1.EmAndamento();
 
-        aula.ConcluirAula(progressoAula);
-        aula2.ConcluirAula(progressoAula2);
-        aula3.ConcluirAula(progressoAula3);
+        // Progresso do curso concluído
+        var progressoCursoConcluido = new ProgressoCurso(curso2.Id, aluno.Id, curso2.Aulas.Count);
+        progressoCursoConcluido.IncrementarProgresso(); // aula4
+        progressoCursoConcluido.IncrementarProgresso(); // aula5
+        progressoCursoConcluido.IncrementarProgresso(); // aula6
 
+        // Certificado para o aluno
+        var certificado = new Certificado(aluno.Nome, curso2.Nome, matriculaConcluida.Id, aluno.Id, matriculaConcluida.DataConclusao);
+        var pdf = pdfService.GerarPdf(certificado);
+        certificado.AdicionarArquivo(pdf);
+
+        // Pagamento
         var pagamento = new Pagamento
         {
-            AlunoId = aluno.Id,
+            AlunoId = aluno2.Id,
             CursoId = curso.Id,
             NomeCartao = "Nome do Cartão",
             NumeroCartao = "5502093788528294",
@@ -159,24 +178,24 @@ public static class DbMigrationHelpers
             Valor = curso.Preco,
         };
         var transacao = new Transacao
-        {   
+        {
             PagamentoId = pagamento.Id,
             MatriculaId = matriculaAtiva.Id,
             StatusTransacao = StatusTransacao.Pago,
             Pagamento = pagamento,
             Total = pagamento.Valor,
         };
-        var certificado = new Certificado(aluno.Nome, curso.Nome, matriculaConcluida.Id, aluno.Id, matriculaConcluida.DataConclusao);
-        var pdf = certificadoPdfService.GerarPdf(certificado);
-        certificado.AdicionarArquivo(pdf);
 
-        await dbAlunosContext.Set<Aluno>().AddAsync(aluno);
+        await dbAlunosContext.Set<Aluno>().AddRangeAsync([aluno, aluno2]);
         await dbAlunosContext.Set<Usuario>().AddAsync(admin);
-        await dbAlunosContext.Set<Matricula>().AddRangeAsync([matriculaConcluida, matriculaAtiva, matriculaAguardando]);
+        await dbAlunosContext.Set<Matricula>().AddRangeAsync([matriculaAtiva, matriculaAguardando, matriculaConcluida]);
         await dbAlunosContext.Set<Certificado>().AddAsync(certificado);
-        await dbConteudosContext.Set<Curso>().AddRangeAsync([curso, curso2, curso3, curso4]);
-        await dbConteudosContext.Set<Aula>().AddRangeAsync([aula, aula2, aula3]);
-        await dbConteudosContext.Set<ProgressoAula>().AddRangeAsync([progressoAula, progressoAula2, progressoAula3]);
+
+        await dbConteudosContext.Set<Curso>().AddRangeAsync([curso, curso2]);
+        await dbConteudosContext.Set<Aula>().AddRangeAsync([aula, aula2, aula3, aula4, aula5, aula6]);
+        await dbConteudosContext.Set<ProgressoAula>().AddRangeAsync([progressoAula1, progressoAula2, progressoAula3, progressoAulaAtiva1]);
+        await dbConteudosContext.Set<ProgressoCurso>().AddAsync(progressoCursoConcluido);
+
         await dbPagamentoContext.Set<Pagamento>().AddAsync(pagamento);
         await dbPagamentoContext.Set<Transacao>().AddAsync(transacao);
 
@@ -184,5 +203,4 @@ public static class DbMigrationHelpers
         await dbConteudosContext.SaveChangesAsync();
         await dbPagamentoContext.SaveChangesAsync();
     }
-
 }

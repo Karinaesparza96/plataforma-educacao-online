@@ -2,6 +2,7 @@
 using PlataformaEducacao.Core.Messages;
 using PlataformaEducacao.Core.Messages.Notifications;
 using PlataformaEducacao.GestaoConteudos.Aplication.Commands;
+using PlataformaEducacao.GestaoConteudos.Aplication.Events;
 using PlataformaEducacao.GestaoConteudos.Domain;
 
 namespace PlataformaEducacao.GestaoConteudos.Aplication.Handlers;
@@ -49,11 +50,20 @@ public class AulaCommandHandler(IMediator mediator,
             await AdicionarNotificacao(request.MessageType, "Aula não encontrada.", cancellationToken);
             return false;
         }
-        var progressoAula = new ProgressoAula(request.AlunoId, request.AulaId);
 
-        aula.AdicionarProgresso(progressoAula);
+        var progressoAula = await aulaRepository.ObterProgressoAula(aula.Id, request.AlunoId);
 
-        aulaRepository.AdicionarProgressoAula(progressoAula);
+        if (progressoAula is null)
+        {
+            progressoAula = new ProgressoAula(request.AlunoId, request.AulaId);
+            progressoAula.EmAndamento();
+            aulaRepository.AdicionarProgressoAula(progressoAula);
+        }
+        else
+        {
+            progressoAula.EmAndamento();
+            aulaRepository.AtualizarProgressoAula(progressoAula);
+        }
 
         return await aulaRepository.UnitOfWork.Commit();
     }
@@ -79,9 +89,10 @@ public class AulaCommandHandler(IMediator mediator,
             return false;
         }
 
-        aula.ConcluirAula(progressoAula);
-
+        progressoAula.ConcluirAula();
         aulaRepository.AtualizarProgressoAula(progressoAula);
+
+        progressoAula.AdicionarEvento(new AulaConcluidaEvent(aula.Id, request.AlunoId, aula.CursoId));
 
         return await aulaRepository.UnitOfWork.Commit();
     }

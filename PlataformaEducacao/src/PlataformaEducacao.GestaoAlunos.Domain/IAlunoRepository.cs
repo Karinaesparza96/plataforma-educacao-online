@@ -7,7 +7,6 @@ public interface IAlunoRepository : IRepository<Aluno>, IAggregateRoot
 {
    Task<Aluno?> ObterPorId(Guid id);
    Task<Matricula?> ObterMatriculaPorCursoEAlunoId(Guid cursoId, Guid alunoId);
-   Task<Matricula?> ObterMatriculaPorId(Guid matriculaId);
    Task<IEnumerable<Matricula>> ObterMatriculasPendentePagamento(Guid alunoId);
    Task<Certificado?> ObterCertificadoPorId(Guid certificadoId, Guid alunoId);
 

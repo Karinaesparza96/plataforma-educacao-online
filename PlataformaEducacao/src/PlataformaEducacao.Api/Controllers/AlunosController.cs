@@ -20,9 +20,9 @@ public class AlunosController(INotificationHandler<DomainNotification> notificac
     public async Task<IActionResult> BaixarCertificado(Guid id)
     {
         var certificado = await alunoQueries.ObterCertificado(id, UsuarioId);
-        if (certificado?.Arquivo == null)
+        if (certificado?.Arquivo == null || certificado.Arquivo.Length == 0)
         {
-            return NoContent();
+            return BadRequest();
         }
 
         return File(certificado.Arquivo, "application/pdf", "certificado.pdf");

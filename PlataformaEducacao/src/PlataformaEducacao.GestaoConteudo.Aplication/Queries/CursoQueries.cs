@@ -45,11 +45,4 @@ public class CursoQueries(ICursoRepository cursoRepository) : ICursoQueries
             }).ToList() ?? []
         }).ToList();
     }
-
-    public async Task<bool> TodasAulasConcluidas(Guid cursoId, Guid alunoId)
-    {
-        var aulas = await cursoRepository.ObterAulasComProgressoFiltradoAluno(cursoId, alunoId);
-
-        return aulas.All(a => a.EstaConcluida(alunoId));
-    }
 }

@@ -139,7 +139,7 @@ public class AulaCommandHandlerTests
         var command = new ConcluirAulaCommand(_aulaId, _alunoId, _cursoId);
         var aula = new Aula("Aula 1", "Conteudo da aula");
         var progressoAula = new ProgressoAula(command.AlunoId, aula.Id);
-        aula.AdicionarProgresso(progressoAula);
+        progressoAula.EmAndamento();
         
         _mocker.GetMock<ICursoRepository>().Setup(x => x.ObterAulaPorId(command.AulaId)).ReturnsAsync(aula);
         _mocker.GetMock<IAulaRepository>().Setup(x => x.ObterProgressoAula(aula.Id, command.AlunoId)).ReturnsAsync(progressoAula);

@@ -143,9 +143,48 @@ namespace PlataformaEducacao.GestaoConteudos.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AulaId");
+                    b.HasIndex("AulaId", "AlunoId")
+                        .IsUnique();
 
                     b.ToTable("ProgressoAulas", (string)null);
+                });
+
+            modelBuilder.Entity("PlataformaEducacao.GestaoConteudos.Domain.ProgressoCurso", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("AlunoId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("AulasConcluidas")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("CursoId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DataAlteracao")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DataCriacao")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DataExclusao")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("PercentualConcluido")
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<int>("TotalAulas")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CursoId", "AlunoId")
+                        .IsUnique();
+
+                    b.ToTable("ProgressoCursos", (string)null);
                 });
 
             modelBuilder.Entity("PlataformaEducacao.GestaoConteudos.Domain.Aula", b =>
@@ -168,19 +207,9 @@ namespace PlataformaEducacao.GestaoConteudos.Data.Migrations
                     b.Navigation("Aula");
                 });
 
-            modelBuilder.Entity("PlataformaEducacao.GestaoConteudos.Domain.ProgressoAula", b =>
-                {
-                    b.HasOne("PlataformaEducacao.GestaoConteudos.Domain.Aula", null)
-                        .WithMany("ProgressoAulas")
-                        .HasForeignKey("AulaId")
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("PlataformaEducacao.GestaoConteudos.Domain.Aula", b =>
                 {
                     b.Navigation("Materiais");
-
-                    b.Navigation("ProgressoAulas");
                 });
 
             modelBuilder.Entity("PlataformaEducacao.GestaoConteudos.Domain.Curso", b =>

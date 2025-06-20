@@ -1,14 +1,14 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlataformaEducacao.Api.Controllers.Base;
 using PlataformaEducacao.Api.DTOs;
+using PlataformaEducacao.Core.DomainObjects;
+using PlataformaEducacao.Core.Messages.Notifications;
 using PlataformaEducacao.GestaoAlunos.Aplication.Commands;
 using PlataformaEducacao.GestaoAlunos.Aplication.Queries;
-using System.Net;
-using Microsoft.AspNetCore.Authorization;
-using PlataformaEducacao.Core.Messages.Notifications;
-using PlataformaEducacao.Core.DomainObjects;
 using PlataformaEducacao.GestaoConteudos.Aplication.Queries;
+using System.Net;
 
 namespace PlataformaEducacao.Api.Controllers;
 

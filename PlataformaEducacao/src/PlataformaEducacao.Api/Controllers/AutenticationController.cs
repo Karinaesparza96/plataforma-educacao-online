@@ -1,18 +1,18 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using MediatR;
 using PlataformaEducacao.Api.Controllers.Base;
 using PlataformaEducacao.Api.DTOs;
 using PlataformaEducacao.Api.Jwt;
+using PlataformaEducacao.Core.DomainObjects;
+using PlataformaEducacao.Core.Messages.Notifications;
 using PlataformaEducacao.GestaoAlunos.Aplication.Commands;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Security.Claims;
 using System.Text;
-using PlataformaEducacao.Core.DomainObjects;
-using PlataformaEducacao.Core.Messages.Notifications;
 
 namespace PlataformaEducacao.Api.Controllers;
 

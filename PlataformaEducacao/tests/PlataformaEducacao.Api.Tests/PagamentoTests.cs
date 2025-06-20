@@ -36,7 +36,7 @@ public class PagamentoTests
     public async Task RealizarPagamento_MatriculaNaoAtiva_DeveRetornarMensagensErro()
     {
         // Arrange
-        await _fixture.RealizarLoginApi("aluno@teste.com", "Teste@123");
+        await _fixture.RealizarLoginApi("aluno2@teste.com", "Teste@123");
         _fixture.Client.AtribuirToken(_fixture.Token);
 
         await _fixture.ObterIdsPorStatusMatricula(EStatusMatricula.Ativa);

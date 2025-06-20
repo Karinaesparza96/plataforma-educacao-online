@@ -4,7 +4,6 @@ using PlataformaEducacao.Core.Data;
 using PlataformaEducacao.Core.DomainObjects;
 using PlataformaEducacao.Core.Messages;
 using System.Linq.Expressions;
-using System.Reflection.Emit;
 
 namespace PlataformaEducacao.GestaoConteudos.Data.Context;
 

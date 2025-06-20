@@ -117,7 +117,7 @@ public class CursoAulaTests
     public async Task Realizar_MatriculaAtiva_DeveExecutarComSucesso()
     {
         // Arrange
-        await _fixture.RealizarLoginApi("aluno@teste.com", "Teste@123");
+        await _fixture.RealizarLoginApi("aluno2@teste.com", "Teste@123");
         _fixture.Client.AtribuirToken(_fixture.Token);
 
         await _fixture.ObterIdsAulaSemProgresso(EStatusMatricula.Ativa);
@@ -153,7 +153,7 @@ public class CursoAulaTests
     public async Task Concluir_MatriculaAtiva_DeveExecutarComSucesso()
     {
         // Arrange
-        await _fixture.RealizarLoginApi("aluno@teste.com", "Teste@123");
+        await _fixture.RealizarLoginApi("aluno2@teste.com", "Teste@123");
         _fixture.Client.AtribuirToken(_fixture.Token);
 
         await _fixture.ObterIdsAulaComProgresso(EStatusMatricula.Ativa);

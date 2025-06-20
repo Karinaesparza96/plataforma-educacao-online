@@ -7,7 +7,6 @@ namespace PlataformaEducacao.GestaoConteudos.Data.Repositories;
 
 public class AulaRepository(GestaoConteudosContext dbContext) : IAulaRepository
 {
-    private readonly DbSet<Aula> _dbSet = dbContext.Set<Aula>();
     public IUnitOfWork UnitOfWork => dbContext;
 
     public void AdicionarProgressoAula(ProgressoAula progressoAula)

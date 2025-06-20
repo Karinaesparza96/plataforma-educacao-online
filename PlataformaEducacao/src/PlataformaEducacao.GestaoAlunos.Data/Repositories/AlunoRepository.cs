@@ -21,12 +21,6 @@ public class AlunoRepository(GestaoAlunosContext dbContext) : IAlunoRepository
             .FirstOrDefaultAsync(m => m.AlunoId == alunoId && m.CursoId == cursoId);
     }
 
-    public async Task<Matricula?> ObterMatriculaPorId(Guid matriculaId)
-    {
-        return await dbContext.Set<Matricula>().AsNoTracking()
-            .FirstOrDefaultAsync(m => m.Id == matriculaId);
-    }
-
     public async Task<IEnumerable<Matricula>> ObterMatriculasPendentePagamento(Guid alunoId)
     {
         return await dbContext.Set<Matricula>()

@@ -1,5 +1,4 @@
 ﻿using PlataformaEducacao.Core.DomainObjects;
-using PlataformaEducacao.Core.DomainObjects.Enums;
 
 namespace PlataformaEducacao.GestaoConteudos.Domain;
 
@@ -11,9 +10,6 @@ public class Aula : Entity, IAggregateRoot
 
     private readonly List<Material> _materiais = [];
     public IReadOnlyCollection<Material> Materiais => _materiais;
-
-    private readonly List<ProgressoAula> _progressoAulas = [];
-    public IReadOnlyCollection<ProgressoAula> ProgressoAulas => _progressoAulas;
 
     // EF relationship
     public Curso? Curso { get; private set; }
@@ -42,36 +38,6 @@ public class Aula : Entity, IAggregateRoot
         _materiais.Add(material);
     }
 
-    public void AdicionarProgresso(ProgressoAula progressoAula)
-    {
-        if (ProgressoAulaExistente(progressoAula))
-            throw new DomainException("Progresso já registrado para esta aula.");
-
-        progressoAula.EmAndamento();
-        _progressoAulas.Add(progressoAula);
-    }
-
-    public void ConcluirAula(ProgressoAula progressoAula)
-    {
-        if (!ProgressoAulaExistente(progressoAula))
-            throw new DomainException("Progresso não encontrado para esta aula.");
-
-        progressoAula.ConcluirAula();
-    }
-
-    public void FiltrarProgressoAulaPorAluno(Guid alunoId)
-    {
-        var filtrados = _progressoAulas.Where(p => p.AlunoId == alunoId).ToList();
-        _progressoAulas.Clear();
-        _progressoAulas.AddRange(filtrados);
-    }
-
-    public bool EstaConcluida(Guid alunoId)
-    {
-        FiltrarProgressoAulaPorAluno(alunoId);
-        return _progressoAulas.Any(p => p.AulaId == Id && p.Status == EProgressoAulaStatus.Concluida);
-    }
-
     private void Validar()
     {
         if (string.IsNullOrWhiteSpace(Nome))
@@ -84,9 +50,5 @@ public class Aula : Entity, IAggregateRoot
     private bool MaterialExistente(Material material)
     {
         return _materiais.Any(m => m.Id == material.Id);
-    }
-    private bool ProgressoAulaExistente(ProgressoAula progressoAula)
-    {
-        return _progressoAulas.Any(p => p.AlunoId == progressoAula.AlunoId && p.AulaId == progressoAula.AulaId);
     }
 }

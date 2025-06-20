@@ -11,9 +11,9 @@ using PlataformaEducacao.GestaoAlunos.Aplication.Queries;
 using PlataformaEducacao.GestaoConteudos.Aplication.Commands;
 using PlataformaEducacao.GestaoConteudos.Aplication.Queries;
 using PlataformaEducacao.GestaoConteudos.Aplication.Queries.ViewModels;
-using System.Net;
-using PlataformaEducacao.Pagamentos.Business.Commands;
 using PlataformaEducacao.GestaoConteudos.Domain;
+using PlataformaEducacao.Pagamentos.Business.Commands;
+using System.Net;
 
 namespace PlataformaEducacao.Api.Controllers
 {
@@ -22,6 +22,7 @@ namespace PlataformaEducacao.Api.Controllers
                             IMediator mediator,
                             IAppIdentityUser identityUser,
                             IAlunoQueries alunoQueries,
+                            ICursoRepository cursoRepository,
                             ICursoQueries cursoQueries) : MainController(notificacoes, mediator, identityUser)
     {
         private readonly IMediator _mediator = mediator;
@@ -73,7 +74,7 @@ namespace PlataformaEducacao.Api.Controllers
         {   
             var curso = await cursoQueries.ObterPorId(id);
 
-            await ValidarAulasCurso(curso);
+            await ValidarConclusaoCurso(curso);
 
             if (!OperacaoValida())
                 return RespostaPadrao();
@@ -126,16 +127,16 @@ namespace PlataformaEducacao.Api.Controllers
             }
         }
 
-        private async Task ValidarAulasCurso(CursoViewModel? curso)
+        private async Task ValidarConclusaoCurso(CursoViewModel? curso)
         {
             if (curso is null)
             {
                 NotificarErro("Curso", "Curso não encontrado.");
                 return;
             }
-            var aulasConcluidas = await cursoQueries.TodasAulasConcluidas(curso.Id, UsuarioId);
+            var progressoCurso = await cursoRepository.ObterProgressoCurso(curso.Id, UsuarioId);
 
-            if (!aulasConcluidas)
+            if (progressoCurso is null || !progressoCurso.CursoConcluido)
             {
                 NotificarErro("Curso", "Todas as aulas deste curso precisam estar concluídas.");
             }

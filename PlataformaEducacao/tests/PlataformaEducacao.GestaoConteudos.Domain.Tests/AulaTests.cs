@@ -66,25 +66,12 @@ public class AulaTests
         // Arrange
         var aula = new Aula("Aula 1", "Conteudo da aula 1");
         var progressoAula = new ProgressoAula(aula.Id, Guid.NewGuid());
-        aula.AdicionarProgresso(progressoAula);
 
         // Act
-        aula.ConcluirAula(progressoAula);
+        progressoAula.ConcluirAula();
 
         // Assert
         Assert.True(progressoAula.Status == EProgressoAulaStatus.Concluida);
-    }
-
-    [Fact(DisplayName = "Concluir Aula Sem Sucesso")]
-    [Trait("Categoria", "GestaoConteudos - Aula")]
-    public void ConcluirAula_ProgressoNaoEncontrado_DeveLancarException()
-    {
-        // Arrange
-        var aula = new Aula("Aula 1", "Conteudo da aula 1");
-        var progressoAula = new ProgressoAula(Guid.NewGuid(), aula.Id);
-
-        // Act && Assert
-        Assert.Throws<DomainException>(() => aula.ConcluirAula(progressoAula));
     }
 
     [Fact(DisplayName = "Adicionar ProgressoAula")]
@@ -96,46 +83,9 @@ public class AulaTests
         var progressoAula = new ProgressoAula(Guid.NewGuid(), aula.Id);
 
         // Act
-        aula.AdicionarProgresso(progressoAula);
+        progressoAula.EmAndamento();
 
         // Assert
         Assert.True(progressoAula.Status == EProgressoAulaStatus.EmAndamento);
-        Assert.Equal(1, aula.ProgressoAulas.Count(a => a.AulaId == aula.Id && a.AlunoId == progressoAula.AlunoId));
-    }
-
-    [Fact(DisplayName = "Adicionar Em Duplicidade ProgressoAula")]
-    [Trait("Categoria", "GestaoConteudos - Aula")]
-    public void AdicionarProgresso_ProgressoExistente_DeveLancarException()
-    {
-        // Arrange
-        var aula = new Aula("Aula 1", "Conteudo da aula 1");
-        var progressoAula = new ProgressoAula(Guid.NewGuid(), aula.Id);
-
-        // Act
-        aula.AdicionarProgresso(progressoAula);
-
-        // Assert
-        Assert.Throws<DomainException>(() => aula.AdicionarProgresso(progressoAula));
-        Assert.Equal(1, aula.ProgressoAulas.Count(a => a.AulaId == aula.Id && a.AlunoId == progressoAula.AlunoId));
-    }
-
-    [Fact(DisplayName = "Filtras ProgressoAula por AlunoId")]
-    [Trait("Categoria", "GestaoConteudos - Aula")]
-    public void FiltrarProgressoAulaPorAlunoId_DeveRetornarFiltrado()
-    {
-        // Arrange
-        var alunoId1 = Guid.NewGuid();
-        var alunoId2 = Guid.NewGuid();
-        var aula = new Aula("Aula 1", "Conteudo da aula");
-        var progressoAula1 = new ProgressoAula(alunoId1, aula.Id);
-        var progressoAula2 = new ProgressoAula(alunoId2, aula.Id);
-        aula.AdicionarProgresso(progressoAula1);
-        aula.AdicionarProgresso(progressoAula2);
-
-        // Act
-        aula.FiltrarProgressoAulaPorAluno(alunoId1);
-
-        // Assert
-        Assert.Equal(1, aula.ProgressoAulas.Count());
     }
 }

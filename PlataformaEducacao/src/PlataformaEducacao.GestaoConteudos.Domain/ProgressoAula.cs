@@ -9,8 +9,8 @@ public class ProgressoAula : Entity
     public Guid AulaId { get; private set; }
     public EProgressoAulaStatus Status { get; private set; }
 
-    // Ef Constructor
-    protected ProgressoAula() {}
+    protected ProgressoAula() { }
+
     public ProgressoAula(Guid alunoId, Guid aulaId)
     {
         AlunoId = alunoId;
@@ -18,22 +18,14 @@ public class ProgressoAula : Entity
         Status = EProgressoAulaStatus.NaoIniciada;
         Validar();
     }
+    public void EmAndamento() => Status = EProgressoAulaStatus.EmAndamento;
+    public void ConcluirAula() => Status = EProgressoAulaStatus.Concluida;
 
-    public void EmAndamento()
+    public void Validar()
     {
-        Status = EProgressoAulaStatus.EmAndamento;
-    }
-    
-    public void ConcluirAula()
-    {
-        Status = EProgressoAulaStatus.Concluida;
-    }
-
-    private void Validar()
-    {
-        if (string.IsNullOrEmpty(AlunoId.ToString()))
-            throw new DomainException("O campo AlunoId é obrigatório.");
+        if (AlunoId == Guid.Empty)
+            throw new DomainException("O ID do aluno não pode ser vazio.");
         if (AulaId == Guid.Empty)
-            throw new DomainException("O campo AulaId é obrigatório.");
+            throw new DomainException("O ID da aula não pode ser vazio.");
     }
 }
