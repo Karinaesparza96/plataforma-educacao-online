@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PlataformaEducacao.Api.Data;
+using PlataformaEducacao.Core.DomainObjects.Enums;
 using PlataformaEducacao.GestaoAlunos.Data.Context;
 using PlataformaEducacao.GestaoAlunos.Domain;
 using PlataformaEducacao.GestaoConteudos.Data.Context;
@@ -133,15 +134,43 @@ public static class DbMigrationHelpers
         curso2.AdicionarAula(aula5);
         curso2.AdicionarAula(aula6);
 
+        // StatusMatricula
+        var statusIniciada = new StatusMatricula
+        {
+            Codigo = (int)EStatusMatricula.Iniciada,
+            Descricao = "Iniciada"
+        };
+
+        var statusAguardandoPag = new StatusMatricula
+        {
+            Codigo = (int)EStatusMatricula.AguardandoPagamento,
+            Descricao = "Aguardando Pagamento"
+        };
+        var statusAtiva = new StatusMatricula
+        {
+            Codigo = (int)EStatusMatricula.Ativa,
+            Descricao = "Ativa"
+        };
+        var statusConcluida = new StatusMatricula
+        {
+            Codigo = (int)EStatusMatricula.Concluida,
+            Descricao = "Concluída"
+        };
+        var statusCancelada = new StatusMatricula
+        {
+            Codigo = (int)EStatusMatricula.Cancelada,
+            Descricao = "Cancelada"
+        };
+
         // Matriculas
-        var matriculaAtiva = new Matricula(aluno2.Id, curso.Id);
-        matriculaAtiva.Ativar();
+        var matriculaAtiva = new Matricula(aluno2.Id, curso.Id, statusIniciada);
+        matriculaAtiva.Ativar(statusAtiva);
 
-        var matriculaAguardando = new Matricula(aluno.Id, curso.Id);
-        matriculaAguardando.AguardarPagamento();
+        var matriculaAguardando = new Matricula(aluno.Id, curso.Id, statusIniciada);
+        matriculaAguardando.AguardandoPagamento(statusAguardandoPag);
 
-        var matriculaConcluida = new Matricula(aluno.Id, curso2.Id);
-        matriculaConcluida.Concluir();
+        var matriculaConcluida = new Matricula(aluno.Id, curso2.Id, statusIniciada);
+        matriculaConcluida.Concluir(statusConcluida);
 
         // Progresso das aulas para a matrícula concluída
         var progressoAula1 = new ProgressoAula(aluno.Id, aula4.Id);
@@ -188,6 +217,9 @@ public static class DbMigrationHelpers
 
         await dbAlunosContext.Set<Aluno>().AddRangeAsync([aluno, aluno2]);
         await dbAlunosContext.Set<Usuario>().AddAsync(admin);
+        await dbAlunosContext.Set<StatusMatricula>().AddRangeAsync([
+            statusIniciada, statusAtiva, statusAguardandoPag, statusConcluida, statusCancelada
+        ]);
         await dbAlunosContext.Set<Matricula>().AddRangeAsync([matriculaAtiva, matriculaAguardando, matriculaConcluida]);
         await dbAlunosContext.Set<Certificado>().AddAsync(certificado);
 

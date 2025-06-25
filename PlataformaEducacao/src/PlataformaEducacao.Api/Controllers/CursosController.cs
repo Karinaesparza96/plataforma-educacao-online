@@ -121,7 +121,7 @@ namespace PlataformaEducacao.Api.Controllers
             }
             var matricula = await alunoQueries.ObterMatricula(curso.Id, UsuarioId);
 
-            if (matricula is not { Status: EStatusMatricula.AguardandoPagamento })
+            if (matricula is not { Status: (int)EStatusMatricula.AguardandoPagamento })
             {
                 NotificarErro( "Matricula", "A matrícula deve estar com status 'Aguardando Pagamento' para realizar o pagamento.");
             }

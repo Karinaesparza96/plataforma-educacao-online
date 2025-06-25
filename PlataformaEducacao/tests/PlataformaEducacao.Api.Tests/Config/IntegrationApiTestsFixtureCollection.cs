@@ -74,6 +74,8 @@ public class IntegrationTestsFixture : IDisposable
 	                al.id aulaId
                 from
 	                Matriculas m
+                join StatusMatriculas sm on
+                    sm.Id = m.StatusId
                 join Cursos c on
 	                c.Id = m.CursoId
                 join Alunos a on
@@ -81,10 +83,10 @@ public class IntegrationTestsFixture : IDisposable
                 join Aulas al on al.CursoId = c.Id
                 where
 	                1=1
-                and m.Status = @Status
+                and sm.Codigo = @Status
             ";
 
-        await ExecutarConsulta(sql, new { Status = status }, (retorno) =>
+        await ExecutarConsulta(sql, new { Status = (int)status }, (retorno) =>
         {
             if (retorno != null)
             {
@@ -108,6 +110,8 @@ public class IntegrationTestsFixture : IDisposable
 	                al.id aulaId
                 from
 	                Matriculas m
+                join StatusMatriculas sm on 
+                        sm.Id = m.StatusId
                 join Cursos c on
 	                c.Id = m.CursoId
                 join Alunos a on
@@ -116,10 +120,10 @@ public class IntegrationTestsFixture : IDisposable
                 join ProgressoAulas pa on pa.AulaId = al.Id and pa.AlunoId = a.Id  
                 where
 	                1=1
-                and m.Status = @Status
+                and sm.Codigo = @Status
             ";
 
-        await ExecutarConsulta(sql, new { Status = status }, (retorno) =>
+        await ExecutarConsulta(sql, new { Status = (int)status }, (retorno) =>
         {
             if (retorno != null)
             {
@@ -144,6 +148,8 @@ public class IntegrationTestsFixture : IDisposable
                          pa.id
                      from
                          Matriculas m
+                     join StatusMatriculas sm on 
+                        sm.Id = m.StatusId
                      join Cursos c on
                          c.Id = m.CursoId
                      join Alunos a on
@@ -152,11 +158,11 @@ public class IntegrationTestsFixture : IDisposable
                      left join ProgressoAulas pa on pa.AulaId = al.Id and pa.AlunoId = a.Id
                      where
                          1=1
-                     and m.Status = @Status
+                     and sm.Codigo = @Status
                      and pa.id is null
                 ";
 
-        await ExecutarConsulta(sql, new { Status = status }, (retorno) =>
+        await ExecutarConsulta(sql, new { Status = (int)status }, (retorno) =>
         {
             if (retorno != null)
             {

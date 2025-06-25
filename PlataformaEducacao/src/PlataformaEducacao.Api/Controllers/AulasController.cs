@@ -75,7 +75,7 @@ public class AulasController(INotificationHandler<DomainNotification> notificaco
             return;
         }
 
-        if (matricula?.Status != EStatusMatricula.Ativa && matricula?.Status != EStatusMatricula.Concluida)
+        if (matricula?.Status != (int)EStatusMatricula.Ativa && matricula?.Status != (int)EStatusMatricula.Concluida)
         {
             NotificarErro("Matricula", "Matrícula não está ativa.");
         }

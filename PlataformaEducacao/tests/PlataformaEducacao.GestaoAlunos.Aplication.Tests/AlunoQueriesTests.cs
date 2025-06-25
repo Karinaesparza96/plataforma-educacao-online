@@ -26,8 +26,12 @@ public class AlunoQueriesTests
     public async Task ObterMatricula_MatriculaEncontrada_DeveRetornarComSucesso()
     {
         // Arrange
-        var matricula = new Matricula(_alunoId, _cursoId);
-        matricula.AguardarPagamento();
+        var statusIniciada = new StatusMatricula
+        {
+            Codigo = (int)EStatusMatricula.Iniciada,
+        };
+        var matricula = new Matricula(_alunoId, _cursoId, statusIniciada);
+
         _mocker.GetMock<IAlunoRepository>().Setup(q => q.ObterMatriculaPorCursoEAlunoId(It.IsAny<Guid>(), It.IsAny<Guid>()))
             .ReturnsAsync(matricula);
 
@@ -45,11 +49,19 @@ public class AlunoQueriesTests
     public async Task ObterMatriculasPendentePagamento_MatriculasEncontradas_DeveRetornarComSucesso()
     {
         // Arrange
+        var statusAguardandoPag = new StatusMatricula
+        {
+            Codigo = (int)EStatusMatricula.AguardandoPagamento,
+        };
+        var statusIniciada = new StatusMatricula
+        {
+            Codigo = (int)EStatusMatricula.Iniciada,
+        };
         var matriculas = new List<Matricula>()
         {
-            new(_alunoId, _cursoId)
+            new(_alunoId, _cursoId, statusIniciada)
         };
-        matriculas[0].AguardarPagamento();
+        matriculas[0].AguardandoPagamento(statusAguardandoPag);
 
         _mocker.GetMock<IAlunoRepository>().Setup(q => q.ObterMatriculasPendentePagamento(It.IsAny<Guid>()))
             .ReturnsAsync(matriculas);
@@ -64,7 +76,7 @@ public class AlunoQueriesTests
         {
            Assert.Equal(item.AlunoId, _alunoId);
            Assert.Equal(item.CursoId, _cursoId);
-           Assert.Equal(EStatusMatricula.AguardandoPagamento, item.Status);
+           Assert.Equal((int)EStatusMatricula.AguardandoPagamento, item.Status);
         });
     }
 }

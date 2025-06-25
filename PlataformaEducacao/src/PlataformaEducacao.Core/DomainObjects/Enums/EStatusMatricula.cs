@@ -1,6 +1,6 @@
 ﻿namespace PlataformaEducacao.Core.DomainObjects.Enums;
 
-public enum EStatusMatricula
+public enum EStatusMatricula : int
 {
     Iniciada,
     AguardandoPagamento = 1,

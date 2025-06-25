@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using PlataformaEducacao.Core.DomainObjects.Enums;
 using PlataformaEducacao.Core.Messages;
 using PlataformaEducacao.Core.Messages.IntegrationEvents;
 using PlataformaEducacao.Core.Messages.Notifications;
@@ -7,7 +8,8 @@ using PlataformaEducacao.GestaoAlunos.Domain;
 
 namespace PlataformaEducacao.GestaoAlunos.Aplication.Handlers;
 
-public class MatriculaCommandHandler(IMediator mediator, 
+public class MatriculaCommandHandler(IMediator mediator,
+                                    IStatusMatriculaRepository statusMatriculaRepository,
                                     IAlunoRepository alunoRepository) : CommandHandler,
                                     IRequestHandler<AdicionarMatriculaCommand, bool>,
                                     IRequestHandler<ConcluirMatriculaCommand, bool>,
@@ -31,8 +33,11 @@ public class MatriculaCommandHandler(IMediator mediator,
             await AdicionarNotificacao(request.MessageType, "Matrícula já existente.", cancellationToken);
             return false;
         }
+        var status = await statusMatriculaRepository.ObterPorCodigo((int)EStatusMatricula.Iniciada);
+        var matricula = new Matricula(request.AlunoId, request.CursoId, status);
 
-        var matricula = new Matricula(request.AlunoId, request.CursoId);
+        var statusAguardandoPag = await statusMatriculaRepository.ObterPorCodigo((int)EStatusMatricula.AguardandoPagamento);
+        matricula.AguardandoPagamento(statusAguardandoPag);
 
         aluno.AdicionarMatricula(matricula);
         alunoRepository.AdicionarMatricula(matricula);
@@ -51,7 +56,9 @@ public class MatriculaCommandHandler(IMediator mediator,
             await AdicionarNotificacao(request.MessageType, "Matrícula não encontrada.", cancellationToken);
             return false;
         }
-        matricula.Concluir();
+        var status = await statusMatriculaRepository.ObterPorCodigo((int)EStatusMatricula.Concluida);
+        matricula.Concluir(status);
+
         alunoRepository.AtualizarMatricula(matricula);
 
         matricula.AdicionarEvento(new MatriculaConcluidaEvent(request.AlunoId, matricula.Id, request.CursoId, request.NomeCurso));
@@ -70,7 +77,9 @@ public class MatriculaCommandHandler(IMediator mediator,
            await AdicionarNotificacao(request.MessageType, "Matrícula não encontrada.", cancellationToken);
             return false;
         }
-        matricula.Ativar();
+        var status = await statusMatriculaRepository.ObterPorCodigo((int)EStatusMatricula.Ativa);
+        matricula.Ativar(status);
+
         alunoRepository.AtualizarMatricula(matricula);
 
         return await alunoRepository.UnitOfWork.Commit();

@@ -12,6 +12,22 @@ namespace PlataformaEducacao.GestaoAlunos.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "StatusMatriculas",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Codigo = table.Column<int>(type: "INTEGER", nullable: false),
+                    Descricao = table.Column<string>(type: "TEXT", nullable: false),
+                    DataCriacao = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    DataAlteracao = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    DataExclusao = table.Column<DateTime>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StatusMatriculas", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Usuarios",
                 columns: table => new
                 {
@@ -52,7 +68,7 @@ namespace PlataformaEducacao.GestaoAlunos.Data.Migrations
                     CursoId = table.Column<Guid>(type: "TEXT", nullable: false),
                     DataMatricula = table.Column<DateTime>(type: "TEXT", nullable: true),
                     DataConclusao = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    Status = table.Column<int>(type: "INTEGER", nullable: false),
+                    StatusId = table.Column<Guid>(type: "TEXT", nullable: false),
                     DataCriacao = table.Column<DateTime>(type: "TEXT", nullable: true),
                     DataAlteracao = table.Column<DateTime>(type: "TEXT", nullable: true),
                     DataExclusao = table.Column<DateTime>(type: "TEXT", nullable: true)
@@ -64,6 +80,11 @@ namespace PlataformaEducacao.GestaoAlunos.Data.Migrations
                         name: "FK_Matriculas_Alunos_AlunoId",
                         column: x => x.AlunoId,
                         principalTable: "Alunos",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Matriculas_StatusMatriculas_StatusId",
+                        column: x => x.StatusId,
+                        principalTable: "StatusMatriculas",
                         principalColumn: "Id");
                 });
 
@@ -113,6 +134,11 @@ namespace PlataformaEducacao.GestaoAlunos.Data.Migrations
                 name: "IX_Matriculas_AlunoId",
                 table: "Matriculas",
                 column: "AlunoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Matriculas_StatusId",
+                table: "Matriculas",
+                column: "StatusId");
         }
 
         /// <inheritdoc />
@@ -126,6 +152,9 @@ namespace PlataformaEducacao.GestaoAlunos.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "Alunos");
+
+            migrationBuilder.DropTable(
+                name: "StatusMatriculas");
 
             migrationBuilder.DropTable(
                 name: "Usuarios");

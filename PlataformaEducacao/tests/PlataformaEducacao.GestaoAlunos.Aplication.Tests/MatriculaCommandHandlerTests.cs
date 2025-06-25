@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Moq;
 using Moq.AutoMock;
+using PlataformaEducacao.Core.DomainObjects.Enums;
 using PlataformaEducacao.Core.Messages.Notifications;
 using PlataformaEducacao.GestaoAlunos.Aplication.Commands;
 using PlataformaEducacao.GestaoAlunos.Aplication.Handlers;
@@ -13,6 +14,7 @@ public class MatriculaCommandHandlerTests
     private readonly AutoMocker _mocker;
     private readonly MatriculaCommandHandler _handler;
     private readonly Mock<IAlunoRepository> _alunoRepositoryMock;
+    private readonly Mock<IStatusMatriculaRepository> _statusMatriculaRepositoryMock;
     private readonly Aluno _aluno;
     private readonly Guid _cursoId;
     private readonly Guid _alunoId;
@@ -22,6 +24,7 @@ public class MatriculaCommandHandlerTests
         _mocker = new AutoMocker();
         _handler = _mocker.CreateInstance<MatriculaCommandHandler>();
         _alunoRepositoryMock = _mocker.GetMock<IAlunoRepository>();
+        _statusMatriculaRepositoryMock = _mocker.GetMock<IStatusMatriculaRepository>();
         _aluno = new Aluno(Guid.NewGuid(), "teste");
         _cursoId = Guid.NewGuid();
         _alunoId = Guid.NewGuid(); 
@@ -35,6 +38,10 @@ public class MatriculaCommandHandlerTests
 
         _alunoRepositoryMock.Setup(r => r.ObterPorId(_alunoId)).ReturnsAsync(_aluno);
         _alunoRepositoryMock.Setup(r => r.UnitOfWork.Commit()).ReturnsAsync(true);
+        _statusMatriculaRepositoryMock.Setup(s => s.ObterPorCodigo((int)EStatusMatricula.Iniciada))
+            .ReturnsAsync(new StatusMatricula { Codigo = (int)EStatusMatricula.Iniciada });
+        _statusMatriculaRepositoryMock.Setup(s => s.ObterPorCodigo((int)EStatusMatricula.AguardandoPagamento))
+            .ReturnsAsync(new StatusMatricula { Codigo = (int)EStatusMatricula.AguardandoPagamento });
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -43,6 +50,9 @@ public class MatriculaCommandHandlerTests
         Assert.True(result);
         _alunoRepositoryMock.Verify(r => r.UnitOfWork.Commit(), Times.Once);
         _alunoRepositoryMock.Verify(r => r.ObterPorId(_alunoId), Times.Once);
+        _statusMatriculaRepositoryMock.Verify(s => s.ObterPorCodigo((int)EStatusMatricula.Iniciada), Times.Once);
+        _statusMatriculaRepositoryMock.Verify(s => s.ObterPorCodigo((int)EStatusMatricula.AguardandoPagamento),
+            Times.Once);
         _alunoRepositoryMock.Verify(r => r.AdicionarMatricula(It.IsAny<Matricula>()), Times.Once);
     }
 
@@ -93,7 +103,11 @@ public class MatriculaCommandHandlerTests
     {
         // Arrange
         var command = new AdicionarMatriculaCommand(_alunoId, _cursoId);
-        var matriculaExistente = new Matricula(_alunoId, _cursoId);
+        var statusIniciada = new StatusMatricula
+        {
+            Codigo = (int)EStatusMatricula.Iniciada
+        };
+        var matriculaExistente = new Matricula(_alunoId, _cursoId, statusIniciada);
 
         _alunoRepositoryMock.Setup(r => r.ObterPorId(_alunoId)).ReturnsAsync(_aluno);
         _alunoRepositoryMock.Setup(r => r.ObterMatriculaPorCursoEAlunoId(_cursoId, _aluno.Id))
@@ -107,6 +121,7 @@ public class MatriculaCommandHandlerTests
         Assert.False(result);
         _alunoRepositoryMock.Verify(r => r.UnitOfWork.Commit(), Times.Never);
         _alunoRepositoryMock.Verify(r => r.ObterPorId(_alunoId), Times.Once);
+        _statusMatriculaRepositoryMock.Verify(s => s.ObterPorCodigo((int)EStatusMatricula.Iniciada), Times.Never);
         _alunoRepositoryMock.Verify(r => r.AdicionarMatricula(It.IsAny<Matricula>()), Times.Never);
     }
 
@@ -116,11 +131,21 @@ public class MatriculaCommandHandlerTests
     {
         // Arrange
         var command = new AtivarMatriculaCommand(_alunoId, _cursoId);
-        var matricula = new Matricula(_alunoId, _cursoId);
-        matricula.AguardarPagamento();
+        var statusAtiva = new StatusMatricula
+        {
+            Codigo = (int)EStatusMatricula.Ativa
+        };
+        var statusIniciada = new StatusMatricula
+        {
+            Codigo = (int)EStatusMatricula.Iniciada,
+        };
+        var matricula = new Matricula(_alunoId, _cursoId, statusIniciada);
+
 
         _alunoRepositoryMock.Setup(r => r.ObterMatriculaPorCursoEAlunoId(command.CursoId, command.AlunoId))
             .ReturnsAsync(matricula);
+        _statusMatriculaRepositoryMock.Setup(s => s.ObterPorCodigo((int)EStatusMatricula.Ativa))
+            .ReturnsAsync(statusAtiva);
         _alunoRepositoryMock.Setup(r => r.UnitOfWork.Commit()).ReturnsAsync(true);
 
         // Act
@@ -129,6 +154,7 @@ public class MatriculaCommandHandlerTests
         // Assert
         Assert.True(result);
         _alunoRepositoryMock.Verify(r => r.UnitOfWork.Commit(), Times.Once);
+        _statusMatriculaRepositoryMock.Verify(s => s.ObterPorCodigo((int)EStatusMatricula.Ativa), Times.Once);
         _alunoRepositoryMock.Verify(r => r.AtualizarMatricula(It.IsAny<Matricula>()), Times.Once);
     }
 
