@@ -25,9 +25,7 @@ public class Aluno : Usuario
     {
         if (MatriculaExistente(matricula))
             throw new DomainException("Matrícula já existente.");
-
-        matricula.AguardarPagamento();
-
+        
         _matriculas.Add(matricula);
     }
 

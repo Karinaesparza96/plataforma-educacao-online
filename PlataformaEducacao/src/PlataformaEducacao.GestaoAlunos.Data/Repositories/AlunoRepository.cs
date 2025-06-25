@@ -17,7 +17,9 @@ public class AlunoRepository(GestaoAlunosContext dbContext) : IAlunoRepository
     }
     public async Task<Matricula?> ObterMatriculaPorCursoEAlunoId(Guid cursoId, Guid alunoId)
     {
-        return await dbContext.Set<Matricula>().AsNoTracking()
+        return await dbContext.Set<Matricula>()
+            .AsNoTracking()
+            .Include(m => m.Status)
             .FirstOrDefaultAsync(m => m.AlunoId == alunoId && m.CursoId == cursoId);
     }
 
@@ -25,7 +27,8 @@ public class AlunoRepository(GestaoAlunosContext dbContext) : IAlunoRepository
     {
         return await dbContext.Set<Matricula>()
             .AsNoTracking()
-            .Where(m => m.AlunoId == alunoId && m.Status == EStatusMatricula.AguardandoPagamento)
+            .Include(m => m.Status)
+            .Where(m => m.AlunoId == alunoId && m.Status.Codigo == (int)EStatusMatricula.AguardandoPagamento)
             .ToListAsync();
     }
 

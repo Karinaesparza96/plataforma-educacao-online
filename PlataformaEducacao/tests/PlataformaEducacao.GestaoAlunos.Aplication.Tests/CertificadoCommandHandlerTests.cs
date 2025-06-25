@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Moq;
 using Moq.AutoMock;
+using PlataformaEducacao.Core.DomainObjects.Enums;
 using PlataformaEducacao.Core.Messages.Notifications;
 using PlataformaEducacao.GestaoAlunos.Aplication.Commands;
 using PlataformaEducacao.GestaoAlunos.Aplication.Handlers;
@@ -39,8 +40,20 @@ public class CertificadoCommandHandlerTests
     {
         // Arrange
         var command = new AdicionarCertificadoCommand(_alunoId, _matriculaId, _cursoId, "Curso C#");
-        var matricula = new Matricula(_alunoId, _cursoId);
-        matricula.Concluir();
+        var statusAtiva = new StatusMatricula
+        {
+            Codigo = (int)EStatusMatricula.Ativa
+        };
+        var statusIniciada = new StatusMatricula
+        {
+            Codigo = (int)EStatusMatricula.Iniciada,
+        };
+        var matricula = new Matricula(_alunoId, _cursoId, statusIniciada);
+        var statusConcluida = new StatusMatricula
+        {
+            Codigo = (int)EStatusMatricula.Concluida
+        };
+        matricula.Concluir(statusConcluida);
 
         _alunoRepositoryMock.Setup(r => r.ObterPorId(command.AlunoId)).ReturnsAsync(_aluno);
         _alunoRepositoryMock.Setup(r => r.ObterMatriculaPorCursoEAlunoId(command.CursoId, command.AlunoId)).ReturnsAsync(matricula);
@@ -128,7 +141,21 @@ public class CertificadoCommandHandlerTests
     public async Task AdicionarCertificado_MatriculaSemDataConclusao_NaoDeveExecutarComSucesso()
     {
         // Arrange
-        var matricula = new Matricula(_alunoId, _cursoId);
+        var statusAtiva = new StatusMatricula
+        {
+            Codigo = (int)EStatusMatricula.Ativa
+        };
+        var statusIniciada = new StatusMatricula
+        {
+            Codigo = (int)EStatusMatricula.Iniciada,
+        };
+        var matricula = new Matricula(_alunoId, _cursoId, statusIniciada);
+        var statusConcluida = new StatusMatricula
+        {
+            Codigo = (int)EStatusMatricula.Concluida
+        };
+        matricula.Concluir(statusConcluida);
+
         var command = new AdicionarCertificadoCommand(_alunoId, _matriculaId, _cursoId, "Curso C#");
         _alunoRepositoryMock.Setup(r => r.ObterPorId(command.AlunoId)).ReturnsAsync(_aluno);
         _alunoRepositoryMock.Setup(r => r.ObterMatriculaPorCursoEAlunoId(command.CursoId, command.AlunoId)).ReturnsAsync(matricula);
@@ -151,8 +178,16 @@ public class CertificadoCommandHandlerTests
     {
         // Arrange
         var command = new AdicionarCertificadoCommand(_alunoId, _matriculaId, _cursoId, "Curso C#");
-        var matricula = new Matricula(_alunoId, _cursoId);
-        matricula.Concluir();
+        var statusConcluida = new StatusMatricula
+        {
+            Codigo = (int)EStatusMatricula.Concluida
+        };
+        var statusIniciada = new StatusMatricula
+        {
+            Codigo = (int)EStatusMatricula.Iniciada,
+        };
+        var matricula = new Matricula(_alunoId, _cursoId, statusIniciada);
+        matricula.Concluir(statusConcluida);
 
         _alunoRepositoryMock.Setup(r => r.ObterPorId(command.AlunoId)).ReturnsAsync(_aluno);
         _alunoRepositoryMock.Setup(r => r.ObterMatriculaPorCursoEAlunoId(command.CursoId, command.AlunoId)).ReturnsAsync(matricula);

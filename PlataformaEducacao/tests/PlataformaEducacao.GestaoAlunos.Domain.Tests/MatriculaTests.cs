@@ -9,7 +9,7 @@ public class MatriculaTests
     public void Validar_NovaMatricula_DeveLancarException()
     {
         // Arrange && Act && Assert
-        Assert.Throws<DomainException>(() => new Matricula(Guid.Empty, Guid.Empty));
+        Assert.Throws<DomainException>(() => new Matricula(Guid.Empty, Guid.Empty, null));
 
     }
 }

@@ -12,23 +12,37 @@ public class AlunoTests
         // Arrange
         var aluno = new Aluno(Guid.NewGuid(), "teste");
         var cursoId = Guid.NewGuid();
-        var matricula = new Matricula(aluno.Id, cursoId);
+        var statusAguardando = new StatusMatricula
+        {
+            Codigo = (int)EStatusMatricula.AguardandoPagamento,
+        };
+        var statusIniciada = new StatusMatricula
+        {
+            Codigo = (int)EStatusMatricula.Iniciada,
+        };
+        var matricula = new Matricula(aluno.Id, cursoId, statusIniciada);
 
+        matricula.AguardandoPagamento(statusAguardando);
         // Act
         aluno.AdicionarMatricula(matricula);
 
         // Assert
         Assert.Equal(1, aluno.Matriculas.Count);
-        Assert.Equal(EStatusMatricula.AguardandoPagamento, matricula.Status);
+        Assert.Equal((int)EStatusMatricula.AguardandoPagamento, matricula.Status.Codigo);
     }
     [Fact(DisplayName = "Aluno - Adicionar Matricula Existente")]
     [Trait("Categoria", "GestaoAlunos - AdicionarMatricula")]
     public void AdicionarMatricula_ExistenteMatricula_DeveLancarException()
     {
         // Arrange
-        var aluno = new Aluno(Guid.NewGuid(), "teste"); ;
+        var aluno = new Aluno(Guid.NewGuid(), "teste");
         var cursoId = Guid.NewGuid();
-        var matricula = new Matricula(aluno.Id, cursoId);
+        var statusIniciada = new StatusMatricula
+        {
+            Codigo = (int)EStatusMatricula.Iniciada,
+        };
+
+        var matricula = new Matricula(aluno.Id, cursoId, statusIniciada);
 
         // Act
         aluno.AdicionarMatricula(matricula);

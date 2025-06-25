@@ -17,7 +17,8 @@ public class AlunoQueries(IAlunoRepository alunoRepository) : IAlunoQueries
             Id = matricula.Id,
             AlunoId = matricula.AlunoId,
             CursoId = matricula.CursoId,
-            Status = matricula.Status,
+            Status = matricula.Status.Codigo,
+            StatusDescricao = matricula.Status.Descricao,
             DataMatricula = matricula.DataMatricula
         };
     }
@@ -31,7 +32,8 @@ public class AlunoQueries(IAlunoRepository alunoRepository) : IAlunoQueries
             Id = m.Id,
             AlunoId = m.AlunoId,
             CursoId = m.CursoId,
-            Status = m.Status,
+            Status = m.Status.Codigo,
+            StatusDescricao = m.Status.Descricao,
             DataMatricula = m.DataMatricula
         }).ToList();
     }

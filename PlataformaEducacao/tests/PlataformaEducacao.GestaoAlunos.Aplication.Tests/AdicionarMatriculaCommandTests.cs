@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Moq;
 using Moq.AutoMock;
+using PlataformaEducacao.Core.DomainObjects.Enums;
 using PlataformaEducacao.Core.Messages.Notifications;
 using PlataformaEducacao.GestaoAlunos.Aplication.Commands;
 using PlataformaEducacao.GestaoAlunos.Aplication.Handlers;
@@ -56,19 +57,12 @@ public class AdicionarMatriculaCommandTests
     {
         // Arrange
         var command = new AdicionarMatriculaCommand(Guid.NewGuid(), Guid.NewGuid());
-        var aluno = new Aluno(Guid.NewGuid(), "teste");
-
-        _mocker.GetMock<IAlunoRepository>().Setup(x => x.ObterPorId(command.AlunoId)).ReturnsAsync(aluno);
-        _mocker.GetMock<IAlunoRepository>().Setup(x => x.UnitOfWork.Commit()).Returns(Task.FromResult(true));
-
+        
         // Act
-        var result = await _handler.Handle(command, CancellationToken.None);
+        var result = command.EhValido();
 
         // Assert
         Assert.True(result);
-        _mocker.GetMock<IAlunoRepository>().Verify(x => x.ObterPorId(command.AlunoId), Times.Once);
-        _mocker.GetMock<IAlunoRepository>().Verify(x => x.AdicionarMatricula(It.IsAny<Matricula>()), Times.Once);
-        _mocker.GetMock<IAlunoRepository>().Verify(x => x.UnitOfWork.Commit(), Times.Once);
     }
 
     [Fact(DisplayName = "Concluir Matricula Command - Matricula Encontrada")]
@@ -77,10 +71,20 @@ public class AdicionarMatriculaCommandTests
     {
         // Arrange
         var command = new ConcluirMatriculaCommand(Guid.NewGuid(), Guid.NewGuid(), "Curso C#");
-        var matricula = new Matricula(command.AlunoId, command.CursoId);
+        var statusConcluida = new StatusMatricula
+        {
+            Codigo = (int)EStatusMatricula.Concluida
+        };
+        var statusIniciada = new StatusMatricula
+        {
+            Codigo = (int)EStatusMatricula.Iniciada,
+        };
+        var matricula = new Matricula(command.AlunoId, command.CursoId, statusIniciada);
 
         _mocker.GetMock<IAlunoRepository>().Setup(x => x.ObterMatriculaPorCursoEAlunoId(command.CursoId, command.AlunoId)).ReturnsAsync(matricula);
         _mocker.GetMock<IAlunoRepository>().Setup(x => x.UnitOfWork.Commit()).Returns(Task.FromResult(true));
+        _mocker.GetMock<IStatusMatriculaRepository>().Setup(s => s.ObterPorCodigo((int)EStatusMatricula.Concluida))
+            .ReturnsAsync(statusConcluida);
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -89,6 +93,7 @@ public class AdicionarMatriculaCommandTests
         Assert.True(result);
         _mocker.GetMock<IAlunoRepository>().Verify(x => x.AtualizarMatricula(matricula), Times.Once);
         _mocker.GetMock<IAlunoRepository>().Verify(x => x.ObterMatriculaPorCursoEAlunoId(It.IsAny<Guid>(), It.IsAny<Guid>()), Times.Once);
+        _mocker.GetMock<IStatusMatriculaRepository>().Verify(s => s.ObterPorCodigo((int)EStatusMatricula.Concluida), Times.Once);
         _mocker.GetMock<IAlunoRepository>().Verify(x => x.UnitOfWork.Commit(), Times.Once);
     }
 

@@ -17,28 +17,6 @@ namespace PlataformaEducacao.GestaoAlunos.Data.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
 
-            modelBuilder.Entity("PlataformaEducacao.Core.DomainObjects.Usuario", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("DataAlteracao")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("DataCriacao")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("DataExclusao")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Usuarios", (string)null);
-
-                    b.UseTptMappingStrategy();
-                });
-
             modelBuilder.Entity("PlataformaEducacao.GestaoAlunos.Domain.Certificado", b =>
                 {
                     b.Property<Guid>("Id")
@@ -118,19 +96,70 @@ namespace PlataformaEducacao.GestaoAlunos.Data.Migrations
                     b.Property<DateTime?>("DataMatricula")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("INTEGER");
+                    b.Property<Guid>("StatusId")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AlunoId");
 
+                    b.HasIndex("StatusId");
+
                     b.ToTable("Matriculas", (string)null);
+                });
+
+            modelBuilder.Entity("PlataformaEducacao.GestaoAlunos.Domain.StatusMatricula", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Codigo")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("DataAlteracao")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DataCriacao")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DataExclusao")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("StatusMatriculas", (string)null);
+                });
+
+            modelBuilder.Entity("PlataformaEducacao.GestaoAlunos.Domain.Usuario", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DataAlteracao")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DataCriacao")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DataExclusao")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Usuarios", (string)null);
+
+                    b.UseTptMappingStrategy();
                 });
 
             modelBuilder.Entity("PlataformaEducacao.GestaoAlunos.Domain.Aluno", b =>
                 {
-                    b.HasBaseType("PlataformaEducacao.Core.DomainObjects.Usuario");
+                    b.HasBaseType("PlataformaEducacao.GestaoAlunos.Domain.Usuario");
 
                     b.Property<string>("Nome")
                         .IsRequired()
@@ -163,12 +192,19 @@ namespace PlataformaEducacao.GestaoAlunos.Data.Migrations
                         .HasForeignKey("AlunoId")
                         .IsRequired();
 
+                    b.HasOne("PlataformaEducacao.GestaoAlunos.Domain.StatusMatricula", "Status")
+                        .WithMany()
+                        .HasForeignKey("StatusId")
+                        .IsRequired();
+
                     b.Navigation("Aluno");
+
+                    b.Navigation("Status");
                 });
 
             modelBuilder.Entity("PlataformaEducacao.GestaoAlunos.Domain.Aluno", b =>
                 {
-                    b.HasOne("PlataformaEducacao.Core.DomainObjects.Usuario", null)
+                    b.HasOne("PlataformaEducacao.GestaoAlunos.Domain.Usuario", null)
                         .WithOne()
                         .HasForeignKey("PlataformaEducacao.GestaoAlunos.Domain.Aluno", "Id")
                         .OnDelete(DeleteBehavior.Cascade)

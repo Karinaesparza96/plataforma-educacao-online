@@ -12,7 +12,9 @@ public class MatriculaMapping : IEntityTypeConfiguration<Matricula>
         builder.HasKey(m => m.Id);
         builder.Property(m => m.CursoId)
             .IsRequired();
-        builder.Property(m => m.Status)
-            .IsRequired();
+
+        builder.HasOne(m => m.Status)
+            .WithMany()
+            .HasForeignKey(m => m.StatusId);
     }
 }

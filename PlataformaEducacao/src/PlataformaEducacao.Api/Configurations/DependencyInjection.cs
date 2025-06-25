@@ -29,6 +29,7 @@ public static class DependencyInjection
 
         // Gestão de Alunos
         builder.Services.AddScoped<IAlunoRepository, AlunoRepository>();
+        builder.Services.AddScoped<IStatusMatriculaRepository, StatusMatriculaRepository>();
         builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
         builder.Services.AddScoped<IAlunoQueries, AlunoQueries>();
         builder.Services.AddScoped<ICertificadoPdfService, CertificadoService>();
