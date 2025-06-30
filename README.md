@@ -68,7 +68,7 @@ cd plataforma-educacao-online
 cd PlataformaEducacao/src/PlataformaEducacao.Api
 dotnet run
 ```
-- Acesse: [http://localhost:5001/swagger](http://localhost:5001/swagger)
+- Acesse: [http://localhost:5224/swagger](http://localhost:5224/swagger)
 
 3. **O banco será criado automaticamente** na primeira execução via *Seed de dados*. Não é necessário aplicar migrações manualmente.
    
