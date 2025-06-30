@@ -6,5 +6,4 @@ public class AulaViewModel
     public string Nome { get; set; } = string.Empty;
     public string Conteudo { get; set; } = string.Empty;
     public IEnumerable<MaterialViewModel> Materiais { get; set; } = new List<MaterialViewModel>();
-    public string Status { get; set; } = string.Empty;
 }
