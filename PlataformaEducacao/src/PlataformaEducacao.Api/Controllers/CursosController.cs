@@ -51,7 +51,7 @@ namespace PlataformaEducacao.Api.Controllers
 
         [Authorize(Roles = "ADMIN")]
         [HttpPost]
-        public async Task<IActionResult> Adicionar([FromBody] CursoDto curso)
+        public async Task<IActionResult> Adicionar([FromBody] CursoNovoDto curso)
         {   
             var command = new AdicionarCursoCommand(curso.Nome, curso.Conteudo, UsuarioId, curso.Preco);
             await _mediator.Send(command);

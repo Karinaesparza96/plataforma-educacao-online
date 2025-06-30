@@ -18,7 +18,7 @@ public class CursoAulaTests
     public async Task Adicionar_NovoCurso_DeveExecutarComSucesso()
     {
         // Arrange
-        var data = new CursoDto
+        var data = new CursoNovoDto
         {
             Nome = "Curso .NET Core",
             Conteudo = "Curso de .NET Core",
