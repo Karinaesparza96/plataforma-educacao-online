@@ -20,12 +20,12 @@ public class CursoRepository(GestaoConteudosContext dbContext) : ICursoRepositor
 
     public async Task<Curso?> ObterPorId(Guid id)
     {
-        return await _dbSet.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+        return await _dbSet.Include(c => c.Aulas).AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
     }
 
     public async Task<IEnumerable<Curso>> ObterTodos()
     {
-        return await _dbSet.AsNoTracking().ToListAsync();
+        return await _dbSet.Include(c => c.Aulas).AsNoTracking().ToListAsync();
     }
 
     public async Task<Aula?> ObterAulaPorId(Guid aulaId)

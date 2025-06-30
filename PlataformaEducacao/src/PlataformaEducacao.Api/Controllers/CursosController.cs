@@ -40,6 +40,12 @@ namespace PlataformaEducacao.Api.Controllers
         public async Task<ActionResult<CursoViewModel>> ObterPorId(Guid id)
         {
             var curso = await cursoQueries.ObterPorId(id);
+            if (curso is null)
+            {
+                NotificarErro("Curso", "Curso não encontrado.");
+                return RespostaPadrao();
+            }
+
             return RespostaPadrao(HttpStatusCode.OK, curso);
         }
 
