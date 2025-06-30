@@ -30,42 +30,6 @@ namespace PlataformaEducacao.GestaoConteudos.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProgressoAulas",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    AlunoId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    AulaId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Status = table.Column<short>(type: "INTEGER", nullable: false),
-                    DataCriacao = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    DataAlteracao = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    DataExclusao = table.Column<DateTime>(type: "TEXT", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProgressoAulas", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ProgressoCursos",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CursoId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    AlunoId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TotalAulas = table.Column<int>(type: "INTEGER", nullable: false),
-                    AulasConcluidas = table.Column<int>(type: "INTEGER", nullable: false),
-                    PercentualConcluido = table.Column<decimal>(type: "decimal(5,2)", nullable: false),
-                    DataCriacao = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    DataAlteracao = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    DataExclusao = table.Column<DateTime>(type: "TEXT", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProgressoCursos", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Aulas",
                 columns: table => new
                 {
@@ -88,6 +52,30 @@ namespace PlataformaEducacao.GestaoConteudos.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ProgressoCursos",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    CursoId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    AlunoId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    TotalAulas = table.Column<int>(type: "INTEGER", nullable: false),
+                    AulasConcluidas = table.Column<int>(type: "INTEGER", nullable: false),
+                    PercentualConcluido = table.Column<decimal>(type: "decimal(5,2)", nullable: false),
+                    DataCriacao = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    DataAlteracao = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    DataExclusao = table.Column<DateTime>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProgressoCursos", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProgressoCursos_Cursos_CursoId",
+                        column: x => x.CursoId,
+                        principalTable: "Cursos",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Materiais",
                 columns: table => new
                 {
@@ -104,6 +92,28 @@ namespace PlataformaEducacao.GestaoConteudos.Data.Migrations
                     table.PrimaryKey("PK_Materiais", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Materiais_Aulas_AulaId",
+                        column: x => x.AulaId,
+                        principalTable: "Aulas",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProgressoAulas",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    AlunoId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    AulaId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Status = table.Column<short>(type: "INTEGER", nullable: false),
+                    DataCriacao = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    DataAlteracao = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    DataExclusao = table.Column<DateTime>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProgressoAulas", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProgressoAulas_Aulas_AulaId",
                         column: x => x.AulaId,
                         principalTable: "Aulas",
                         principalColumn: "Id");

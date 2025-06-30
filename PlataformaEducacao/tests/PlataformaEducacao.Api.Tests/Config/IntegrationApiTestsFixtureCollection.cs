@@ -271,6 +271,22 @@ public class IntegrationTestsFixture : IDisposable
         });
     }
 
+    public async Task ObterCursoHistoricoAprendizado()
+    {
+        var sql = @"
+                    select c.Id from Cursos c 
+                    join ProgressoCursos pc on pc.CursoId = c.Id
+                   ";
+        await ExecutarConsulta(sql, param: null, (retorno) =>
+        {
+            if (retorno != null)
+            {
+                CursoId = Guid.Parse(retorno.Id);
+            }
+            return retorno;
+        });
+    }
+
     public async Task ObterIdCertificado()
     { 
          var sql = @"select c.Id from Certificados c";

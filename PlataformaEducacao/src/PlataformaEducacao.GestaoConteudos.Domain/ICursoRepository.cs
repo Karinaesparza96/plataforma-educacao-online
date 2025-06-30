@@ -9,6 +9,7 @@ public interface ICursoRepository : IRepository<Curso>
     Task<IEnumerable<Curso>> ObterTodos();
     Task<Aula?> ObterAulaPorId(Guid aulaId);
     Task<ProgressoCurso?> ObterProgressoCurso(Guid cursoId, Guid alunoId);
+    Task<IEnumerable<ProgressoAula>> ObterProgressoAulas(Guid cursoId, Guid alunoId);
 
     void Adicionar(Curso curso);
     void Adicionar(Aula aula);

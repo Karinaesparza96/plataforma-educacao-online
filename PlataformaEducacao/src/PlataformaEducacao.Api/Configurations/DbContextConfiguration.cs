@@ -34,18 +34,22 @@ public static class DbContextConfiguration
             builder.Services.AddDbContext<GestaoConteudosContext>(opt =>
             {
                 opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+                opt.EnableSensitiveDataLogging();
             });
             builder.Services.AddDbContext<GestaoAlunosContext>(opt =>
             {
                 opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
-            }, ServiceLifetime.Transient);
+                opt.EnableSensitiveDataLogging();
+            });
             builder.Services.AddDbContext<ApplicationContext>(opt =>
             {
                 opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+                opt.EnableSensitiveDataLogging();
             });
             builder.Services.AddDbContext<PagamentoContext>(opt =>
             {
                 opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+                opt.EnableSensitiveDataLogging();
             });
         }
        

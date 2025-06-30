@@ -1,4 +1,5 @@
-﻿using PlataformaEducacao.GestaoConteudos.Aplication.Queries.ViewModels;
+﻿using PlataformaEducacao.Core.Extensions;
+using PlataformaEducacao.GestaoConteudos.Aplication.Queries.ViewModels;
 using PlataformaEducacao.GestaoConteudos.Domain;
 
 namespace PlataformaEducacao.GestaoConteudos.Aplication.Queries;
@@ -44,5 +45,30 @@ public class CursoQueries(ICursoRepository cursoRepository) : ICursoQueries
                 Conteudo = a.Conteudo
             }).ToList() ?? []
         }).ToList();
+    }
+
+    public async Task<HistoricoAprendizagemCursoViewModel?> ObterHistoricoAprendizagem(Guid cursoId, Guid usuarioId)
+    {
+        var progressoCurso = await cursoRepository.ObterProgressoCurso(cursoId, usuarioId);
+
+        if (progressoCurso is null)
+            return null;
+
+        var progressosAulas = await cursoRepository.ObterProgressoAulas(cursoId, usuarioId);
+
+        return new HistoricoAprendizagemCursoViewModel
+        {
+            CursoId = progressoCurso.CursoId,
+            NomeCurso = progressoCurso.Curso.Nome,
+            PercentualConcluido = progressoCurso.PercentualConcluido,
+            AulasConcluidas = progressoCurso.AulasConcluidas,
+            TotalAulas = progressoCurso.TotalAulas,
+            Aulas = progressosAulas.Select(a => new HistoricoAprendizagemAulaViewModel
+            {
+                AulaId = a.AulaId,
+                NomeAula = a.Aula.Nome,
+                Status = a.Status.GetDescription()
+            }).ToList()
+        };
     }
 }

@@ -5,12 +5,14 @@ using PlataformaEducacao.Api.Controllers.Base;
 using PlataformaEducacao.Core.DomainObjects;
 using PlataformaEducacao.Core.Messages.Notifications;
 using PlataformaEducacao.GestaoAlunos.Aplication.Queries;
+using PlataformaEducacao.GestaoConteudos.Aplication.Queries;
 
 namespace PlataformaEducacao.Api.Controllers;
 
 [Route("api/alunos")]
 public class AlunosController(INotificationHandler<DomainNotification> notificacoes,
                             IAlunoQueries alunoQueries,
+                            ICursoQueries cursoQueries,
                             IAppIdentityUser identityUser,
                              IMediator mediator) : MainController(notificacoes, mediator, identityUser)
 {
@@ -26,5 +28,19 @@ public class AlunosController(INotificationHandler<DomainNotification> notificac
         }
 
         return File(certificado.Arquivo, "application/pdf", "certificado.pdf");
+    }
+
+    [Authorize(Roles = "ALUNO")]
+    [HttpGet("historico-aprendizagem/{cursoId:guid}")]
+    public async Task<IActionResult> ObterHistoricoAprendizagem(Guid cursoId)
+    {
+        var historico = await cursoQueries.ObterHistoricoAprendizagem(cursoId, UsuarioId);
+
+        if (historico == null)
+        {   
+            NotificarErro("HistoricoAprendizagem", "Não foi encontrado nenhum histórico para o curso informado.");
+            return RespostaPadrao();
+        }
+        return RespostaPadrao(data: historico);
     }
 }

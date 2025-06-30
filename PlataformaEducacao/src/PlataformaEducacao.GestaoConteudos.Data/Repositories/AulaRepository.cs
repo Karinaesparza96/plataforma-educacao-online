@@ -19,7 +19,7 @@ public class AulaRepository(GestaoConteudosContext dbContext) : IAulaRepository
     }
     public async Task<ProgressoAula?> ObterProgressoAula(Guid aulaId, Guid alunoId)
     {
-        return await dbContext.Set<ProgressoAula>().AsNoTracking()
+        return await dbContext.Set<ProgressoAula>()
             .FirstOrDefaultAsync(p => p.AulaId == aulaId && p.AlunoId == alunoId);
     }
 
