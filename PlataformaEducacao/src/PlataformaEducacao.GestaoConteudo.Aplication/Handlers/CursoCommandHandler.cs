@@ -68,12 +68,18 @@ public class CursoCommandHandler(ICursoRepository cursoRepository,
         if (!ValidarComando(request))
             return false;
 
-        var progressoCurso = await cursoRepository.ObterProgressoCurso(request.AlunoId, request.CursoId);
-        var totalAulas = cursoRepository.ObterCursoComAulas(request.CursoId).Result!.Aulas.Count;
+        var curso = await cursoRepository.ObterCursoComAulas(request.CursoId);
+        if (curso is null)
+        {
+            await AdicionarNotificacao(request.MessageType, "Curso não encontrado.", cancellationToken);
+            return false;
+        }
+
+        var progressoCurso = await cursoRepository.ObterProgressoCurso(request.CursoId, request.AlunoId);
 
         if (progressoCurso is null)
         {
-            progressoCurso = new ProgressoCurso(request.AlunoId, request.CursoId, totalAulas);
+            progressoCurso = new ProgressoCurso(request.CursoId, request.AlunoId, curso.Aulas.Count);
             progressoCurso.IncrementarProgresso();
             cursoRepository.Adicionar(progressoCurso);
         }

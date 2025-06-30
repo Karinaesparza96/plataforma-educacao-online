@@ -12,8 +12,9 @@ public class CursoRepository(GestaoConteudosContext dbContext) : ICursoRepositor
     
     public async Task<Curso?> ObterCursoComAulas(Guid cursoId)
     {
-        return await _dbSet.AsNoTracking()
+        return await _dbSet
             .Include(c => c.Aulas)
+            .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Id == cursoId);
     }
 
@@ -29,14 +30,25 @@ public class CursoRepository(GestaoConteudosContext dbContext) : ICursoRepositor
 
     public async Task<Aula?> ObterAulaPorId(Guid aulaId)
     {
-        return await dbContext.Set<Aula>().AsNoTracking()
+        return await dbContext.Set<Aula>()
             .FirstOrDefaultAsync(a => a.Id == aulaId);
     }
 
     public async Task<ProgressoCurso?> ObterProgressoCurso(Guid cursoId, Guid alunoId)
     {
-       return await dbContext.Set<ProgressoCurso>().AsNoTracking()
+       return await dbContext.Set<ProgressoCurso>()
+            .Include(pc => pc.Curso)
+            .AsNoTracking()
             .FirstOrDefaultAsync(pc => pc.CursoId == cursoId && pc.AlunoId == alunoId);
+    }
+
+    public async Task<IEnumerable<ProgressoAula>> ObterProgressoAulas(Guid cursoId, Guid alunoId)
+    {
+        return await dbContext.Set<ProgressoAula>()
+            .Include(pa => pa.Aula)
+            .AsNoTracking()
+            .Where(pa => pa.Aula.CursoId == cursoId && pa.AlunoId == alunoId)
+            .ToListAsync();
     }
 
     public void Adicionar(Aula aula)

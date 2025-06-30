@@ -11,7 +11,7 @@ using PlataformaEducacao.GestaoConteudos.Data.Context;
 namespace PlataformaEducacao.GestaoConteudos.Data.Migrations
 {
     [DbContext(typeof(GestaoConteudosContext))]
-    [Migration("20250620232952_initial")]
+    [Migration("20250630211610_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -208,6 +208,26 @@ namespace PlataformaEducacao.GestaoConteudos.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Aula");
+                });
+
+            modelBuilder.Entity("PlataformaEducacao.GestaoConteudos.Domain.ProgressoAula", b =>
+                {
+                    b.HasOne("PlataformaEducacao.GestaoConteudos.Domain.Aula", "Aula")
+                        .WithMany()
+                        .HasForeignKey("AulaId")
+                        .IsRequired();
+
+                    b.Navigation("Aula");
+                });
+
+            modelBuilder.Entity("PlataformaEducacao.GestaoConteudos.Domain.ProgressoCurso", b =>
+                {
+                    b.HasOne("PlataformaEducacao.GestaoConteudos.Domain.Curso", "Curso")
+                        .WithMany()
+                        .HasForeignKey("CursoId")
+                        .IsRequired();
+
+                    b.Navigation("Curso");
                 });
 
             modelBuilder.Entity("PlataformaEducacao.GestaoConteudos.Domain.Aula", b =>

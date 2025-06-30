@@ -11,6 +11,9 @@ public class ProgressoCurso : Entity
     public decimal PercentualConcluido { get; private set; }
     public bool CursoConcluido => PercentualConcluido == 100m;
 
+    // EF relationship
+    public Curso Curso { get; set; }
+
     protected ProgressoCurso() { }
 
     public ProgressoCurso(Guid cursoId, Guid alunoId, int totalAulas)

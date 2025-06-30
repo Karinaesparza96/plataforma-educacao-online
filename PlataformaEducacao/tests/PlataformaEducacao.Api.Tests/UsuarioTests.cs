@@ -144,4 +144,37 @@ public class UsuarioTests
         File.WriteAllBytes(filePath, file);
         Assert.True(File.Exists(filePath));
     }
+
+    [Fact(DisplayName = "Obter Historico Aprendizagem Aluno - Com Historico")]
+    [Trait("Categoria", "Integração Api - Aluno")]
+    public async Task ObterHistoricoAprendizagem_AlunoPossuiHistorico_DeveDevolverComSucesso()
+    {
+        // Arrange
+        await _fixture.RealizarLoginApi("aluno@teste.com", "Teste@123");
+        _fixture.Client.AtribuirToken(_fixture.Token);
+
+        await _fixture.ObterCursoHistoricoAprendizado();
+        // Act
+        var response = await _fixture.Client.GetAsync($"/api/alunos/historico-aprendizagem/{_fixture.CursoId}");
+
+        // Assert
+        response.EnsureSuccessStatusCode();
+        Assert.True(response.IsSuccessStatusCode);
+    }
+
+    [Fact(DisplayName = "Obter Historico Aprendizagem Aluno - Sem Historico")]
+    [Trait("Categoria", "Integração Api - Aluno")]
+    public async Task ObterHistoricoAprendizagem_AlunoSemHistorico_DeveDevolverComErro()
+    {
+        // Arrange
+        await _fixture.RealizarLoginApi("aluno@teste.com", "Teste@123");
+        _fixture.Client.AtribuirToken(_fixture.Token);
+        _fixture.CursoId = Guid.NewGuid();
+
+        // Act
+        var response = await _fixture.Client.GetAsync($"/api/alunos/historico-aprendizagem/{_fixture.CursoId}");
+
+        // Assert
+        Assert.False(response.IsSuccessStatusCode);
+    }
 }

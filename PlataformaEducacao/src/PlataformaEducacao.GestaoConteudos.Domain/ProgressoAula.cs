@@ -9,6 +9,9 @@ public class ProgressoAula : Entity
     public Guid AulaId { get; private set; }
     public EProgressoAulaStatus Status { get; private set; }
 
+    // EF relationship
+    public Aula Aula { get; set; }
+
     protected ProgressoAula() { }
 
     public ProgressoAula(Guid alunoId, Guid aulaId)

@@ -11,7 +11,7 @@ using PlataformaEducacao.GestaoAlunos.Data.Context;
 namespace PlataformaEducacao.GestaoAlunos.Data.Migrations
 {
     [DbContext(typeof(GestaoAlunosContext))]
-    [Migration("20250624234340_initial")]
+    [Migration("20250630211515_initial")]
     partial class initial
     {
         /// <inheritdoc />
