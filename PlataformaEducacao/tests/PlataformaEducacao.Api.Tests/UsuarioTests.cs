@@ -6,15 +6,8 @@ namespace PlataformaEducacao.Api.Tests;
 
 [TestCaseOrderer("PlataformaEducacao.Api.Tests.Config.PriorityOrderer", "PlataformaEducacao.Api.Tests")]
 [Collection(nameof(IntegrationApiTestsFixtureCollection))]
-public class UsuarioTests
+public class UsuarioTests(IntegrationTestsFixture fixture)
 {
-    private readonly IntegrationTestsFixture _fixture;
-
-    public UsuarioTests(IntegrationTestsFixture fixture)
-    {
-        _fixture = fixture;
-    }
-
     [Fact(DisplayName = "Realizar Login Com Sucesso"), TestPriority(2)]
     [Trait("Categoria", "Integração Api - Aluno")]
     public async Task Aluno_RealizarLogin_DeveExecutarComSucesso()
@@ -22,16 +15,16 @@ public class UsuarioTests
         // Arrange
         var data = new LoginUserDto()
         {
-            Email = _fixture.EmailUsuario,
-            Senha = _fixture.SenhaUsuario,
+            Email = fixture.EmailUsuario,
+            Senha = fixture.SenhaUsuario,
         };
         // Act
-        var response = await _fixture.Client.PostAsJsonAsync("/api/conta/login", data);
+        var response = await fixture.Client.PostAsJsonAsync("/api/conta/login", data);
         response.EnsureSuccessStatusCode();
 
-        _fixture.SalvarUserToken(await response.Content.ReadAsStringAsync());
+        fixture.SalvarUserToken(await response.Content.ReadAsStringAsync());
         // Assert
-        Assert.True(!string.IsNullOrEmpty(_fixture.Token));
+        Assert.True(!string.IsNullOrEmpty(fixture.Token));
     }
 
     [Fact(DisplayName = "Realizar Login Com Sucesso")]
@@ -41,17 +34,17 @@ public class UsuarioTests
         // Arrange
         var data = new LoginUserDto()
         {
-            Email = _fixture.EmailUsuario,
-            Senha = _fixture.SenhaUsuario,
+            Email = fixture.EmailUsuario,
+            Senha = fixture.SenhaUsuario,
         };
 
         // Act
-       var response = await _fixture.Client.PostAsJsonAsync("/api/conta/login", data);
+       var response = await fixture.Client.PostAsJsonAsync("/api/conta/login", data);
         response.EnsureSuccessStatusCode();
 
-        _fixture.SalvarUserToken(await response.Content.ReadAsStringAsync());
+        fixture.SalvarUserToken(await response.Content.ReadAsStringAsync());
         // Assert
-        Assert.True(!string.IsNullOrEmpty(_fixture.Token));
+        Assert.True(!string.IsNullOrEmpty(fixture.Token));
     }
 
     [Fact(DisplayName = "Realizar Login Com Erro")]
@@ -66,10 +59,10 @@ public class UsuarioTests
         };
 
         // Act
-        var response = await _fixture.Client.PostAsJsonAsync("/api/conta/login", data);
+        var response = await fixture.Client.PostAsJsonAsync("/api/conta/login", data);
 
         // Assert
-        var erros = _fixture.ObterErros(await response.Content.ReadAsStringAsync());
+        var erros = fixture.ObterErros(await response.Content.ReadAsStringAsync());
         Assert.Contains("Usuário ou Senha incorretos", erros.ToString());
     }
 
@@ -78,22 +71,22 @@ public class UsuarioTests
     public async Task Aluno_RealizarCadastro_DeveExecutarComSucesso()
     {
         // Arrange
-        _fixture.GerarDadosUsuario();
+        fixture.GerarDadosUsuario();
         var register = new RegisterUserDto
         {
-            Email = _fixture.EmailUsuario,
-            Nome = _fixture.EmailUsuario,
-            Senha = _fixture.SenhaUsuario,
-            ConfirmacaoSenha = _fixture.SenhaConfirmacao
+            Email = fixture.EmailUsuario,
+            Nome = fixture.EmailUsuario,
+            Senha = fixture.SenhaUsuario,
+            ConfirmacaoSenha = fixture.SenhaConfirmacao
         };
 
         // Act
-        var response = await _fixture.Client.PostAsJsonAsync("/api/conta/registrar/aluno", register);
+        var response = await fixture.Client.PostAsJsonAsync("/api/conta/registrar/aluno", register);
         response.EnsureSuccessStatusCode();
 
-        _fixture.SalvarUserToken(await response.Content.ReadAsStringAsync());
+        fixture.SalvarUserToken(await response.Content.ReadAsStringAsync());
         // Assert
-        Assert.True(!string.IsNullOrEmpty(_fixture.Token));
+        Assert.True(!string.IsNullOrEmpty(fixture.Token));
     }
 
     [Fact(DisplayName = "Realizar Cadastro Com Sucesso")]
@@ -101,22 +94,22 @@ public class UsuarioTests
     public async Task Admin_RealizarCadastro_DeveExecutarComSucesso()
     {
         // Arrange
-        _fixture.GerarDadosUsuario();
+        fixture.GerarDadosUsuario();
         var register = new RegisterUserDto
         {
-            Email = _fixture.EmailUsuario,
-            Nome = _fixture.EmailUsuario,
-            Senha = _fixture.SenhaUsuario,
-            ConfirmacaoSenha = _fixture.SenhaConfirmacao
+            Email = fixture.EmailUsuario,
+            Nome = fixture.EmailUsuario,
+            Senha = fixture.SenhaUsuario,
+            ConfirmacaoSenha = fixture.SenhaConfirmacao
         };
 
         // Act
-        var response = await _fixture.Client.PostAsJsonAsync("/api/conta/registrar/admin", register);
+        var response = await fixture.Client.PostAsJsonAsync("/api/conta/registrar/admin", register);
         response.EnsureSuccessStatusCode();
 
-        _fixture.SalvarUserToken(await response.Content.ReadAsStringAsync());
+        fixture.SalvarUserToken(await response.Content.ReadAsStringAsync());
         // Assert
-        Assert.True(!string.IsNullOrEmpty(_fixture.Token));
+        Assert.True(!string.IsNullOrEmpty(fixture.Token));
     }
 
     [Fact(DisplayName = "Gerar Certificado Com Sucesso")]
@@ -124,17 +117,17 @@ public class UsuarioTests
     public async Task BaixarCertificado_AlunoConcluiuCurso_DeveExecutarComSucesso()
     {
         // Arrange
-        await _fixture.RealizarLoginApi("aluno@teste.com", "Teste@123");
-        _fixture.Client.AtribuirToken(_fixture.Token);
+        await fixture.RealizarLoginApi("aluno@teste.com", "Teste@123");
+        fixture.Client.AtribuirToken(fixture.Token);
 
-        await _fixture.ObterIdCertificado();
+        await fixture.ObterIdCertificado();
         // Act
-        var response = await _fixture.Client.GetAsync($"/api/alunos/certificados/{_fixture.CertificadoId}/download");
+        var response = await fixture.Client.GetAsync($"/api/alunos/certificados/{fixture.CertificadoId}/download");
         response.EnsureSuccessStatusCode();
 
         // Assert
         var file = await response.Content.ReadAsByteArrayAsync();
-        var filePath = Path.Combine("C:\\Temp", "certificado_teste_integracao.pdf");
+        var filePath = Path.Combine(Path.GetTempPath(), "certificado_teste_integracao.pdf");
 
         if (File.Exists(filePath))
         {
@@ -150,12 +143,12 @@ public class UsuarioTests
     public async Task ObterHistoricoAprendizagem_AlunoPossuiHistorico_DeveDevolverComSucesso()
     {
         // Arrange
-        await _fixture.RealizarLoginApi("aluno@teste.com", "Teste@123");
-        _fixture.Client.AtribuirToken(_fixture.Token);
+        await fixture.RealizarLoginApi("aluno@teste.com", "Teste@123");
+        fixture.Client.AtribuirToken(fixture.Token);
 
-        await _fixture.ObterCursoHistoricoAprendizado();
+        await fixture.ObterCursoHistoricoAprendizado();
         // Act
-        var response = await _fixture.Client.GetAsync($"/api/alunos/historico-aprendizagem/{_fixture.CursoId}");
+        var response = await fixture.Client.GetAsync($"/api/alunos/historico-aprendizagem/{fixture.CursoId}");
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -167,12 +160,12 @@ public class UsuarioTests
     public async Task ObterHistoricoAprendizagem_AlunoSemHistorico_DeveDevolverComErro()
     {
         // Arrange
-        await _fixture.RealizarLoginApi("aluno@teste.com", "Teste@123");
-        _fixture.Client.AtribuirToken(_fixture.Token);
-        _fixture.CursoId = Guid.NewGuid();
+        await fixture.RealizarLoginApi("aluno@teste.com", "Teste@123");
+        fixture.Client.AtribuirToken(fixture.Token);
+        fixture.CursoId = Guid.NewGuid();
 
         // Act
-        var response = await _fixture.Client.GetAsync($"/api/alunos/historico-aprendizagem/{_fixture.CursoId}");
+        var response = await fixture.Client.GetAsync($"/api/alunos/historico-aprendizagem/{fixture.CursoId}");
 
         // Assert
         Assert.False(response.IsSuccessStatusCode);

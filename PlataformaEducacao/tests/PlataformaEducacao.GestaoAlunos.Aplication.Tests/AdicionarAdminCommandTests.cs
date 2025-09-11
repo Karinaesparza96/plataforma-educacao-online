@@ -34,6 +34,6 @@ public class AdicionarAdminCommandTests
         Assert.False(ehValido);
         Assert.Contains(AdicionarAlunoCommandValidation.IdErro,
             command.ValidationResult.Errors.Select(e => e.ErrorMessage));
-        Assert.Equal(1, command.ValidationResult.Errors.Count);
+        Assert.Equal(1, command.ValidationResult?.Errors.Count);
     }
 }

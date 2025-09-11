@@ -40,10 +40,6 @@ public class CertificadoCommandHandlerTests
     {
         // Arrange
         var command = new AdicionarCertificadoCommand(_alunoId, _matriculaId, _cursoId, "Curso C#");
-        var statusAtiva = new StatusMatricula
-        {
-            Codigo = (int)EStatusMatricula.Ativa
-        };
         var statusIniciada = new StatusMatricula
         {
             Codigo = (int)EStatusMatricula.Iniciada,
@@ -192,7 +188,7 @@ public class CertificadoCommandHandlerTests
         _alunoRepositoryMock.Setup(r => r.ObterPorId(command.AlunoId)).ReturnsAsync(_aluno);
         _alunoRepositoryMock.Setup(r => r.ObterMatriculaPorCursoEAlunoId(command.CursoId, command.AlunoId)).ReturnsAsync(matricula);
         _alunoRepositoryMock.Setup(r => r.UnitOfWork.Commit()).ReturnsAsync(true);
-        _certificadoPdfServiceMock.Setup(r => r.GerarPdf(It.IsAny<Certificado>())).Returns(new byte[0]);
+        _certificadoPdfServiceMock.Setup(r => r.GerarPdf(It.IsAny<Certificado>())).Returns([]);
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -220,7 +216,7 @@ public class CertificadoCommandHandlerTests
         Assert.NotEmpty(result);
         Assert.True(result.Length > 100, "O PDF gerado é muito pequeno e pode estar inválido.");
 
-        var filePath = Path.Combine("C:\\Temp", "certificado_teste.pdf");
+        var filePath = Path.Combine(Path.GetTempPath(), "certificado_teste.pdf");
         File.WriteAllBytes(filePath, result);
 
         Assert.True(File.Exists(filePath));

@@ -53,7 +53,7 @@ public class AdicionarMatriculaCommandTests
 
     [Fact(DisplayName = "Criar Matricula Command Valido")]
     [Trait("Categoria", "GestaoAlunos - MatriculaCommandHandler")]
-    public async Task AdicionarMatricula_CommandValido_DeveSalvarComSucesso()
+    public Task AdicionarMatricula_CommandValido_DeveSalvarComSucesso()
     {
         // Arrange
         var command = new AdicionarMatriculaCommand(Guid.NewGuid(), Guid.NewGuid());
@@ -63,6 +63,7 @@ public class AdicionarMatriculaCommandTests
 
         // Assert
         Assert.True(result);
+        return Task.CompletedTask;
     }
 
     [Fact(DisplayName = "Concluir Matricula Command - Matricula Encontrada")]
@@ -104,7 +105,7 @@ public class AdicionarMatriculaCommandTests
         // Arrange
         var command = new ConcluirMatriculaCommand(Guid.NewGuid(), Guid.NewGuid(), "Curso C#");
         _mocker.GetMock<IAlunoRepository>().Setup(x => x.ObterMatriculaPorCursoEAlunoId(command.CursoId, command.AlunoId))
-            .ReturnsAsync((Matricula)null);
+            .ReturnsAsync((Matricula)null!);
 
         // Act
         var result = await _handler.Handle(command, CancellationToken.None);
